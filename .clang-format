@@ -1,0 +1,27 @@
+BasedOnStyle: Google
+
+AccessModifierOffset: -2
+SpacesBeforeTrailingComments: 1
+MaxEmptyLinesToKeep: 2
+AlwaysBreakTemplateDeclarations: false
+Cpp11BracedListStyle: false
+
+AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^<(ext)/.*\.h>'
+    Priority:        2
+  - Regex:           '^<.*\.h>'
+    Priority:        1
+  - Regex:           '^(<|")boost/'
+    Priority:        3
+  - Regex:           '^<.*'
+    Priority:        2
+  - Regex:           '^"antlr4'
+    Priority:        5
+  - Regex:           '^"netspeak'
+    Priority:        6
+  - Regex:           '.*'
+    Priority:        4

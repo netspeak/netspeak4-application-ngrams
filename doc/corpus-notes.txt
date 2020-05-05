@@ -1,0 +1,226 @@
+[0 Überblick]
+
+  Die Google N-Gramm-Kollektion ist eine Sammlung von 1/2/3/4/5-Grammen die aus
+  den von Google indexierten englischsprachigen Web-Seiten 2006 erzeugt wurde.
+  Für jedes N-Gramm wurde zudem dessen Auftrittshäufigkeit protokolliert.
+  
+  Die originale Readme-Datei zur Kollektion mit Hinweisen zu ersten
+  Filtermaßnahmen findet sich in: ${project}/doc/corpus-readme.txt
+  
+  Die N-Gramm-Kollektion dient als Datenbasis des Netspeak-Services. Netspeak
+  bietet eine Anfragesprache, um die Kollektion nach N-Grammen zu durchsuchen.
+  
+  Vor der Indexierung der N-Gramme für Netspeak wurde die Kollektion in
+  folgenden Schritten aufbereitet:
+  
+    1. Umformung von der case-sensitiven Form in die nicht-case-sensitive Form.
+       Die Häufigkeiten von entstandenen N-Gramm-Duplikaten wurden summiert.
+       Beispiel: "Hello World 23" und "hello world 42" ergeben "hello world 65".
+    
+    2. Filterung der 1-Gramme (Vokabular) von rund 11 Millionen auf rund 500k.
+    
+    3. Filterung der 2/3/4/5-Gramme unter Verwendung des gefilterten Vokabulars
+       als White-Liste. D.h. Diejenigen N-Gramme wurden verworfen, die 
+       mindestens ein Wort enthielten, das nicht Teil des Vokabulars war.
+  
+  Die Schritte 2 und 3 werden im Folgenden noch weiter erläutert. In Punkt 4
+  wird die Kollektion auf zwei Konsistenzkriterien hin untersucht. Der letzte
+  Punkt befasst sich mit der Bereinigung der Kollektion hinsichtlich ihrer
+  Häufigkeiten und der Frage ob diese neu gesetzt werden müssen bzw. können.
+  
+  Umfang der Kollektion im Original:
+  
+     type           count        size
+  -----------------------------------
+  1-grams      13 588 391    177.0 MB
+  2-grams     314 843 401      5.0 GB
+  3-grams     977 069 902     19.0 GB
+  4-grams   1 313 818 354     30.5 GB
+  5-grams   1 176 470 663     32.1 GB
+  -----------------------------------
+            3 795 790 711     86.8 GB
+    
+  Weitere Online-Quellen:
+  
+  - LDC-Katalog: \cf{http://www.ldc.upenn.edu/Catalog/CatalogEntry.jsp?catalogId=LDC2006T13}
+  - Google-Blog: \cf{http://googleresearch.blogspot.com/2006/08/all-our-n-gram-are-belong-to-you.html}
+
+
+[1 Umformung in die nicht-case-sensitive Form]
+  
+  Umfang der nicht-case-sensitiven Form:
+
+     type           count        size
+  -----------------------------------
+  1-grams      11 052 329    146.5 MB
+  2-grams     236 517 605      3.8 GB
+  3-grams     813 319 727     16.0 GB
+  4-grams   1 185 962 942     27.7 GB
+  5-grams   1 107 400 597     30.3 GB
+  -----------------------------------
+            3 354 253 200     77.9 GB
+
+
+[2 Filterung der 1-Gramme (Vokabular)]
+
+  Die Filterung fand in zwei Schritten statt:
+  
+  1. Regelbasierte Filterung - ein valides Wort ...
+    
+     - ... ist das einzelne Komma.
+     - ... beginnt mit einem Apostroph gefolgt von mindestens einem
+           alphabetischen Zeichen.
+     - ... kann mit einem Punkt enden.
+     - ... besteht ansonsten nur aus alphanumerischen Zeichen.
+     
+     Regulärer Ausdruck: ^(,)|('(:alpha:)+)|((:alnum:)+\.?)$
+     
+     Valide Token:   ",", "'s", "'ll", "'ve", "i", "saw", "mr.", "t1000"
+     Invalide Token: ",xy", "xy,", "x'y", "xy'", "'", ".xy", "x.y", "x-y",
+                     "1.0", "1-0", "&#123;", "12:34:56", ";-)"
+                     
+     Hinweis: Das Komma und die durch Apostroph verkürzten Worte erscheinen
+              bereits in der Original-Kollektion als einzelne Token.
+              
+     Bemerkung: Diese Filterung verkleinert das Vokabular nur von rund 11
+                Millionen Worte auf 7,3 Millionen Worte. Ein Großteil davon
+                besteht aus unbrauchbaren Zeichenfolgen. Daher fand eine
+                zweite Filterung per Cutoff-Frequency statt.
+   
+  2. Filterung per Cutoff-Frequency:
+     
+     Bei dieser Filterung wurden alle Worte aus dem Vokabular entfernt, die
+     eine Auftrittshäufigkeit kleiner gleich 11000 besaßen. Der Wert wurde
+     manuell ermittelt, um das Vokabluar auf 500k Worter zu verkleinern.
+
+
+[3 Filterung der 2/3/4/5-Gramme]
+  
+  Das neue Vokabular diente als White-List zur Filterung der 2/3/4/5-Gramme.
+  Es wurden alle N-Gramme verworfen, die mindestens ein Wort enthielten, das
+  nicht Teil des Vokabulars war.
+   
+  Umfang der gefilterten Form:
+
+     type           count        size
+  -----------------------------------
+  1-grams         509 040      7.0 MB
+  2-grams     136 213 276      2.3 GB
+  3-grams     475 375 374      9.8 GB
+  4-grams     650 878 066     16.0 GB
+  5-grams     554 880 850     16.0 GB
+  -----------------------------------
+            1 817 856 606     44.1 GB
+
+
+[4 Konsistenzkriterien]
+
+  Im Anschluss an die Filterung wurde die Kollektion auf Konsistenz untersucht.
+  Es wurden zwei Konsistenzkriterien definiert:
+  
+  1. Zu jedem N-Gramm existieren die entsprechenden (N-1)-Gramme.
+  
+  2. Die Häufigkeit eines N-Gramms ist gleich der Summe der Häufigkeiten aller
+     (N+1)-Gramme, die mit diesem N-Gramm _beginnen_ plus einem Epsilon.
+     
+     Bemerkung: Es dürfen nur diejenigen (N+1)-Gramme addiert werden, die das
+                N-Gramm nach rechts expandieren. Eine zusätzliche Addition
+                von (N+1)-Grammen, die das N-Gramm nach links erweitern führt
+                zu einer Doppelzählung.
+     
+     Richtiges Beispiel (Addition rechtsexpandierender (N+1)-Gramme):
+     
+     Die beiden 3-Gramme "w1 w2 w3 23" und "w1 w2 w4 42" werden auf das 2-Gramm
+     "w1 w2 65" mit Addition ihrer Häufigkeiten reduziert. Anschließend wird
+     das generierte 2-Gramm mit seinem originalen Äquivalent verglichen.
+     Hierbei muss gelten: "w1 w2 count" + "w1 w2 epsilon" = "w1 w2 65"
+     
+     Falsches Beispiel (Addition rechts- und linksexpandierender (N+1)-Gramme):
+     
+     Die beiden 3-Gramme "w1 w2 w3 23" und "w0 w1 w2 32" werden auf das 2-Gramm
+     "w1 w2 55" mit Addition ihrer Häufigkeiten reduziert. Anschließend wird
+     das generierte 2-Gramm mit seinem originalen Äquivalent verglichen.
+     Hierbei muss gelten: "w1 w2 count" + "w1 w2 epsilon" = "w1 w2 55"
+     
+     Die Gleichung 'count + epsilon = 55' ist nicht erfüllt, wenn 'count'
+     bereits größer als 55 ist. Dies kann jedoch eintreten, wenn die beiden
+     3-Gramme "w1 w2 w3 23" und "w0 w1 w2 32" ursprünglich dem gleichen
+     4-Gramm "w0 w1 w2 w3 x" angehörten. In diesem Fall wurde das 2-Gramm
+     "w1 w2 x" doppelt gezählt.
+  
+  Ergebnis: Beide Kriterien wurden von der gefilterten Kollektion erfüllt.
+  
+
+[5 Bereinigung der Kollektion]
+
+   Bei der Bereinigung der Kollektion sollten die Häufigkeiten aller N-Gramme
+   neu gesetzt werden, so dass das 2. Konsistenzkriterium strenger formuliert
+   werden kann:
+   
+   Die Summe der Häfigkeiten aller (N+1)-Gramme, die mit demselben N-Gramm
+   beginnen ist gleich der Häufigkeit dieses N-Gramms. Es gibt kein Epsilon.
+   
+   Die dadurch ermittelte neue Häufigkeit eines N-Gramms ist kleiner (gleich)
+   der Häufigkeit seines originalen Äquivalents. Allerdings ist die neue
+   Häfigkeit in vielen Fällen zu gering, denn nicht für jedes N-Gramm
+   existieren rechtsexpandierende (N+1)-Gramme.
+   
+   Beispiel: "i am interested for computer science"
+   
+   In der Original-Kollektion hätte das 2-Gramm "computer science" mindestens
+   eine Häufigkeit von 1. Bei der Addition rechtexpandierender 3-Gramme hätte
+   "computer science" eine Häufigkeit von 0, weil keine entsprechenden
+   rechtsexpandierenden 3-Gramme existieren.
+   
+   Wenn man dagegen auch die linksexpandierenden 3-Gramme bei der Summation
+   mit einbezieht, gerät man in das Problem der Doppelzählung, wie oben
+   beschrieben.
+   
+   Daher wurden die Häufigkeiten der N-Gramme _nicht_ neu gesetzt.
+   
+   
+// noch nicht überarbeitet
+
+[Binäre Google-N-Gramm-Kollektion]
+
+  - Umwandlung der gefilterten textbasierten Kollektion in eine binäre Repräsentation.
+  - Aus dem Vokabular wird eine MPHF erzeugt.
+  - Jedes N-Gramm wird in ein N-Tupel von Hashwerten konvertiert plus dessen Häufigkeit und binär gespeichert.
+  - Vorteile:
+    - Konstante N-Gramm Größe (N * 4 Byte Hash + 4 Byte Count)
+    - N-Gramme können nummeriert werden (eindeutige ID)
+    - N-Gramme können anhand ihrer ID adressiert werden
+    - Geringerer Speicherverbrauch für Kollektion und Index
+    
+  Umfang:
+  
+     type           count        size
+  -----------------------------------
+  1-grams         509 040      7.1 MB
+  2-grams     136 213 276      2.0 GB
+  3-grams     475 375 374      8.9 GB
+  4-grams     650 878 066     14.5 GB
+  5-grams     554 880 850     14.5 GB
+  -----------------------------------
+            1 817 856 606     39.9 GB
+            
+
+[Google-N-Gramm Index]
+
+- Indizierung der gefilterten Google-N-Gramm-Kollektion
+- Speicherverbrauch während der Indizierung: < 2.9 GB
+- Speicherverbrauch zur Laufzeit: 153.6 MB
+- Dauer der Indizierung: 14h17m
+
+- Umfang:
+
+     type           count        size
+  -----------------------------------
+  1-grams         509 040      7.1 MB
+  2-grams     136 213 276      2.6 GB
+  3-grams     475 375 374     13.3 GB
+  4-grams     650 878 066     24.3 GB
+  5-grams     554 880 850     25.9 GB
+  -----------------------------------
+            1 817 856 606     66.1 GB
+                       
