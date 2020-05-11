@@ -4,7 +4,7 @@ set -e
 
 if (( $EUID != 0 )); then
     echo "Please run as root"
-    exit
+    exit 1
 fi
 
 # go to the dir of this script
