@@ -7,29 +7,66 @@ It contains methods to create indexes and make queries on Netspeak indexes. The 
 
 ## Getting started
 
-To get this to compile you'll need to also checkout a few other projects and dependencies.
-To do this, the [Netspeak4 deployment](https://github.com/netspeak/netspeak4-deployment) project is recommended as it also provides a few scripts to install the dependencies and build all C++ projects.
+### Installing dependencies
 
-To checkout all project follow the checkout instruction of the Netspeak4 deployment project. Using the `netspeak4-deployment/project/install-cpp-dependencies.sh` script, the dependencies of all project will be installed automatically. <br>
+Before you can compile and run anything, you have to install the dependencies. To do this, simply run:
+
+```bash
+sudo bash build/install-dependencies.sh
+```
+
+This will install, a C++ compiler, build tools, Protobuf tools, and other general dependencies.
+
 One of the dependencies of this project is [Antlr4](https://github.com/antlr/antlr4).
 The Antlr4 compiler and runtime will both be downloaded under `./antlr4/`.
 The runtime will then be built and installed. This process can take a few minutes.
 
-### Writing code
+#### For Windows users
 
-After this is done, you can use your IDE of choice to write C++ code. We use `qmake` to generate the `Makefile` from the `.pri` and `.pro` files. Simply run the `qmake` command for this.
-If this fails, see the build script in [Netspeak4 deployment](https://github.com/netspeak/netspeak4-deployment).
+Netspeak 4 is a Linux project. To compile and run it on your system, install WSL with any Linux distribution and run all commands there.
 
-We use `clang-format` to format our code. If your IDE doesn't support this, you can use the `./build/format-all.sh` script to reformat of source files.
+#### For Webis members
 
-### Build
+Among the dependencies are some Webis-only projects.
+These will be checked out via git in readonly mode.
+If you want to make changes to these projects and see how the affect Netspeak, replace the project folders in `./build/dependencies/` with symbolic links to wherever your pushable version is.
 
-To build this project, first generate the `Makefile` using `qmake`. Then run the `make` command and that's it.
+### Building
+
+To build this project, first generate the `Makefile` using `qmake`, and then run the `make` command:
+
+```bash
+qmake
+make
+```
+
+(After running `qmake` once, you typically don't have to run it again.)
+
+The Netspeak 4 executable will be `./build/release/netspeak4`. `libnetspeak4.so` is located in the same directory.
 
 ### Running tests
 
-First (re)build this project and then run the `./build/run-tests.sh` script.
-It's recommended to do it like this because otherwise the test application might have problems locating its test resources.
+First (re)build this project and then run the `./build/run-tests.sh` script:
+
+```bash
+bash ./build/run-tests.sh
+```
+
+(It's recommended to do it like this because otherwise the test application might have problems locating its test resources.)
+
+### Writing code
+
+To write code, open the project in your IDE of choice (e.g. VSCode with the C++ plugin) and start writing! <br>
+(Some IDE's might not support `qmake`, so be sure to run the command at least once yourself.)
+
+We use `qmake` to generate the `Makefile` from the `.pri` and `.pro` files. Simply run the `qmake` command for this. Some IDEs might not support `qmake`, so be sure to run `qmake` yourself at least once.
+
+If you add new files, be sure to register them in the appropriate `.pri` file (see `./build/targets/`).
+
+If you changed any header files, your build might be outdated even after running `make`. If that's the case, run `make clean` before `make`.
+
+We use `clang-format` to format our code. If your IDE doesn't support this, you can use the `./build/format-all.sh` script to reformat all source files.
+
 
 ## Using the Netspeak4 CLI
 
@@ -51,7 +88,8 @@ Depending on the number of phrase, the build process may take several hours. The
 
 __NOTE:__ When building large indexes using `./netspeak4 build -i <input> -o <output>`, be sure that the limit on the maximum number of opened files by one process is high enough.
 __If it's too low, the build process will fail.__
-For small indexes a limit for 1024 is sufficient but for larger data sets (>10GB input), be sure it's at least 2048. You can set the limit using the `ulimit` command.
+For small indexes a limit for 1024 is sufficient but for larger data sets (>10GB input), be sure it's at least 2048. You can set the limit using the `ulimit` command. <br>
+WSL users: This limit will be reset with every restart of your Linux subsystem.
 
 #### `shell`
 
@@ -78,7 +116,7 @@ _Note:_ In case you OS doesn't support the specific protobuf version required, y
 The Antlr4 grammar of the Netspeak4 query language can be found under `conf/grammar/`. Changes to these files require you to regenerate the Antlr4 files by running `build/generate-antlr4-files.sh` (this requires Java >= 1.6 to be installed).
 
 
-# Netspeak query language
+## Netspeak query language
 
 The Netspeak query syntax as described here should be used as reference. There
 might be other syntax information out there, e.g. at netspeak.org, which
