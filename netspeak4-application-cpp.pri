@@ -8,8 +8,8 @@ DEFINES += __GXX_EXPERIMENTAL_CXX0X__
 
 INCLUDEPATH += \
     $$PWD/src \
-    $$PWD/../../aitools/aitools3-aq-bighashmap-cpp/src \
-    $$PWD/../../aitools/aitools3-aq-invertedindex3-cpp/src \
+    $$PWD/build/dependencies/aitools3-aq-bighashmap-cpp/src \
+    $$PWD/build/dependencies/aitools3-aq-invertedindex3-cpp/src \
     $$/usr/include/antlr4-runtime
 
 
