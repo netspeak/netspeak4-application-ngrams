@@ -78,6 +78,65 @@ _Note:_ In case you OS doesn't support the specific protobuf version required, y
 The Antlr4 grammar of the Netspeak4 query language can be found under `conf/grammar/`. Changes to these files require you to regenerate the Antlr4 files by running `build/generate-antlr4-files.sh` (this requires Java >= 1.6 to be installed).
 
 
+# Netspeak query language
+
+The Netspeak query syntax as described here should be used as reference. There
+might be other syntax information out there, e.g. at netspeak.org, which
+provides some syntactical simplifications in form of easier to use wildcards or
+operators. However, these modified syntaxes are just front-ends and do not work
+with the original Netspeak interface. Here is the truth:
+
+```
+?   is a placeholder for exactly one word and can be sequenced to search for
+    exaclty two, three, four ... words.
+
+    Example:    how to ? this
+                -> how to use this
+                -> how to do this
+                -> how to cite this
+
+*   is a placeholder for zero or many words.
+
+    Example:    see * works
+                -> see how it works
+                -> see if it works
+                -> see what works
+
+[]  compares options, i.e. it checks each word or phrase between these
+    brackets plus the so called empty word at that position in the query.
+
+    Example:    it's [ great well "so good" ]
+                -> it's
+                -> it's great
+                -> it's well
+                -> it's so good
+
+{}  checks the order, i.e. it tries to find each permutation of the given
+    sequence of words or phrases at that position in the query.
+
+    Example:    for { "very important people" only }
+                -> for very important people only
+                -> for only very important people
+
+#   searches for alternatives of the word following. This operator requests
+    the optional Netspeak hash-dictionary component and uses [] to compare
+    each retrieved alternative (except that the empty word is not checked).
+    The mapping from word to alternatives is completely up to the user when
+    building Netspeak, for netspeak.org we use this operator for a synonym
+    search providing the Wordnet dictionary.
+
+    Example:    waiting for #response
+                -> waiting for response
+                -> waiting for answer
+                -> waiting for reply
+```
+
+You can combine the introduced wildcards and operators as you want, but with the
+exception that you may not place any wildcard within bracket operators. Also
+nested brackets are not allowed. As you can see in the examples above you can
+quote phrases to be handled as one entity is `[]` and `{}`.
+
+
 ---
 
 ## Contributors
