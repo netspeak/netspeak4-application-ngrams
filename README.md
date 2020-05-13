@@ -1,5 +1,7 @@
 # Netspeak 4 application C++
 
+[![Actions Status](https://github.com/netspeak/netspeak4-application-cpp/workflows/Build/badge.svg)](https://github.com/netspeak/netspeak4-application-cpp/actions)
+
 This is the core library of Netspeak 4.
 
 It contains methods to create indexes and make queries on Netspeak indexes. The Netspeak 4 Protobuf messages and the Antlr4 grammar of the Netspeak 4 query language are also part of this project. Whatever resource is shared between Netspeak's projects is probably in here.
