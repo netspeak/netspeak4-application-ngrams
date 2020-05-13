@@ -1,5 +1,5 @@
 
-name: C++ make build and test
+name: Build
 
 on:
   push:
