@@ -130,7 +130,7 @@ message QueryResult {
   repeated string    unknown_word = 6;
 }
 
-// Internal use only
+// For internal usage only.
 message RawResponse {
 
   optional Request     request       = 1;
