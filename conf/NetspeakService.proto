@@ -27,6 +27,7 @@ message SearchRequest {
   /// left off.
   uint32 max_phrases = 3;
 
+  /// Constraints all of the returned queries have to fulfill.
   PhraseConstraints phrase_constraints = 4;
 }
 
@@ -65,16 +66,24 @@ message Phrase {
       WORD_FOR_REGEX_IN_OPTIONSET = 9;
     }
 
-    // FIX: Tag isn't properly defined because a word might be matched by
-    // multiple query tokens (e.g. `? world | the wo+`)
-
+    /// The type of query token that matched this word.
+    ///
+    /// If there are multiple paths in the query such that this word can be
+    /// matched by more than one token, then the tag will be set to any of the
+    /// tokens' types.
     Tag tag = 1;
+    /// The text of the word.
+    ///
+    /// Currently, this text is guaranteed to not contain any spaces (ASCII line
+    /// breaks, tab, and normal space).
     string text = 2;
   }
 
   /// The unique id of this phrase.
   uint64 id = 1;
+  /// The frequency of this phrase in the corpus.
   uint64 frequency = 2;
+  /// The words of this phrase.
   repeated Word words = 3;
 }
 
@@ -82,6 +91,7 @@ message SearchResponse {
 
   message Result {
     repeated Phrase phrases = 1;
+    /// All words of the query that are not in the corpus.
     repeated string unknown_word = 2;
   }
 
