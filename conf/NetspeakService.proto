@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package netspeak.service;
+option java_package = "org.netspeak.service";
 option optimize_for = SPEED;
 
 service NetspeakService {
