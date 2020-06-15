@@ -17,11 +17,9 @@ Before you can compile and run anything, you have to install the dependencies. T
 sudo bash build/install-dependencies.sh
 ```
 
-This will install, a C++ compiler, build tools, Protobuf tools, and other general dependencies.
+This will install, a C++ compiler, build tools, gRPC, Protobuf tools, and other general dependencies.
 
-One of the dependencies of this project is [Antlr4](https://github.com/antlr/antlr4).
-The Antlr4 compiler and runtime will both be downloaded under `./antlr4/`.
-The runtime will then be built and installed. This process can take a few minutes.
+Some of the dependencies will by compiled from source and might be compiled/installed in parallel causing noticeable stuttering or even freezes for a few seconds. The heaviest dependencies will be installed globally, so they only have to be installed once.
 
 #### For Windows users
 
