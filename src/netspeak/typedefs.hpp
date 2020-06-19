@@ -25,6 +25,12 @@ typedef aitools::value::pair<PhraseIndexPhraseFreq, PhraseId> PhraseIndexValue;
 typedef aitools::value::pair<uint32_t, PhraseIndexPhraseFreq>
     PostlistIndexValue;
 
+/**
+ * @brief Each unit of a Netspeak query is given a unique id to identify it
+ * throughout the evaluation of the query. This is the type of that unique id.
+ */
+typedef uint32_t QueryUnitId;
+
 } // namespace netspeak
 
 #endif // NETSPEAK_TYPEDEFS_HPP

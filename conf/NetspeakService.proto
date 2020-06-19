@@ -63,8 +63,6 @@ message Phrase {
       WORD_IN_OPTIONSET = 5;
       WORD_FOR_PLUS = 6;
       WORD_FOR_REGEX = 7;
-      WORD_FOR_REGEX_IN_ORDERSET = 8;
-      WORD_FOR_REGEX_IN_OPTIONSET = 9;
     }
 
     /// The type of query token that matched this word.

@@ -55,12 +55,6 @@ std::istream& parse_from(generated::Phrase& phrase, std::istream& is) {
   return is;
 }
 
-std::ostream& print_as_json_to(const generated::Phrase& phrase,
-                               std::ostream& os);
-
-std::ostream& print_as_json_to(const generated::Phrase::Word& word,
-                               std::ostream& os);
-
 std::ostream& print_as_text_to(const generated::Phrase& phrase,
                                std::ostream& os);
 
@@ -70,12 +64,6 @@ std::ostream& print_as_text_to(const generated::Phrase::Word& word,
 std::ostream& print_as_text_freq_id_to(const generated::Phrase& phrase,
                                        std::ostream& os);
 
-std::ostream& println_as_text_to(const generated::Phrase& phrase,
-                                 std::ostream& os);
-
-std::ostream& println_as_text_to(const generated::Phrase::Word& word,
-                                 std::ostream& os);
-
 std::ostream& println_as_text_freq_id_to(const generated::Phrase& phrase,
                                          std::ostream& os);
 
@@ -84,10 +72,6 @@ uint64_t make_unique_id(size_t phrase_length, uint32_t phrase_id);
 const std::string to_text(const generated::Phrase& phrase);
 
 const std::string to_string(const generated::Phrase& phrase);
-
-const char* to_c_str(const generated::Phrase& phrase);
-
-const std::string to_json_string(const generated::Phrase& phrase);
 
 // -----------------------------------------------------------------------------
 // Operator support

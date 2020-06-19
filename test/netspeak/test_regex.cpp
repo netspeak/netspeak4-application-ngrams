@@ -18,26 +18,26 @@ std::string query_to_string(const RegexQuery& query) {
 
   for (const auto& unit : query.get_units()) {
     switch (unit.type) {
-      case RegexUnit::Type::qmark:
+      case RegexUnit::Type::QMARK:
         res.append("{qmark}");
         break;
-      case RegexUnit::Type::star:
+      case RegexUnit::Type::STAR:
         res.append("{star}");
         break;
 
-      case RegexUnit::Type::char_set:
+      case RegexUnit::Type::CHAR_SET:
         res.append("{char_set:'");
         res.append(conv.to_bytes(unit.value));
         res.append("'}");
         break;
 
-      case RegexUnit::Type::optional_word:
+      case RegexUnit::Type::OPTIONAL_WORD:
         res.append("{optional_word:'");
         res.append(conv.to_bytes(unit.value));
         res.append("'}");
         break;
 
-      case RegexUnit::Type::word:
+      case RegexUnit::Type::WORD:
         res.append("{word:'");
         res.append(conv.to_bytes(unit.value));
         res.append("'}");

@@ -161,26 +161,6 @@ std::ostream& print_as_text_to(const generated::Query::Unit& unit,
   return os;
 }
 
-std::ostream& println_as_text_to(const generated::Query::Unit& unit,
-                                 std::ostream& os) {
-  return print_as_text_to(unit, os) << '\n';
-}
-
-std::ostream& print_as_json_to(const generated::Query::Unit& unit,
-                               std::ostream& os) {
-  return os << "{ \"tag\" : \"" << unit.tag() << "\", \"text\" : \""
-            << unit.text() << "\""
-            << ", \"position\" : " << unit.position()
-            << ", \"frequency\" : " << unit.frequency()
-            << ", \"quantile\" : " << unit.quantile()
-            << ", \"pruning\" : " << unit.pruning() << " }";
-}
-
-std::ostream& println_as_json_to(const generated::Query::Unit& unit,
-                                 std::ostream& os) {
-  return print_as_json_to(unit, os) << '\n';
-}
-
 std::ostream& print_as_text_to(const generated::Query& query,
                                std::ostream& os) {
   for (auto it = query.unit().begin(); it != query.unit().end(); ++it) {
@@ -190,30 +170,6 @@ std::ostream& print_as_text_to(const generated::Query& query,
     print_as_text_to(*it, os);
   }
   return os;
-}
-
-std::ostream& println_as_text_to(const generated::Query& query,
-                                 std::ostream& os) {
-  return print_as_text_to(query, os) << '\n';
-}
-
-// TODO escaping
-std::ostream& print_as_json_to(const generated::Query& query,
-                               std::ostream& os) {
-  os << "{ \"units\" : [ ";
-  for (auto it = query.unit().begin(); it != query.unit().end(); ++it) {
-    if (it != query.unit().begin()) {
-      os << ", ";
-    }
-    print_as_json_to(*it, os);
-  }
-  return os << " ] }";
-}
-
-// TODO escaping
-std::ostream& println_as_json_to(const generated::Query& query,
-                                 std::ostream& os) {
-  return print_as_json_to(query, os) << '\n';
 }
 
 std::string to_string(const generated::Query& query) {

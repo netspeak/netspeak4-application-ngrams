@@ -102,7 +102,7 @@ public:
    * @param vocabulary The by \c \n separated words to search in.
    */
   DefaultRegexIndex(const std::string& vocabulary);
-
+  DefaultRegexIndex(const DefaultRegexIndex&) = delete;
   ~DefaultRegexIndex() {}
 
   /**

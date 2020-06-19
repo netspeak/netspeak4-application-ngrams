@@ -53,10 +53,6 @@ bool is_normalized(const generated::Query& query);
 generated::Query::Unit make_unit(generated::Query::Unit::Tag tag,
                                  const std::string& text = "");
 
-size_t min_expanded_length(const generated::Query& query);
-
-size_t max_expanded_length(const generated::Query& query);
-
 bool ends_with(const generated::Query& query, generated::Query::Unit::Tag tag);
 
 bool starts_with(const generated::Query& query,
@@ -69,24 +65,7 @@ bool starts_with(const generated::Query& query,
 std::ostream& print_as_text_to(const generated::Query::Unit& unit,
                                std::ostream& os);
 
-std::ostream& println_as_text_to(const generated::Query::Unit& unit,
-                                 std::ostream& os);
-
-std::ostream& print_as_json_to(const generated::Query::Unit& unit,
-                               std::ostream& os);
-
-std::ostream& println_as_json_to(const generated::Query::Unit& unit,
-                                 std::ostream& os);
-
 std::ostream& print_as_text_to(const generated::Query& query, std::ostream& os);
-
-std::ostream& println_as_text_to(const generated::Query& query,
-                                 std::ostream& os);
-
-std::ostream& print_as_json_to(const generated::Query& query, std::ostream& os);
-
-std::ostream& println_as_json_to(const generated::Query& query,
-                                 std::ostream& os);
 
 std::string to_string(const generated::Query& query);
 

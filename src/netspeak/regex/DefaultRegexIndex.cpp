@@ -191,7 +191,7 @@ std::string create_regex_pattern(const RegexQuery& query) {
   const auto units = query.get_units();
   for (const auto unit : units) {
     switch (unit.type) {
-      case RegexUnit::Type::qmark:
+      case RegexUnit::Type::QMARK:
         // https://stackoverflow.com/a/13163802/7595472
         pattern.append(
             U"(?:[\\x00-\\x7F]|(?:[\\xC2-\\xDF]|\\xE0[\\xA0-\\xBF]|\\xED["
@@ -202,11 +202,11 @@ std::string create_regex_pattern(const RegexQuery& query) {
             U"\\xBF])");
         break;
 
-      case RegexUnit::Type::star:
+      case RegexUnit::Type::STAR:
         pattern.append(U".*");
         break;
 
-      case RegexUnit::Type::char_set: {
+      case RegexUnit::Type::CHAR_SET: {
         pattern.append(U"(?:");
         bool first = true;
         for (const auto c : unit.value) {
@@ -221,7 +221,7 @@ std::string create_regex_pattern(const RegexQuery& query) {
         break;
       }
 
-      case RegexUnit::Type::optional_word:
+      case RegexUnit::Type::OPTIONAL_WORD:
         pattern.append(U"(?:");
         for (const auto c : unit.value) {
           regex_pattern_append_char(pattern, c);
@@ -345,7 +345,7 @@ RegexQuery DefaultRegexIndex::optimize_query(const RegexQuery& query) const {
     const std::u32string& value = unit.value;
 
     switch (unit.type) {
-      case RegexUnit::Type::word:
+      case RegexUnit::Type::WORD:
         if (contains_unknown_characters(value, all_chars)) {
           // add the empty set causing the query to reject all words
           builder.add(RegexUnit::char_set(U""));
@@ -355,7 +355,7 @@ RegexQuery DefaultRegexIndex::optimize_query(const RegexQuery& query) const {
         }
         break;
 
-      case RegexUnit::Type::optional_word:
+      case RegexUnit::Type::OPTIONAL_WORD:
         if (contains_unknown_characters(value, all_chars)) {
           // An optional word which contains an unknown character cannot be
           // matched, so we don't add it to the new query.
@@ -365,7 +365,7 @@ RegexQuery DefaultRegexIndex::optimize_query(const RegexQuery& query) const {
         }
         break;
 
-      case RegexUnit::Type::char_set: {
+      case RegexUnit::Type::CHAR_SET: {
         if (contains_unknown_characters(value, all_chars)) {
           // remove all unknown character from the character set
           std::unordered_set<char32_t> set;
@@ -443,14 +443,14 @@ std::vector<utf8_finite_regex_unit> finite_query_to_utf8(
     utf8_finite_regex_unit utf8_unit;
 
     switch (unit.type) {
-      case RegexUnit::Type::char_set: {
+      case RegexUnit::Type::CHAR_SET: {
         for (size_t i = 0; i < unit.value.size(); i++) {
           auto c = unit.value.substr(i, 1);
           utf8_unit.alternatives.push_back(conv.to_bytes(c));
         }
         break;
       }
-      case RegexUnit::Type::optional_word: {
+      case RegexUnit::Type::OPTIONAL_WORD: {
         utf8_unit.alternatives.push_back(conv.to_bytes(unit.value));
         utf8_unit.alternatives.push_back("");
         break;
@@ -569,8 +569,10 @@ void DefaultRegexIndex::match_query(const RegexQuery& query,
 
   const RegexQuery& q = optimize_query(query);
 
-  if (query.accept_all()) {
+  if (query.accept_all_non_empty()) {
     // the query will match all words
+    // Note: Technically, the empty word may be part of the index, but that's
+    // unlikely because it doesn't make sense in the context of Netspeak.
     uint32_t to_add = std::min(max_matches, (uint32_t)words.size());
     for (uint32_t i = 0; i < to_add; i++) {
       matches.push_back(word_at_index(i));

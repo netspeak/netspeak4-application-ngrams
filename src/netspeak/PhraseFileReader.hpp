@@ -4,7 +4,6 @@
 #include "aitools/invertedindex/RecordReader.hpp"
 
 #include "netspeak/PhraseFileParser.hpp"
-#include "netspeak/generated/NetspeakMessages.pb.h"
 #include "netspeak/typedefs.hpp"
 
 namespace netspeak {

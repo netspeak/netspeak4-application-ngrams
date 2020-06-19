@@ -1,8 +1,8 @@
-#ifndef NETSPEAK_LFU_CACHE_HPP
-#define NETSPEAK_LFU_CACHE_HPP
+#ifndef NETSPEAK__UTIL_LFU_CACHE_HPP
+#define NETSPEAK__UTIL_LFU_CACHE_HPP
 
 #include <algorithm>
-#include <iomanip>
+//#include <iomanip>
 #include <memory>
 #include <mutex>
 #include <ostream>
@@ -11,7 +11,6 @@
 #include <utility>
 #include <vector>
 
-#include <boost/utility.hpp>
 
 namespace netspeak {
 
@@ -45,7 +44,7 @@ public:
       : storage_(capacity), acc_count_(0), hit_count_(0) {
     policy_.reserve(capacity);
   }
-
+  LfuCache(const LfuCache&) = delete;
   ~LfuCache() {
     clear();
   }

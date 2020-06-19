@@ -14,16 +14,6 @@ namespace netspeak {
 
 
 /**
- * \brief Punctuation characters treated to be separated on tokenization.
- */
-struct punctuation {
-  static const char comma = ',';
-  static const char semicolon = ';';
-  static const char excmark = '!';
-  static const char qmark = '?';
-};
-
-/**
  * \brief Constructs a query object from a sequence of tokens. Throws
  * \c invalid_query if the tokens do not form a valid query.
  */

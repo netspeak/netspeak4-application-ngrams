@@ -1,3 +1,9 @@
+#include <grpc/grpc.h>
+#include <grpcpp/security/server_credentials.h>
+#include <grpcpp/server.h>
+#include <grpcpp/server_builder.h>
+#include <grpcpp/server_context.h>
+
 #include <cstdio>
 #include <memory>
 #include <string>
@@ -18,6 +24,8 @@
 #include "netspeak/regex/DefaultRegexIndex.hpp"
 #include "netspeak/regex/parsers.hpp"
 #include "netspeak/shell.hpp"
+#include "netspeak/NetspeakServiceImpl.hpp"
+
 
 namespace netspeak {
 
@@ -274,6 +282,46 @@ int RunRegex(const std::vector<std::string>& opts) {
   return EXIT_SUCCESS;
 }
 
+int RunServe(const std::vector<std::string>& opts) {
+  bpo::options_description desc(
+      "Creates a new server of the given Netspeak index.");
+  desc.add_options()("help,h", "Print help message")(
+      "config,c", bpo::value<std::string>()->required(),
+      "The configuration file of the index")(
+      "port,p", bpo::value<uint16_t>()->required(),
+      "The port on which the server will listen");
+
+  try {
+    bpo::variables_map variables;
+    bpo::store(bpo::command_line_parser(opts).options(desc).run(), variables);
+
+    if (variables.count("help")) {
+      std::cout << desc << std::endl;
+      return EXIT_SUCCESS;
+    }
+
+    bpo::notify(variables);
+
+    auto config_file = variables["config"].as<std::string>();
+    auto port = variables["port"].as<uint16_t>();
+    std::string server_address("localhost:");
+    server_address.extend(std::to_string(port));
+
+    NetspeakServiceImpl service(config_file);
+
+    ServerBuilder builder;
+    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+    builder.RegisterService(&service);
+    std::unique_ptr<Server> server(builder.BuildAndStart());
+    std::cout << "Server listening on " << server_address << std::endl;
+    server->Wait();
+  } catch (std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl << desc << std::endl;
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}
+
 // -----------------------------------------------------------------------------
 // Entry point of the `netspeak` command line program.
 // -----------------------------------------------------------------------------
@@ -318,6 +366,8 @@ int Run(int argc, char* argv[]) {
       return RunShell(opts);
     if (command == "regex")
       return RunRegex(opts);
+    if (command == "serve")
+      return RunServe(opts);
 
     throw bpo::invalid_option_value(command);
   } catch (std::exception& e) {
