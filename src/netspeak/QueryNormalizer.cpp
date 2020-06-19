@@ -5,28 +5,9 @@ namespace netspeak {
 QueryNormalizer::QueryNormalizer(const InitConfig& config)
     : regex_index_(config.regex_index) {}
 
-struct NormQueryClass {
-  size_t length;
-  std::vector<const NormQuery> norm_queries;
-
-  NormQueryClass() = delete;
-  NormQueryClass(const NormQueryClass&) = delete;
-  NormQueryClass(size_t length) : length(length) {}
-
-  void push_back(const NormQuery& query) {
-    if (query.size() != length) {
-      throw std::logic_error(
-          "All queries of a (length-) class have to have the same size.");
-    }
-    norm_queries.push_back(query);
-  }
-
-
-};
-
 
 struct NormQueryCollection {
-  std::vector<std::unique_ptr<NormQueryClass>> norm_queries;
+  std::vector<NormQuery> norm_queries;
 
   NormQueryCollection(const NormQueryCollection&) = delete;
 
@@ -37,7 +18,7 @@ struct NormQueryCollection {
     return norm_queries.size();
   }
 
-  void concat(std::unique_ptr<NormQueryCollection> other) {
+  void append(std::unique_ptr<NormQueryCollection> other) {
     if (norm_queries.empty()) {
       // concat(EMPTY, other) == EMPTY
       return;
@@ -48,7 +29,17 @@ struct NormQueryCollection {
       return;
     }
 
-    // TODO
+    if (other->size() == 1) {
+      // no need to make a copy. Just append the one query to all
+      const auto& other_units = other->norm_queries[0].units();
+
+      for (auto& q : norm_queries) {
+        auto& q_units = q.units();
+        q_units.insert(q_units.end(), other_units.begin(), other_units.end());
+      }
+    } else {
+      // TODO: implement
+    }
   }
 
   void alternation(std::unique_ptr<NormQueryCollection> other) {
