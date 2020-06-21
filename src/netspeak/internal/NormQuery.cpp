@@ -10,19 +10,31 @@ namespace netspeak {
 namespace internal {
 
 
-const NormQueryUnit__::Text NormQueryUnit__::QMARK_STR =
-    std::make_shared<std::string>("?");
+typedef NormQuery::Unit Unit;
+
+
+const Unit::Text QMARK_STR = std::make_shared<std::string>("?");
+
+Unit Unit::word(const Text& text, const Source& source) {
+  return Unit(Tag::WORD, text, source);
+}
+Unit Unit::qmark(const Source& source) {
+  return Unit(Tag::QMARK, QMARK_STR, source);
+}
 
 
 const NormQuery NormQuery::EMPTY = NormQuery();
 
+bool NormQuery::empty() const {
+  return units().empty();
+}
 size_t NormQuery::size() const {
   return units().size();
 }
 
 bool NormQuery::has_wildcards() const {
   for (const auto& unit : units()) {
-    if (unit.tag == NormQuery::Unit::Tag::QMARK) {
+    if (unit.tag == Unit::Tag::QMARK) {
       return true;
     }
   }
@@ -30,36 +42,42 @@ bool NormQuery::has_wildcards() const {
 }
 
 
+std::ostream& operator<<(std::ostream& out, const NormQuery::Unit::Tag& tag) {
+  switch (tag) {
+    case Unit::Tag::WORD:
+      return out << "Word";
+    case Unit::Tag::QMARK:
+      return out << "QMark";
+
+    default:
+      throw std::logic_error("Unknown tag");
+  }
+}
+std::ostream& operator<<(std::ostream& out, const NormQuery::Unit& unit) {
+  switch (unit.tag) {
+    case Unit::Tag::WORD:
+      return out << "\"" << *unit.text << "\"";
+    case Unit::Tag::QMARK:
+      return out << "?";
+
+    default:
+      throw std::logic_error("Unknown tag");
+  }
+
+  return out;
+}
 std::ostream& operator<<(std::ostream& out, const NormQuery& query) {
   // This will out the norm query "foo ?" as:
   //
-  //   NormQuery { "foo"(0) ?(1) }
+  //   NormQuery ( "foo" ? )
   //
-  // Each unit will be printed as its text (quoted for WORDs) following by its
-  // source id.
+  // Each unit will be printed as its text (quoted for WORDs).
 
-  out << "NormQuery {";
+  out << "NormQuery(";
   for (const auto& unit : query.units()) {
-    out << " ";
-
-    switch (unit.tag) {
-      case NormQuery::Unit::Tag::WORD:
-        out << "\"" << *unit.text << "\"";
-        break;
-
-      case NormQuery::Unit::Tag::QMARK:
-        out << "?";
-        break;
-
-      default:
-        aitools::throw_invalid_argument("Unknown tag", unit.tag);
-        break;
-    }
-
-    // just print the address of the source unit
-    out << "(" << std::hex << (void*)unit.source.get() << ")";
+    out << " " << unit;
   }
-  out << " }";
+  out << " )";
 
   return out;
 }

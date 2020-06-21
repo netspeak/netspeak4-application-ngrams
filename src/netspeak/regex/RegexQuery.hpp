@@ -17,7 +17,7 @@ struct RegexUnit {
   /**
    * @brief The type of a unit.
    */
-  enum struct Type { QMARK, STAR, WORD, CHAR_SET, OPTIONAL_WORD };
+  enum class Type { QMARK, STAR, WORD, CHAR_SET, OPTIONAL_WORD };
 
   Type type;
   std::u32string value;

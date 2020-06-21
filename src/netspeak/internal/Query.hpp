@@ -14,7 +14,7 @@ namespace internal {
 
 class QueryUnit__ {
 public:
-  typedef enum {
+  typedef enum class Tag {
     // Terminals
     WORD,
     QMARK,
@@ -35,7 +35,7 @@ private:
 
   Tag tag_;
   std::string text_;
-  std::vector<const std::shared_ptr<const Unit>> units_;
+  std::vector<const std::shared_ptr<const Unit>> children_;
   std::weak_ptr<const Unit> parent_;
   // This is a weak ref to this object. This is necessary to set the parent of
   // children. Not nice, but hey. It works.
@@ -47,8 +47,8 @@ private:
   ~QueryUnit__();
 
 public:
-  std::shared_ptr<Unit> static terminal(Unit::Tag tag, const std::string& text);
-  std::shared_ptr<Unit> static non_terminal(Unit::Tag tag);
+  static std::shared_ptr<Unit> terminal(Unit::Tag tag, const std::string& text);
+  static std::shared_ptr<Unit> non_terminal(Unit::Tag tag);
 
 
   Tag tag() const {
@@ -71,8 +71,8 @@ public:
     return text_;
   }
 
-  const std::vector<const std::shared_ptr<const Unit>>& units() const {
-    return units_;
+  const std::vector<const std::shared_ptr<const Unit>>& children() const {
+    return children_;
   }
 
   std::shared_ptr<const Unit> parent() const {
@@ -81,7 +81,32 @@ public:
 
   bool is_terminal() const;
 
-  void add_unit(const std::shared_ptr<Unit>& unit);
+  /**
+   * @brief Returns the maximum length of a phrase that can (theoretically) be
+   * matched (= accepted) by this unit.
+   *
+   * If the returned maximum is 0, then this unit either doesn't accept any
+   * phrases at all or only the empty phrase.
+   *
+   * If the returned maximum is \c UINT32_MAX, then the maximum phrase length is
+   * unbounded.
+   *
+   * @return uint32_t
+   */
+  uint32_t max_length() const;
+  /**
+   * @brief Returns the minimum length of a phrase that can (theoretically) be
+   * matched (= accepted) by this unit.
+   *
+   * If the returned maximum is \c UINT32_MAX, then this unit doesn't accept any
+   * phrases.
+   *
+   * @return uint32_t
+   */
+  uint32_t min_length() const;
+
+
+  void add_child(const std::shared_ptr<Unit>& unit);
 };
 
 
@@ -110,6 +135,14 @@ public:
   }
   const std::shared_ptr<const Unit>& alternatives() const {
     return alternatives_;
+  }
+
+
+  uint32_t max_length() const {
+    return alternatives()->max_length();
+  }
+  uint32_t min_length() const {
+    return alternatives()->min_length();
   }
 };
 

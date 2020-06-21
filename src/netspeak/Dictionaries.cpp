@@ -31,8 +31,4 @@ const Dictionaries::Map Dictionaries::read_from_file(
   return dict;
 }
 
-bool Dictionaries::contains(const Map& dict, const std::string& key) {
-  return dict.find(key) != dict.end();
-}
-
 } // namespace netspeak

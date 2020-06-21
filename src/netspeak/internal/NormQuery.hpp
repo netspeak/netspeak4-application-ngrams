@@ -1,5 +1,5 @@
-#ifndef NETSPEAK_INTERNAL_NORM_QUERY
-#define NETSPEAK_INTERNAL_NORM_QUERY
+#ifndef NETSPEAK_INTERNAL_NORM_QUERY_HPP
+#define NETSPEAK_INTERNAL_NORM_QUERY_HPP
 
 #include <memory>
 #include <string>
@@ -25,7 +25,7 @@ namespace internal {
  */
 struct NormQueryUnit__ {
 public:
-  typedef enum {
+  typedef enum class Tag {
     WORD,
     QMARK,
   } Tag;
@@ -37,18 +37,13 @@ public:
   Text text;
   Source source;
 
-  static NormQueryUnit__ word(const Text& text, const Source& source) {
-    return NormQueryUnit__(WORD, text, source);
-  }
-  static NormQueryUnit__ qmark(const Source& source) {
-    return NormQueryUnit__(QMARK, QMARK_STR, source);
-  }
+  static NormQueryUnit__ word(const Text& text, const Source& source);
+  static NormQueryUnit__ qmark(const Source& source);
 
 private:
   NormQueryUnit__(Tag tag, const Text& text, const Source& source)
       : tag(tag), text(text), source(source) {}
-
-  static const Text QMARK_STR;
+  NormQueryUnit__() = delete;
 };
 
 
@@ -74,7 +69,6 @@ private:
   std::vector<Unit> units_;
 
 public:
-  NormQuery() : units_() {}
   static const NormQuery EMPTY;
 
   std::vector<Unit>& units() {
@@ -84,10 +78,14 @@ public:
     return units_;
   }
 
+  bool empty() const;
   size_t size() const;
   bool has_wildcards() const;
 };
 
+
+std::ostream& operator<<(std::ostream& out, const NormQuery::Unit::Tag& tag);
+std::ostream& operator<<(std::ostream& out, const NormQuery::Unit& unit);
 std::ostream& operator<<(std::ostream& out, const NormQuery& query);
 
 

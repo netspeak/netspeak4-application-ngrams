@@ -1,8 +1,7 @@
-#ifndef NETSPEAK__UTIL_LFU_CACHE_HPP
-#define NETSPEAK__UTIL_LFU_CACHE_HPP
+#ifndef NETSPEAK_UTIL_LFU_CACHE_HPP
+#define NETSPEAK_UTIL_LFU_CACHE_HPP
 
 #include <algorithm>
-//#include <iomanip>
 #include <memory>
 #include <mutex>
 #include <ostream>
@@ -13,6 +12,7 @@
 
 
 namespace netspeak {
+namespace util {
 
 /**
  * A simple and fast object cache with LFU policy.
@@ -188,6 +188,8 @@ private:
   std::mutex mutex_;
 };
 
+
+} // namespace util
 } // namespace netspeak
 
 #endif // NETSPEAK_LFU_CACHE_HPP

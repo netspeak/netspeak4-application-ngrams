@@ -1,6 +1,9 @@
 #ifndef NETSPEAK_INTERNAL_QUERY_SYNTAX_HPP
 #define NETSPEAK_INTERNAL_QUERY_SYNTAX_HPP
 
+#include <string>
+#include <ostream>
+
 #include "aitools/value/pair.hpp"
 
 namespace netspeak {
@@ -21,6 +24,7 @@ struct QuerySyntax {
   static const char BRACE_RIGHT = '}';
   static const char BRACKET_LEFT = '[';
   static const char BRACKET_RIGHT = ']';
+
 };
 
 

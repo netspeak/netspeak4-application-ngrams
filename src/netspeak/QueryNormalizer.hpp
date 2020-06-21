@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "netspeak/Dictionaries.hpp"
 #include "netspeak/internal/NormQuery.hpp"
 #include "netspeak/internal/Query.hpp"
 #include "netspeak/regex/RegexIndex.hpp"
@@ -26,11 +27,12 @@ using namespace regex;
 class QueryNormalizer {
 private:
   std::shared_ptr<RegexIndex> regex_index_;
-
+  std::shared_ptr<Dictionaries::Map> dictionary_;
 
 public:
   typedef struct InitConfig {
     std::shared_ptr<RegexIndex> regex_index;
+    std::shared_ptr<Dictionaries::Map> dictionary;
   } InitConfig;
 
   QueryNormalizer(const InitConfig& config);
@@ -42,6 +44,19 @@ public:
      * @brief The maximum number of norm queries allowed to be returned.
      */
     size_t max_norm_queries;
+
+    /**
+     * @brief The maximum length norm queries are allowed to have.
+     *
+     * This means that only phrases up to this length can be matched by the norm
+     * queries.
+     */
+    size_t max_length;
+    /**
+     * @brief Same as \c max_length but as a minimum.
+     */
+    size_t min_length;
+
     /**
      * @brief The maximum number of words each regex can be replaced with.
      *
@@ -55,10 +70,12 @@ public:
      * words for that regex.
      */
     std::chrono::nanoseconds max_regex_time;
+
+    Options(const Options&) = default;
   } Options;
 
-  void normalize(const std::shared_ptr<const Query>& query,
-                 const Options& options, std::vector<NormQuery>& norm_queries);
+  void normalize(const Query& query, const Options& options,
+                 std::vector<NormQuery>& norm_queries);
 };
 
 } // namespace netspeak
