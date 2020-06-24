@@ -50,7 +50,7 @@ if [ ! -f /usr/lib/libantlr4-runtime.so.4.7.1 ]; then
 
     rm -rf antlr4
     mkdir antlr4
-    cd antlr4e
+    cd antlr4
 
     echo "Download release"
 
