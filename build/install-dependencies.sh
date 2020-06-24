@@ -10,6 +10,7 @@ fi
 # go to the dir of this script
 cd "$(dirname "$0")"
 
+apt-get update
 apt-get install make cmake cmake-data pkg-config qt4-default -y
 apt-get install build-essential libboost-filesystem-dev libboost-system-dev libboost-test-dev libboost-program-options-dev libcmph-dev libaio-dev libprotobuf-dev protobuf-compiler libboost-regex-dev -y
 
