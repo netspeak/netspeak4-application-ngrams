@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "netspeak/internal/LengthRange.hpp"
 #include "netspeak/internal/NormQuery.hpp"
 #include "netspeak/internal/Query.hpp"
 
@@ -31,7 +32,7 @@ private:
   Tag tag_;
   Source source_;
   Text text_;
-  std::vector<std::shared_ptr<Unit>> children_;
+  std::vector<const std::shared_ptr<Unit>> children_;
   std::weak_ptr<Unit> self_;
   std::weak_ptr<Unit> parent_;
 
@@ -68,7 +69,7 @@ public:
   const Source& source() const {
     return source_;
   }
-  const std::vector<std::shared_ptr<Unit>>& children() const {
+  const std::vector<const std::shared_ptr<Unit>>& children() const {
     return children_;
   }
   std::shared_ptr<Unit> parent() {
@@ -81,26 +82,16 @@ public:
   bool is_terminal() const;
 
   /**
-   * @brief Returns the maximum length of a phrase that can (theoretically) be
+   * @brief Returns the range of lengths of phrases that can (theoretically) be
    * matched (= accepted) by this unit.
    *
-   * If the returned maximum is 0, then this unit either doesn't accept any
-   * phrases at all or only the empty phrase.
-   *
-   * If the returned maximum is \c UINT32_MAX, then the maximum phrase length is
-   * unbounded.
-   *
-   * @return uint32_t
+   * If the returned range is empty, then this unit doesn't accept any phrases
+   * at all.
    */
-  uint32_t max_length() const;
+  LengthRange length_range() const;
+
   /**
-   * @brief Returns the minimum length of a phrase that can (theoretically) be
-   * matched (= accepted) by this unit.
-   *
-   * If the returned maximum is \c UINT32_MAX, then this unit doesn't accept any
-   * phrases.
-   *
-   * @return uint32_t
+   * @brief A possibly optimized version of \c length_range().min .
    */
   uint32_t min_length() const;
 
@@ -129,7 +120,7 @@ private:
   SimpleQuery(const SimpleQuery&) = delete;
 
 public:
-  SimpleQuery(const std::shared_ptr<Unit>& root): root_(root) {}
+  SimpleQuery(const std::shared_ptr<Unit>& root) : root_(root) {}
 
   std::shared_ptr<Unit>& root() {
     return root_;

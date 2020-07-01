@@ -51,11 +51,11 @@ public:
      * This means that only phrases up to this length can be matched by the norm
      * queries.
      */
-    size_t max_length;
+    uint32_t max_length;
     /**
      * @brief Same as \c max_length but as a minimum.
      */
-    size_t min_length;
+    uint32_t min_length;
 
     /**
      * @brief The maximum number of words each regex can be replaced with.

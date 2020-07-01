@@ -8,6 +8,8 @@
 
 #include "boost/optional.hpp"
 
+#include "netspeak/internal/LengthRange.hpp"
+
 
 namespace netspeak {
 namespace internal {
@@ -82,28 +84,13 @@ public:
   bool is_terminal() const;
 
   /**
-   * @brief Returns the maximum length of a phrase that can (theoretically) be
+   * @brief Returns the range of lengths of phrases that can (theoretically) be
    * matched (= accepted) by this unit.
    *
-   * If the returned maximum is 0, then this unit either doesn't accept any
-   * phrases at all or only the empty phrase.
-   *
-   * If the returned maximum is \c UINT32_MAX, then the maximum phrase length is
-   * unbounded.
-   *
-   * @return uint32_t
+   * If the returned range is empty, then this unit doesn't accept any phrases
+   * at all.
    */
-  uint32_t max_length() const;
-  /**
-   * @brief Returns the minimum length of a phrase that can (theoretically) be
-   * matched (= accepted) by this unit.
-   *
-   * If the returned maximum is \c UINT32_MAX, then this unit doesn't accept any
-   * phrases.
-   *
-   * @return uint32_t
-   */
-  uint32_t min_length() const;
+  LengthRange length_range() const;
 
 
   void add_child(const std::shared_ptr<Unit>& unit);
@@ -138,11 +125,8 @@ public:
   }
 
 
-  uint32_t max_length() const {
-    return alternatives()->max_length();
-  }
-  uint32_t min_length() const {
-    return alternatives()->min_length();
+  LengthRange length_range() const {
+    return alternatives()->length_range();
   }
 };
 

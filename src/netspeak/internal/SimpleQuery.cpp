@@ -58,44 +58,41 @@ bool Unit::is_terminal() const {
   }
 }
 
-uint32_t Unit::max_length() const {
+
+LengthRange Unit::length_range() const {
   switch (tag_) {
     case Unit::Tag::STAR:
-      return UINT32_MAX;
+      return LengthRange(0);
 
     case Unit::Tag::WORD:
     case Unit::Tag::QMARK:
     case Unit::Tag::REGEX:
-      return 1;
+      return LengthRange(1, 1);
 
     case Unit::Tag::ALTERNATION: {
-      uint32_t max = 0;
+      LengthRange range;
       for (const auto& child : children()) {
-        max = std::max(max, child->max_length());
-        if (max == UINT32_MAX) {
-          return UINT32_MAX;
-        }
+        range |= child->length_range();
       }
-      return max;
+      return range;
     }
 
     case Unit::Tag::CONCAT: {
-      uint32_t total = 0;
+      LengthRange range(0, 0);
       for (const auto& child : children()) {
-        const auto child_max = child->min_length();
-        if (child_max == UINT32_MAX) {
-          return UINT32_MAX;
-        } else {
-          total += UINT32_MAX;
+        range &= child->length_range();
+        if (range.empty()) {
+          return range;
         }
       }
-      return total;
+      return range;
     }
 
     default:
       throw std::logic_error("Unknown tag");
   }
 }
+
 uint32_t Unit::min_length() const {
   switch (tag_) {
     case Unit::Tag::STAR:
@@ -109,32 +106,33 @@ uint32_t Unit::min_length() const {
     case Unit::Tag::ALTERNATION: {
       uint32_t min = UINT32_MAX;
       for (const auto& child : children()) {
-        min = std::min(min, child->min_length());
-        if (min == 0) {
-          return 0;
+        const auto c_min = child->min_length();
+        if (c_min < min) {
+          if (c_min == 0) {
+            return 0;
+          }
+          min = c_min;
         }
       }
       return min;
     }
 
     case Unit::Tag::CONCAT: {
-      uint32_t total = 0;
+      uint32_t min = 0;
       for (const auto& child : children()) {
-        const auto child_min = child->min_length();
-        if (child_min == UINT32_MAX) {
+        const auto c_min = child->min_length();
+        if (c_min == UINT32_MAX) {
           return UINT32_MAX;
-        } else {
-          total += UINT32_MAX;
         }
+        min += c_min;
       }
-      return total;
+      return min;
     }
 
     default:
       throw std::logic_error("Unknown tag");
   }
 }
-
 
 void Unit::add_child(const std::shared_ptr<Unit>& unit) {
   assert(unit);

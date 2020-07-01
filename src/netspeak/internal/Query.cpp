@@ -52,98 +52,46 @@ bool Unit::is_terminal() const {
   }
 }
 
-uint32_t Unit::max_length() const {
+LengthRange Unit::length_range() const {
   switch (tag()) {
     case Tag::WORD:
-      return 1;
     case Tag::QMARK:
-      return 1;
-    case Tag::STAR:
-      return UINT32_MAX;
-    case Tag::PLUS:
-      return UINT32_MAX;
     case Tag::REGEX:
-      return 1;
-    case Tag::DICTSET:
-      // A dict set may be replaced with a phrases that contain more than one
-      // word. The number of words one of the replacement phrases may contain
-      // isn't limited by anything.
-      return UINT32_MAX;
-
-    case Tag::OPTIONSET: // for option sets, the same rules as for alts apply
-    case Tag::ALTERNATION: {
-      uint32_t max = 0;
-      for (const auto& child : children()) {
-        max = std::max(max, child->max_length());
-        if (max == UINT32_MAX) {
-          return UINT32_MAX;
-        }
-      }
-      return max;
-    }
-
-    case Tag::ORDERSET: // for order sets, the same rules as for concats apply
-    case Tag::CONCAT: {
-      uint32_t total = 0;
-      for (const auto& child : children()) {
-        uint32_t value = child->max_length();
-        if (value == UINT32_MAX) {
-          return UINT32_MAX;
-        }
-        total += value;
-      }
-      return total;
-    }
-
-    default:
-      throw std::logic_error("Unknown tag");
-  }
-}
-uint32_t Unit::min_length() const {
-  switch (tag()) {
-    case Tag::WORD:
-      return 1;
-    case Tag::QMARK:
-      return 1;
+      return LengthRange(1,1);
     case Tag::STAR:
-      return 0;
+      return LengthRange(0);
     case Tag::PLUS:
-      return 1;
-    case Tag::REGEX:
-      return 1;
+      return LengthRange(1);
     case Tag::DICTSET:
       // A dict set is guaranteed to match itself and all replacement phrases
       // may not be empty.
-      return 1;
+      return LengthRange(1);
 
-    case Tag::OPTIONSET:
-      if (children().size() == 1) {
-        return 0;
-      }
-      // apart from the only-one-element-case, option sets are the same as alts
-      // fall through
-    case Tag::ALTERNATION: {
-      uint32_t min = UINT32_MAX;
+    case Tag::OPTIONSET: {
+      LengthRange range(0,0);
       for (const auto& child : children()) {
-        min = std::min(min, child->min_length());
-        if (min == 0) {
-          return 0;
-        }
+        range |= child->length_range();
       }
-      return min;
+      return range;
+    }
+    case Tag::ALTERNATION: {
+      LengthRange range;
+      for (const auto& child : children()) {
+        range |= child->length_range();
+      }
+      return range;
     }
 
     case Tag::ORDERSET: // for order sets, the same rules as for concats apply
     case Tag::CONCAT: {
-      uint32_t total = 0;
+       LengthRange range(0, 0);
       for (const auto& child : children()) {
-        uint32_t value = child->min_length();
-        if (value == UINT32_MAX) {
-          return UINT32_MAX;
+        range &= child->length_range();
+        if (range.empty()) {
+          return range;
         }
-        total += value;
       }
-      return total;
+      return range;
     }
 
     default:
