@@ -1,5 +1,7 @@
 #include "QueryErrorHandler.hpp"
 
+#include "netspeak/error.hpp"
+
 
 namespace antlr4 {
 

@@ -6,8 +6,6 @@
 #include "antlr4-runtime.h"
 #include "antlr4/generated/QueryLexer.h"
 
-#include "netspeak/error.hpp"
-
 namespace antlr4 {
 
 

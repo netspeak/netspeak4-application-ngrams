@@ -27,6 +27,7 @@ struct query_error_message {
   static const std::string too_many_words;
   static const std::string too_many_regex_in_orderset;
   static const std::string invalid_regexword;
+  static const std::string too_deeply_nested;
   static const std::string too_complex(uint32_t complexity,
                                        uint32_t max_worst_case_complexity);
   static const std::string too_long_query(int queryLength, int queryMaxLength);
