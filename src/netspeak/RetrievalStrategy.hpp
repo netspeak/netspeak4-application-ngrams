@@ -3,7 +3,6 @@
 
 #include "netspeak/Configurations.hpp"
 #include "netspeak/Properties.hpp"
-#include "netspeak/generated/NetspeakMessages.pb.h"
 
 namespace netspeak {
 

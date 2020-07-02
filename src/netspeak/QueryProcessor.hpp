@@ -14,8 +14,6 @@
 
 #include "netspeak/Configurations.hpp"
 #include "netspeak/RetrievalStrategy.hpp"
-#include "netspeak/generated/NetspeakMessages.pb.h"
-#include "netspeak/protobuf_utils.hpp"
 #include "netspeak/query_methods.hpp"
 
 namespace netspeak {

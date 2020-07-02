@@ -11,14 +11,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-#include "antlr4-runtime.h"
-#include "antlr4/QueryErrorHandler.hpp"
-#include "antlr4/QueryLengthVerifier.hpp"
-#include "antlr4/QueryNormListener.hpp"
-#include "antlr4/RawQueryListener.hpp"
-#include "antlr4/generated/QueryLexer.h"
-#include "antlr4/generated/QueryParser.h"
-
 #include "netspeak/error.hpp"
 #include "netspeak/indexing.hpp"
 #include "netspeak/regex/DefaultRegexIndex.hpp"

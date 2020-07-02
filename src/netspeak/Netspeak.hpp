@@ -15,7 +15,7 @@
 
 #include "netspeak/Configurations.hpp"
 #include "netspeak/Dictionaries.hpp"
-#include "netspeak/LfuCache.hpp"
+#include "netspeak/util/LfuCache.hpp"
 #include "netspeak/PhraseCorpus.hpp"
 #include "netspeak/PhraseDictionary.hpp"
 #include "netspeak/Properties.hpp"
@@ -38,6 +38,8 @@ namespace bfs = boost::filesystem;
 
 template <typename RetrievalStrategyTag> class Netspeak {
 public:
+  Netspeak(const Netspeak&) = delete;
+
   void initialize(const Configurations::Map& config) {
     Configurations::Map conf(config);
     const auto it = conf.find(Configurations::path_to_home);
