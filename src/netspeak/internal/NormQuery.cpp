@@ -22,25 +22,66 @@ Unit Unit::qmark(const Source& source) {
   return Unit(Tag::QMARK, QMARK_STR, source);
 }
 
+bool Unit::operator==(const Unit& rhs) const {
+  if (tag() != rhs.tag()) {
+    return false;
+  }
+  if (tag() == Unit::Tag::WORD) {
+    return *text() == *rhs.text();
+  }
+  return true;
+}
+
 
 const NormQuery NormQuery::EMPTY = NormQuery();
 
-bool NormQuery::empty() const {
-  return units().empty();
-}
-size_t NormQuery::size() const {
-  return units().size();
-}
-
-bool NormQuery::has_wildcards() const {
+bool NormQuery::has_qmarks() const {
   for (const auto& unit : units()) {
-    if (unit.tag == Unit::Tag::QMARK) {
+    if (unit.tag() == Unit::Tag::QMARK) {
+      return true;
+    }
+  }
+  return false;
+}
+bool NormQuery::has_words() const {
+  for (const auto& unit : units()) {
+    if (unit.tag() == Unit::Tag::WORD) {
       return true;
     }
   }
   return false;
 }
 
+size_t NormQuery::count_qmarks() const {
+  size_t count = 0;
+  for (const auto& unit : units()) {
+    if (unit.tag() == Unit::Tag::QMARK) {
+      count++;
+    }
+  }
+  return count;
+}
+size_t NormQuery::count_words() const {
+  size_t count = 0;
+  for (const auto& unit : units()) {
+    if (unit.tag() == Unit::Tag::WORD) {
+      count++;
+    }
+  }
+  return count;
+}
+
+bool NormQuery::operator==(const NormQuery& rhs) const {
+  if (size() != rhs.size()) {
+    return false;
+  }
+  for (size_t i = 0; i != size(); i++) {
+    if (units()[i] != rhs.units()[i]) {
+      return false;
+    }
+  }
+  return true;
+}
 
 std::ostream& operator<<(std::ostream& out, const NormQuery::Unit::Tag& tag) {
   switch (tag) {
@@ -54,9 +95,9 @@ std::ostream& operator<<(std::ostream& out, const NormQuery::Unit::Tag& tag) {
   }
 }
 std::ostream& operator<<(std::ostream& out, const NormQuery::Unit& unit) {
-  switch (unit.tag) {
+  switch (unit.tag()) {
     case Unit::Tag::WORD:
-      return out << "\"" << *unit.text << "\"";
+      return out << "\"" << *unit.text() << "\"";
     case Unit::Tag::QMARK:
       return out << "?";
 
@@ -69,7 +110,7 @@ std::ostream& operator<<(std::ostream& out, const NormQuery::Unit& unit) {
 std::ostream& operator<<(std::ostream& out, const NormQuery& query) {
   // This will out the norm query "foo ?" as:
   //
-  //   NormQuery ( "foo" ? )
+  //   NormQuery( "foo" ? )
   //
   // Each unit will be printed as its text (quoted for WORDs).
 

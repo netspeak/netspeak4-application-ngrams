@@ -8,13 +8,9 @@
 
 namespace netspeak {
 
-
-struct invalid_query : public std::logic_error {
-  invalid_query(const std::string& query);
-  invalid_query(size_t startLine, size_t startPoint, size_t endLine,
-                size_t endPoint, std::string msg);
-
-  virtual ~invalid_query() throw();
+struct invalid_query_error : public std::logic_error {
+  invalid_query_error(const std::string& what) : std::logic_error(what) {}
+  virtual ~invalid_query_error() throw() override {}
 };
 
 

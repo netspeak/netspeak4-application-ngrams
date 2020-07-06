@@ -9,10 +9,9 @@ namespace netspeak {
 
 bool do_intersect(const generated::QueryResult& a,
                   const generated::QueryResult& b) {
-  return is_compatible(a.request(), b.request())
-             ? do_intersect(a.reference().begin(), a.reference().end(),
-                            b.reference().begin(), b.reference().end())
-             : false;
+  return is_compatible(a.request(), b.request()) &&
+         do_intersect(a.reference().begin(), a.reference().end(),
+                      b.reference().begin(), b.reference().end());
 }
 
 std::shared_ptr<generated::QueryResult> merge(

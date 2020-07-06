@@ -11,26 +11,11 @@
 #include "netspeak/regex/parsers.hpp"
 #include "netspeak/util/ChainCutter.hpp"
 #include "netspeak/util/Math.hpp"
+#include "netspeak/util/Vec.hpp"
+#include "netspeak/error.hpp"
 
 
 namespace netspeak {
-
-/**
- * @brief A simple function that appends all elements of \c other to \c base.
- *
- * @tparam T
- * @param base
- * @param other
- */
-template <typename T>
-inline void vec_append(std::vector<T>& base, const std::vector<T>& other) {
-  base.insert(base.end(), other.begin(), other.end());
-}
-template <typename T>
-inline bool vec_contains(std::vector<T>& base, const T& item) {
-  const auto it = std::find(base.begin(), base.end(), item);
-  return it != base.end();
-}
 
 /**
  * @brief A converter from a \c Query to its \c SimpleQuery units.
@@ -207,8 +192,7 @@ private:
       // elements, so it's used as a hard limit. Our current indexes only
       // support up to 5-grams, so this shouldn't be an issue.
 
-      // TODO: Choose an appropriate error type
-      throw std::runtime_error("Query too complex.");
+      throw invalid_query_error("Orderset with too many options.");
     }
 
     // Special cases for 0 and 1 many elements.
@@ -373,7 +357,7 @@ public:
     if (res == cache_.end()) {
       // compute and cache
       const auto min = unit->min_length();
-      cache_.insert(std::pair(unit, min));
+      cache_.emplace(unit, min);
       return min;
     } else {
       return res->second;
@@ -773,7 +757,7 @@ public:
   }
   void append(const StarQuery& query) {
     min_length_ += query.min_length_;
-    vec_append(units_, query.units_);
+    util::vec_append(units_, query.units_);
   }
 };
 
@@ -952,8 +936,7 @@ public:
       }
 
       if (norm_queries.size() > options.max_norm_queries) {
-        // TODO: Choose appropriate error type
-        throw std::logic_error("Too many norm queries");
+        throw invalid_query_error("Too many norm queries");
       }
     }
   }

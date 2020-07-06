@@ -1,8 +1,9 @@
 #include "antlr4/parse.hpp"
 
+#include <sstream>
 #include <vector>
 
-#include "antlr4/QueryErrorHandler.hpp"
+#include "antlr4-runtime.h"
 #include "antlr4/generated/QueryBaseListener.h"
 #include "antlr4/generated/QueryLexer.h"
 #include "antlr4/generated/QueryParser.h"
@@ -65,8 +66,7 @@ private:
     // deeply nested query ASTs. So to be on the safe side, the size of this
     // stack is limited.
     if (stack_.size() > MAX_STACK_SIZE) {
-      throw netspeak::invalid_query(
-          netspeak::query_error_message::too_deeply_nested);
+      throw netspeak::invalid_query_error("The query is too deeply nested");
     }
   }
 
@@ -189,9 +189,43 @@ public:
       QueryParser::AssociationContext* context) override {}
 };
 
+/**
+ * @brief The QueryErrorHandler class
+ *
+ * Is called whenever a error in the parser occurs.
+ */
+class QueryErrorHandler : public antlr4::BaseErrorListener {
+public:
+  static QueryErrorHandler INSTANCE = QueryErrorHandler();
+
+  /**
+   * @brief Is called when a syntax error occurs e.g. an unexpected token is
+   * read.
+   */
+  void syntaxError(Recognizer*, Token* offendingSymbol, size_t line,
+                   size_t charPositionInLine, const std::string& msg,
+                   std::exception_ptr) override {
+    size_t startLine = line;
+    size_t startPoint = (charPositionInLine + 1);
+    size_t endLine = offendingSymbol->getLine();
+    size_t endPoint = offendingSymbol->getStopIndex() + 1;
+
+    std::stringstream what;
+    what << "(" << startLine << ":" << startPoint << ", " << endLine << ":"
+         << endPoint << ")";
+    what << " " << msg;
+
+    throw netspeak::invalid_query_error(what.str());
+  }
+};
+
+
 std::shared_ptr<Query> parse_query(const std::string& query) {
   if (query.empty()) {
     return std::make_shared<Query>(new Query());
+  }
+  if (query.size() > 2000) {
+    throw netspeak::invalid_query_error("Query too long");
   }
 
   ANTLRInputStream input(query);

@@ -4,21 +4,6 @@
 
 namespace netspeak {
 
-invalid_query::invalid_query(const std::string& query)
-    : std::logic_error(query) {}
-
-invalid_query::invalid_query(size_t startLine, size_t startPoint,
-                             size_t endLine, size_t endPoint,
-                             std::__cxx11::string msg)
-
-    : std::logic_error("(" + sizetToString(startLine) + "," +
-                       sizetToString(startPoint + 1) + "," +
-                       sizetToString(endLine) + "," +
-                       sizetToString(endPoint + 1) + ")" + " " + msg) {}
-
-
-invalid_query::~invalid_query() throw() {}
-
 const std::string query_error_message::too_many_words(
     "There are too many words in this section");
 const std::string query_error_message::too_many_regex_in_orderset(

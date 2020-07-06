@@ -1,6 +1,7 @@
 #ifndef NETSPEAK_INTERNAL_WORDS_HPP
 #define NETSPEAK_INTERNAL_WORDS_HPP
 
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -11,15 +12,15 @@ typedef std::string Word;
 
 struct Words {
 private:
-  std::vector<Word> data_;
+  std::vector<const Word> data_;
 
 public:
   Words();
 
-  std::vector<Word>& data() {
+  std::vector<const Word>& data() {
     return data_;
   }
-  const std::vector<Word>& data() const {
+  const std::vector<const Word>& data() const {
     return data_;
   }
 
@@ -29,11 +30,15 @@ public:
   size_t size() const {
     return data_.size();
   }
-  std::vector<Word>::const_iterator begin() const {
+  std::vector<const Word>::const_iterator begin() const {
     return data_.begin();
   }
-  std::vector<Word>::const_iterator end() const {
+  std::vector<const Word>::const_iterator end() const {
     return data_.end();
+  }
+
+  const Word& operator[](size_t i) const {
+    return data_[i];
   }
 
   void push_back(const Word& word) {
@@ -41,7 +46,7 @@ public:
   }
 
   bool is_subsequence_of(const Words& words) const;
-  bool is_subsequence_of(const std::vector<Word>& words) const;
+  bool is_subsequence_of(const std::vector<const Word>& words) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const Words& phrase);

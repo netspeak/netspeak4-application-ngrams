@@ -26,7 +26,7 @@
 #include "netspeak/PhraseFileReader.hpp"
 #include "netspeak/RetrievalStrategy3.hpp"
 #include "netspeak/error.hpp"
-#include "netspeak/generated/NetspeakMessages.pb.h"
+//#include "netspeak/generated/NetspeakMessages.pb.h"
 
 namespace netspeak {
 

@@ -65,7 +65,7 @@ message Query {
     optional string text      = 2;
     optional uint32 position  = 3 [ default = 0 ];
     optional uint64 frequency = 4 [ default = 0 ];
-    optional double quantile  = 5 [ default = 0 ]; // before 1.3.x
+//  optional double quantile  = 5 [ default = 0 ]; // before 1.3.x
     optional uint32 pruning   = 6 [ default = 0 ];
   }
 
@@ -107,8 +107,8 @@ message Request {
   optional uint32 phrase_length_max     = 5  [ default = 5 ];
   optional uint32 pruning_low           = 6  [ default = 130000 ]; // [1]
   optional uint32 pruning_high          = 7  [ default = 160000 ]; // [1]
-  optional double quantile_low          = 8  [ default = 0.5 ]; // before 1.3.x
-  optional double quantile_high         = 9  [ default = 0.8 ]; // before 1.3.x
+//optional double quantile_low          = 8  [ default = 0.5 ]; // before 1.3.x
+//optional double quantile_high         = 9  [ default = 0.8 ]; // before 1.3.x
   optional uint32 max_regexword_matches = 10 [ default = 10 ]; // 0 = unbounded
 }
 

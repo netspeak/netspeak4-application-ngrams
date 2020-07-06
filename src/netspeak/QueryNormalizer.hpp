@@ -30,16 +30,16 @@ private:
   std::shared_ptr<Dictionaries::Map> dictionary_;
 
 public:
-  typedef struct InitConfig {
+  struct InitConfig {
     std::shared_ptr<RegexIndex> regex_index;
     std::shared_ptr<Dictionaries::Map> dictionary;
-  } InitConfig;
+  };
 
+  QueryNormalizer() {}
   QueryNormalizer(const InitConfig& config);
-  QueryNormalizer() = delete;
   QueryNormalizer(const QueryNormalizer&) = delete;
 
-  typedef struct Options {
+  struct Options {
     /**
      * @brief The maximum number of norm queries allowed to be returned.
      */
@@ -70,9 +70,7 @@ public:
      * words for that regex.
      */
     std::chrono::nanoseconds max_regex_time;
-
-    Options(const Options&) = default;
-  } Options;
+  };
 
   void normalize(const Query& query, const Options& options,
                  std::vector<NormQuery>& norm_queries);

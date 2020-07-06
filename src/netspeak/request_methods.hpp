@@ -1,7 +1,7 @@
 #ifndef NETSPEAK_REQUEST_METHODS_HPP
 #define NETSPEAK_REQUEST_METHODS_HPP
 
-#include "netspeak/generated/NetspeakMessages.pb.h"
+//#include "netspeak/generated/NetspeakMessages.pb.h"
 
 namespace netspeak {
 namespace generated {
@@ -16,9 +16,9 @@ namespace generated {
 //  a.max_phrase_count == b.max_phrase_count, then the result of 'a' might
 //  not include the entire result of 'b'. Therefore we have to compare
 //  max_phrase_frequency for equality.
-bool operator>=(const Request& a, const Request& b);
+/*bool operator>=(const Request& a, const Request& b);*/
 
-bool operator==(const Request& a, const Request& b);
+/*bool operator==(const Request& a, const Request& b);*/
 
 } // namespace generated
 

@@ -7,79 +7,12 @@
 
 #include "aitools/util/check.hpp"
 
-#include "netspeak/generated/NetspeakMessages.pb.h"
+//#include "netspeak/generated/NetspeakMessages.pb.h"
 #include "netspeak/phrase_methods.hpp"
 #include "netspeak/query_methods.hpp"
 
 namespace netspeak {
 
-template <typename QueryResultInputIterator>
-uint64_t compute_resume_frequency(QueryResultInputIterator first,
-                                  QueryResultInputIterator last) {
-  uint64_t resume_frequency(0);
-  while (first != last) {
-    if (first->reference_size() != 0) {
-      resume_frequency =
-          std::max(resume_frequency,
-                   static_cast<uint64_t>(
-                       std::prev(first->reference().end())->frequency()));
-    }
-    ++first;
-  }
-  return resume_frequency;
-}
-
-template <typename QueryResultContainer>
-uint64_t compute_resume_frequency(const QueryResultContainer& results) {
-  return compute_resume_frequency(results.begin(), results.end());
-}
-
-template <typename PhraseInputIterator>
-uint64_t compute_total_frequency(const generated::Query& query,
-                                 PhraseInputIterator first,
-                                 PhraseInputIterator last) {
-  uint64_t frequency(0);
-  if (starts_with(query, generated::Query::Unit::ASTERISK) ||
-      ends_with(query, generated::Query::Unit::ASTERISK)) {
-    std::list<generated::Phrase> phrases(first, last);
-    for (auto lhs = phrases.begin(); lhs != phrases.end(); ++lhs) {
-      for (auto rhs = std::next(lhs); rhs != phrases.end();) {
-        rhs = is_subphrase_of(*lhs, *rhs) ? phrases.erase(rhs) : std::next(rhs);
-      }
-    }
-    for (auto it = phrases.begin(); it != phrases.end(); ++it) {
-      frequency += it->frequency();
-    }
-  } else {
-    while (first != last) {
-      frequency += first->frequency();
-      ++first;
-    }
-  }
-  return frequency;
-}
-
-template <typename PhraseContainer>
-uint64_t compute_total_frequency(const generated::Query& query,
-                                 const PhraseContainer& phrases) {
-  return compute_total_frequency(query, phrases.begin(), phrases.end());
-}
-
-template <typename QueryResultInputIterator>
-uint64_t compute_total_union_size(QueryResultInputIterator first,
-                                  QueryResultInputIterator last) {
-  uint64_t total_union_size(0);
-  while (first != last) {
-    total_union_size += first->union_size();
-    ++first;
-  }
-  return total_union_size;
-}
-
-template <typename QueryResultContainer>
-uint64_t compute_total_union_size(const QueryResultContainer& results) {
-  return compute_total_union_size(results.begin(), results.end());
-}
 
 template <typename QueryResultInputIterator>
 std::set<generated::QueryResult::PhraseRef,

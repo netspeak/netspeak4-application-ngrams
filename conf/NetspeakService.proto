@@ -57,7 +57,7 @@ message Phrase {
     enum Tag {
       WORD = 0;
       WORD_FOR_QMARK = 1;
-      WORD_FOR_ASTERISK = 2;
+      WORD_FOR_STAR = 2;
       WORD_IN_DICTSET = 3;
       WORD_IN_ORDERSET = 4;
       WORD_IN_OPTIONSET = 5;
@@ -91,7 +91,7 @@ message SearchResponse {
   message Result {
     repeated Phrase phrases = 1;
     /// All words of the query that are not in the corpus.
-    repeated string unknown_word = 2;
+    repeated string unknown_words = 2;
   }
 
   message Error {
@@ -105,6 +105,8 @@ message SearchResponse {
       INVALID_PARAMETER = 100;
       INVALID_QUERY = 110;
       INVALID_CORPUS = 111;
+
+
     }
 
     /// The kind of error encountered by the server while processing the

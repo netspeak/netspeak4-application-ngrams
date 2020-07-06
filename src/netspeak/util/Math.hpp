@@ -1,8 +1,6 @@
 #ifndef NETSPEAK_UTIL_MATH_HPP
 #define NETSPEAK_UTIL_MATH_HPP
 
-#include <algorithm>
-#include <vector>
 
 namespace netspeak {
 namespace util {

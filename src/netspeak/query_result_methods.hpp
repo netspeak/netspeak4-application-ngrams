@@ -4,8 +4,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "netspeak/generated/NetspeakMessages.pb.h"
-#include "netspeak/protobuf_utils.hpp"
+//#include "netspeak/generated/NetspeakMessages.pb.h"
 
 namespace netspeak {
 

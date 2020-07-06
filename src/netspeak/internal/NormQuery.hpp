@@ -23,26 +23,42 @@ namespace internal {
  *
  * Note: A unit doesn't own the data it points to!
  */
-struct NormQueryUnit__ {
+class NormQueryUnit__ {
 public:
-  typedef enum class Tag {
+  enum class Tag {
     WORD,
     QMARK,
-  } Tag;
+  };
   typedef std::shared_ptr<const std::string> Text;
   typedef std::shared_ptr<const Query::Unit> Source;
 
+private:
+  Tag tag_;
+  Text text_;
+  Source source_;
+
 public:
-  Tag tag;
-  Text text;
-  Source source;
+  Tag tag() const {
+    return tag_;
+  }
+  const Text& text() const {
+    return text_;
+  }
+  const Source& source() const {
+    return source_;
+  }
 
   static NormQueryUnit__ word(const Text& text, const Source& source);
   static NormQueryUnit__ qmark(const Source& source);
 
+  bool operator==(const NormQueryUnit__& rhs) const;
+  inline bool operator!=(const NormQueryUnit__& rhs) const {
+    return !(*this == rhs);
+  }
+
 private:
   NormQueryUnit__(Tag tag, const Text& text, const Source& source)
-      : tag(tag), text(text), source(source) {}
+      : tag_(tag), text_(text), source_(source) {}
   NormQueryUnit__() = delete;
 };
 
@@ -78,9 +94,23 @@ public:
     return units_;
   }
 
-  bool empty() const;
-  size_t size() const;
-  bool has_wildcards() const;
+  bool empty() const {
+    return units_.empty();
+  }
+  size_t size() const {
+    return units_.size();
+  }
+
+  bool has_qmarks() const;
+  bool has_words() const;
+
+  size_t count_qmarks() const;
+  size_t count_words() const;
+
+  bool operator==(const NormQuery& rhs) const;
+  inline bool operator!=(const NormQuery& rhs) const {
+    return !(*this == rhs);
+  }
 };
 
 

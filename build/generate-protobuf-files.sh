@@ -15,7 +15,7 @@ fi
 cd ../conf
 
 mkdir -p ../src/netspeak/service
-rm -rf ../src/netspeak/service/*
+rm -rf ../src/netspeak/service/*.{h,cc}
 
 protoc --cpp_out=../src/netspeak/service ./NetspeakService.proto
 protoc --grpc_out=../src/netspeak/service --plugin=protoc-gen-grpc=$(which grpc_cpp_plugin) ./NetspeakService.proto

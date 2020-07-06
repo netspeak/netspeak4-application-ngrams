@@ -1,6 +1,5 @@
 #include "netspeak/internal/Words.hpp"
 
-#include <sstream>
 
 namespace netspeak {
 namespace internal {
@@ -10,7 +9,7 @@ Words::Words() : data_() {}
 bool Words::is_subsequence_of(const Words& words) const {
   return is_subsequence_of(words.data());
 }
-bool Words::is_subsequence_of(const std::vector<Word>& words) const {
+bool Words::is_subsequence_of(const std::vector<const Word>& words) const {
   for (auto it = words.begin(); it != words.end(); ++it) {
     if (size() > std::distance(it, words.end()))
       break;
@@ -30,10 +29,10 @@ std::ostream& operator<<(std::ostream& out, const Words& words) {
   if (it == end) {
     out << "<empty>";
   } else {
-    out << *it;
+    out << '"' << *it << '"';
     it++;
     for (; it != end; it++) {
-      out << " " << *it;
+      out << " " << '"' << *it << '"';
     }
   }
 

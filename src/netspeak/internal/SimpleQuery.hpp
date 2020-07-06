@@ -14,7 +14,7 @@ namespace internal {
 
 class SimpleQueryUnit__ {
 public:
-  typedef enum class Tag {
+  enum class Tag {
     WORD,
     QMARK,
     STAR,
@@ -22,7 +22,7 @@ public:
 
     CONCAT,
     ALTERNATION,
-  } Tag;
+  };
   typedef std::shared_ptr<const Query::Unit> Source;
   typedef std::string Text;
 

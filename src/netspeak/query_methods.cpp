@@ -10,8 +10,8 @@
 
 #include "aitools/util/exception.hpp"
 
-#include "netspeak/generated/NetspeakMessages.pb.h"
-#include "netspeak/query_normalization.hpp"
+//#include "netspeak/generated/NetspeakMessages.pb.h"
+//#include "netspeak/query_normalization.hpp"
 
 namespace netspeak {
 
@@ -21,19 +21,6 @@ generated::Query& append(generated::Query& query,
   return query;
 }
 
-size_t count_unit(const generated::Query& query,
-                  generated::Query::Unit::Tag tag) {
-  size_t count(0);
-  for (const auto& unit : query.unit()) {
-    if (unit.tag() == tag)
-      ++count;
-  }
-  return count;
-}
-
-bool has_unit(const generated::Query& query, generated::Query::Unit::Tag tag) {
-  return count_unit(query, tag) != 0;
-}
 
 bool has_wildcard(const generated::Query& query) {
   for (const auto& unit : query.unit()) {
@@ -191,8 +178,8 @@ bool operator==(const Query& a, const Query& b) {
 
 bool operator==(const Query::Unit& a, const Query::Unit& b) {
   return a.frequency() == b.frequency() && a.position() == b.position() &&
-         a.pruning() == b.pruning() && a.quantile() == b.quantile() &&
-         a.text() == b.text() && a.tag() == b.tag();
+         a.pruning() == b.pruning() && a.text() == b.text() &&
+         a.tag() == b.tag();
 }
 
 std::ostream& operator<<(std::ostream& os, const Query& query) {

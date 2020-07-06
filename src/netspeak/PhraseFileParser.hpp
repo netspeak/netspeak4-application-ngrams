@@ -3,7 +3,7 @@
 
 #include <istream>
 
-#include "netspeak/generated/NetspeakMessages.pb.h"
+//#include "netspeak/generated/NetspeakMessages.pb.h"
 #include "netspeak/phrase_methods.hpp"
 #include "netspeak/typedefs.hpp"
 

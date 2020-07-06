@@ -3,6 +3,8 @@
 
 #include "netspeak/Configurations.hpp"
 #include "netspeak/Properties.hpp"
+#include "netspeak/internal/NormQuery.hpp"
+#include "netspeak/internal/SearchOptions.hpp"
 
 namespace netspeak {
 
@@ -45,22 +47,25 @@ struct stats_type {
  */
 template <typename RetrievalStrategyTag> class RetrievalStrategy {
 public:
+  typedef RetrievalStrategyTag::unit_metadata unit_metadata;
+
   void initialize(const Configurations::Map& config);
 
-  void initialize_query(const generated::Request& request,
-                        generated::Query& query);
+  void initialize_query(const SearchOptions& options,
+                        const internal::NormQuery& query,
+                        std::vector<unit_metadata>& metadata);
 
   template <typename OutputIterator>
-  const stats_type initialize_result_set(const generated::Query::Unit& unit,
-                                         const generated::Query& query,
-                                         size_t max_phrase_frequency,
-                                         size_t max_phrase_count,
+  const stats_type initialize_result_set(const unit_metadata& unit_meta,
+                                         const internal::NormQuery& query,
+                                         uint64_t max_phrase_frequency,
+                                         uint64_t max_phrase_count,
                                          OutputIterator output);
 
   template <typename IntersectionSet, typename OutputIterator>
   const stats_type intersect_result_set(const IntersectionSet& input,
-                                        const generated::Query::Unit& unit,
-                                        const generated::Query& query,
+                                        const unit_metadata& unit_meta,
+                                        const internal::NormQuery& query,
                                         size_t max_phrase_frequency,
                                         size_t max_phrase_count,
                                         OutputIterator& output);

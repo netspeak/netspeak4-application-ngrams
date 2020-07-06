@@ -107,7 +107,7 @@ namespace service {
 enum Phrase_Word_Tag : int {
   Phrase_Word_Tag_WORD = 0,
   Phrase_Word_Tag_WORD_FOR_QMARK = 1,
-  Phrase_Word_Tag_WORD_FOR_ASTERISK = 2,
+  Phrase_Word_Tag_WORD_FOR_STAR = 2,
   Phrase_Word_Tag_WORD_IN_DICTSET = 3,
   Phrase_Word_Tag_WORD_IN_ORDERSET = 4,
   Phrase_Word_Tag_WORD_IN_OPTIONSET = 5,
@@ -604,8 +604,8 @@ class Phrase_Word :
     Phrase_Word_Tag_WORD;
   static constexpr Tag WORD_FOR_QMARK =
     Phrase_Word_Tag_WORD_FOR_QMARK;
-  static constexpr Tag WORD_FOR_ASTERISK =
-    Phrase_Word_Tag_WORD_FOR_ASTERISK;
+  static constexpr Tag WORD_FOR_STAR =
+    Phrase_Word_Tag_WORD_FOR_STAR;
   static constexpr Tag WORD_IN_DICTSET =
     Phrase_Word_Tag_WORD_IN_DICTSET;
   static constexpr Tag WORD_IN_ORDERSET =
@@ -952,7 +952,7 @@ class SearchResponse_Result :
 
   enum : int {
     kPhrasesFieldNumber = 1,
-    kUnknownWordFieldNumber = 2,
+    kUnknownWordsFieldNumber = 2,
   };
   // repeated .netspeak.service.Phrase phrases = 1;
   int phrases_size() const;
@@ -972,28 +972,28 @@ class SearchResponse_Result :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::netspeak::service::Phrase >&
       phrases() const;
 
-  // repeated string unknown_word = 2;
-  int unknown_word_size() const;
+  // repeated string unknown_words = 2;
+  int unknown_words_size() const;
   private:
-  int _internal_unknown_word_size() const;
+  int _internal_unknown_words_size() const;
   public:
-  void clear_unknown_word();
-  const std::string& unknown_word(int index) const;
-  std::string* mutable_unknown_word(int index);
-  void set_unknown_word(int index, const std::string& value);
-  void set_unknown_word(int index, std::string&& value);
-  void set_unknown_word(int index, const char* value);
-  void set_unknown_word(int index, const char* value, size_t size);
-  std::string* add_unknown_word();
-  void add_unknown_word(const std::string& value);
-  void add_unknown_word(std::string&& value);
-  void add_unknown_word(const char* value);
-  void add_unknown_word(const char* value, size_t size);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& unknown_word() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_unknown_word();
+  void clear_unknown_words();
+  const std::string& unknown_words(int index) const;
+  std::string* mutable_unknown_words(int index);
+  void set_unknown_words(int index, const std::string& value);
+  void set_unknown_words(int index, std::string&& value);
+  void set_unknown_words(int index, const char* value);
+  void set_unknown_words(int index, const char* value, size_t size);
+  std::string* add_unknown_words();
+  void add_unknown_words(const std::string& value);
+  void add_unknown_words(std::string&& value);
+  void add_unknown_words(const char* value);
+  void add_unknown_words(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& unknown_words() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_unknown_words();
   private:
-  const std::string& _internal_unknown_word(int index) const;
-  std::string* _internal_add_unknown_word();
+  const std::string& _internal_unknown_words(int index) const;
+  std::string* _internal_add_unknown_words();
   public:
 
   // @@protoc_insertion_point(class_scope:netspeak.service.SearchResponse.Result)
@@ -1002,7 +1002,7 @@ class SearchResponse_Result :
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::netspeak::service::Phrase > phrases_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> unknown_word_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> unknown_words_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_NetspeakService_2eproto;
 };
@@ -2268,78 +2268,78 @@ SearchResponse_Result::phrases() const {
   return phrases_;
 }
 
-// repeated string unknown_word = 2;
-inline int SearchResponse_Result::_internal_unknown_word_size() const {
-  return unknown_word_.size();
+// repeated string unknown_words = 2;
+inline int SearchResponse_Result::_internal_unknown_words_size() const {
+  return unknown_words_.size();
 }
-inline int SearchResponse_Result::unknown_word_size() const {
-  return _internal_unknown_word_size();
+inline int SearchResponse_Result::unknown_words_size() const {
+  return _internal_unknown_words_size();
 }
-inline void SearchResponse_Result::clear_unknown_word() {
-  unknown_word_.Clear();
+inline void SearchResponse_Result::clear_unknown_words() {
+  unknown_words_.Clear();
 }
-inline std::string* SearchResponse_Result::add_unknown_word() {
-  // @@protoc_insertion_point(field_add_mutable:netspeak.service.SearchResponse.Result.unknown_word)
-  return _internal_add_unknown_word();
+inline std::string* SearchResponse_Result::add_unknown_words() {
+  // @@protoc_insertion_point(field_add_mutable:netspeak.service.SearchResponse.Result.unknown_words)
+  return _internal_add_unknown_words();
 }
-inline const std::string& SearchResponse_Result::_internal_unknown_word(int index) const {
-  return unknown_word_.Get(index);
+inline const std::string& SearchResponse_Result::_internal_unknown_words(int index) const {
+  return unknown_words_.Get(index);
 }
-inline const std::string& SearchResponse_Result::unknown_word(int index) const {
-  // @@protoc_insertion_point(field_get:netspeak.service.SearchResponse.Result.unknown_word)
-  return _internal_unknown_word(index);
+inline const std::string& SearchResponse_Result::unknown_words(int index) const {
+  // @@protoc_insertion_point(field_get:netspeak.service.SearchResponse.Result.unknown_words)
+  return _internal_unknown_words(index);
 }
-inline std::string* SearchResponse_Result::mutable_unknown_word(int index) {
-  // @@protoc_insertion_point(field_mutable:netspeak.service.SearchResponse.Result.unknown_word)
-  return unknown_word_.Mutable(index);
+inline std::string* SearchResponse_Result::mutable_unknown_words(int index) {
+  // @@protoc_insertion_point(field_mutable:netspeak.service.SearchResponse.Result.unknown_words)
+  return unknown_words_.Mutable(index);
 }
-inline void SearchResponse_Result::set_unknown_word(int index, const std::string& value) {
-  // @@protoc_insertion_point(field_set:netspeak.service.SearchResponse.Result.unknown_word)
-  unknown_word_.Mutable(index)->assign(value);
+inline void SearchResponse_Result::set_unknown_words(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:netspeak.service.SearchResponse.Result.unknown_words)
+  unknown_words_.Mutable(index)->assign(value);
 }
-inline void SearchResponse_Result::set_unknown_word(int index, std::string&& value) {
-  // @@protoc_insertion_point(field_set:netspeak.service.SearchResponse.Result.unknown_word)
-  unknown_word_.Mutable(index)->assign(std::move(value));
+inline void SearchResponse_Result::set_unknown_words(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:netspeak.service.SearchResponse.Result.unknown_words)
+  unknown_words_.Mutable(index)->assign(std::move(value));
 }
-inline void SearchResponse_Result::set_unknown_word(int index, const char* value) {
+inline void SearchResponse_Result::set_unknown_words(int index, const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  unknown_word_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set_char:netspeak.service.SearchResponse.Result.unknown_word)
+  unknown_words_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:netspeak.service.SearchResponse.Result.unknown_words)
 }
-inline void SearchResponse_Result::set_unknown_word(int index, const char* value, size_t size) {
-  unknown_word_.Mutable(index)->assign(
+inline void SearchResponse_Result::set_unknown_words(int index, const char* value, size_t size) {
+  unknown_words_.Mutable(index)->assign(
     reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:netspeak.service.SearchResponse.Result.unknown_word)
+  // @@protoc_insertion_point(field_set_pointer:netspeak.service.SearchResponse.Result.unknown_words)
 }
-inline std::string* SearchResponse_Result::_internal_add_unknown_word() {
-  return unknown_word_.Add();
+inline std::string* SearchResponse_Result::_internal_add_unknown_words() {
+  return unknown_words_.Add();
 }
-inline void SearchResponse_Result::add_unknown_word(const std::string& value) {
-  unknown_word_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add:netspeak.service.SearchResponse.Result.unknown_word)
+inline void SearchResponse_Result::add_unknown_words(const std::string& value) {
+  unknown_words_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:netspeak.service.SearchResponse.Result.unknown_words)
 }
-inline void SearchResponse_Result::add_unknown_word(std::string&& value) {
-  unknown_word_.Add(std::move(value));
-  // @@protoc_insertion_point(field_add:netspeak.service.SearchResponse.Result.unknown_word)
+inline void SearchResponse_Result::add_unknown_words(std::string&& value) {
+  unknown_words_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:netspeak.service.SearchResponse.Result.unknown_words)
 }
-inline void SearchResponse_Result::add_unknown_word(const char* value) {
+inline void SearchResponse_Result::add_unknown_words(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  unknown_word_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add_char:netspeak.service.SearchResponse.Result.unknown_word)
+  unknown_words_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:netspeak.service.SearchResponse.Result.unknown_words)
 }
-inline void SearchResponse_Result::add_unknown_word(const char* value, size_t size) {
-  unknown_word_.Add()->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_add_pointer:netspeak.service.SearchResponse.Result.unknown_word)
+inline void SearchResponse_Result::add_unknown_words(const char* value, size_t size) {
+  unknown_words_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:netspeak.service.SearchResponse.Result.unknown_words)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
-SearchResponse_Result::unknown_word() const {
-  // @@protoc_insertion_point(field_list:netspeak.service.SearchResponse.Result.unknown_word)
-  return unknown_word_;
+SearchResponse_Result::unknown_words() const {
+  // @@protoc_insertion_point(field_list:netspeak.service.SearchResponse.Result.unknown_words)
+  return unknown_words_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-SearchResponse_Result::mutable_unknown_word() {
-  // @@protoc_insertion_point(field_mutable_list:netspeak.service.SearchResponse.Result.unknown_word)
-  return &unknown_word_;
+SearchResponse_Result::mutable_unknown_words() {
+  // @@protoc_insertion_point(field_mutable_list:netspeak.service.SearchResponse.Result.unknown_words)
+  return &unknown_words_;
 }
 
 // -------------------------------------------------------------------

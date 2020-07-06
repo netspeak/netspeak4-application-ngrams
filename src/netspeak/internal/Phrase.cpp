@@ -4,8 +4,15 @@
 namespace netspeak {
 namespace internal {
 
-const Phrase::Id::Local Phrase::Id::LOCAL_MAX = UINT32_MAX;
-const Phrase::Id::Length Phrase::Id::LENGTH_MAX = 0xFF;
+
+std::ostream& operator<<(std::ostream& out, const Phrase::Id& id) {
+  return out << "Id(" << id.length() << ", " << id.local() << ")";
+}
+std::ostream& operator<<(std::ostream& out, const Phrase& phrase) {
+  return out << "Phrase{ id: " << phrase.id() << ", freq: " << phrase.freq()
+             << ", words: (" << phrase.words() << ") }";
+}
+
 
 } // namespace internal
 } // namespace netspeak

@@ -21,7 +21,7 @@
 
 #include "netspeak/Dictionaries.hpp"
 #include "netspeak/error.hpp"
-#include "netspeak/generated/NetspeakMessages.pb.h"
+//#include "netspeak/generated/NetspeakMessages.pb.h"
 #include "netspeak/query_methods.hpp"
 #include "netspeak/query_normalization.hpp"
 

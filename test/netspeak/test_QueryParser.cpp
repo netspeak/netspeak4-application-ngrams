@@ -16,7 +16,7 @@
 
 #include "netspeak/Dictionaries.hpp"
 #include "netspeak/error.hpp"
-#include "netspeak/generated/NetspeakMessages.pb.h"
+//#include "netspeak/generated/NetspeakMessages.pb.h"
 
 using namespace antlr4;
 

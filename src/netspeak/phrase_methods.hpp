@@ -5,7 +5,7 @@
 #include <ostream>
 #include <sstream>
 
-#include "netspeak/generated/NetspeakMessages.pb.h"
+//#include "netspeak/generated/NetspeakMessages.pb.h"
 
 namespace std {
 

@@ -1,9 +1,12 @@
 #ifndef NETSPEAK_INTERNAL_PHRASE_HPP
 #define NETSPEAK_INTERNAL_PHRASE_HPP
 
+#include <ostream>
 #include <string>
 #include <vector>
+
 #include "netspeak/internal/Words.hpp"
+
 
 namespace netspeak {
 namespace internal {
@@ -15,27 +18,17 @@ namespace internal {
  * the id within a specific n-gram class) and the length of the phrase (= the
  * number of words = the n-gram class of the phrase).
  */
-struct PhraseId_impl {
+struct PhraseId__ {
 public:
   typedef uint32_t Local;
   typedef uint32_t Length;
-
-  /**
-   * @brief The maximum value a local id is allowed to have.
-   */
-  static const Local LOCAL_MAX;
-  /**
-   * @brief The maximum length supported.
-   */
-  static const Length LENGTH_MAX;
 
 private:
   Length length_;
   Local local_;
 
 public:
-  PhraseId_impl(Length len, Local local_id)
-      : length_(len), local_(local_id) {}
+  PhraseId__(Length len, Local local_id) : length_(len), local_(local_id) {}
 
   Local local() const {
     return local_;
@@ -45,20 +38,46 @@ public:
   }
 
   operator uint64_t() const {
-    return ((uint64_t)length_) << 32 | local_;
+    return (((uint64_t)length_) << 32) | local_;
+  }
+
+  inline bool operator==(const PhraseId__& rhs) const {
+    return local() == rhs.local() && length() == rhs.length();
+  }
+  inline bool operator!=(const PhraseId__& rhs) const {
+    return !(*this == rhs);
+  }
+  inline bool operator<(const PhraseId__& rhs) const {
+    // This operation is equivalent to:
+    //   ((uint64_t)*this) < ((uint64_t)rhs)
+    if (length() != rhs.length()) {
+      return length() < rhs.length();
+    } else {
+      return local() < rhs.local();
+    }
+  }
+  inline bool operator<=(const PhraseId__& rhs) const {
+    return *this < rhs || *this == rhs;
+  }
+  inline bool operator>(const PhraseId__& rhs) const {
+    return !(*this <= rhs);
+  }
+  inline bool operator>=(const PhraseId__& rhs) const {
+    return !(*this < rhs);
   }
 };
 
-struct Phrase {
+
+class Phrase {
 public:
-  typedef PhraseId_impl Id;
+  typedef PhraseId__ Id;
   typedef uint64_t Frequency;
 
-  typedef struct {
+  struct Count {
     typedef uint64_t Global;
     typedef uint32_t Local;
     typedef uint32_t Length;
-  } Count;
+  };
 
 private:
   Id id_;
@@ -74,13 +93,48 @@ public:
   Frequency freq() const {
     return freq_;
   }
+
   const Words& words() const {
     return words_;
   }
   Words& words() {
     return words_;
   }
+
+  inline bool operator==(const Phrase& rhs) const {
+    // The frequency and words of the phrase are both derived from the phrase
+    // id, they don't hold any more information.
+    return id() == rhs.id();
+  }
+  inline bool operator!=(const Phrase& rhs) const {
+    return !(*this == rhs);
+  }
+  inline bool operator<(const Phrase& rhs) const {
+    // Phrases are naturally sorted by descending frequency.
+    if (freq() != rhs.freq()) {
+      return freq() < rhs.freq();
+    } else {
+      // If the frequency is that same, then we will sort by id. The order of
+      // ids within a frequency class doesn't really matter, so we will just go
+      // with their natural order.
+      return id() < rhs.id();
+    }
+  }
+  inline bool operator<=(const Phrase& rhs) const {
+    return *this < rhs || *this == rhs;
+  }
+  inline bool operator>(const Phrase& rhs) const {
+    return !(*this <= rhs);
+  }
+  inline bool operator>=(const Phrase& rhs) const {
+    return !(*this < rhs);
+  }
 };
+
+
+std::ostream& operator<<(std::ostream& out, const Phrase::Id& id);
+std::ostream& operator<<(std::ostream& out, const Phrase& phrase);
+
 
 } // namespace internal
 } // namespace netspeak

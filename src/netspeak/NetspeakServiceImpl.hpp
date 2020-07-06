@@ -5,7 +5,7 @@
 #include <grpc/grpc.h>
 #include <grpcpp/server_context.h>
 
-#include "NetspeakService.grpc.pb.h"
+#include "netspeak/service/NetspeakService.grpc.pb.h"
 
 namespace netspeak {
 

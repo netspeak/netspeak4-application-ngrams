@@ -255,7 +255,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_NetspeakService_2eproto::offse
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::netspeak::service::SearchResponse_Result, phrases_),
-  PROTOBUF_FIELD_OFFSET(::netspeak::service::SearchResponse_Result, unknown_word_),
+  PROTOBUF_FIELD_OFFSET(::netspeak::service::SearchResponse_Result, unknown_words_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::netspeak::service::SearchResponse_Error, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -324,34 +324,34 @@ const char descriptor_table_protodef_NetspeakService_2eproto[] PROTOBUF_SECTION_
   "e_constraints\030\004 \001(\0132#.netspeak.service.P"
   "hraseConstraints\"P\n\021PhraseConstraints\022\025\n"
   "\rfrequency_max\030\001 \001(\004\022\021\n\twords_min\030\002 \001(\r\022"
-  "\021\n\twords_max\030\003 \001(\r\"\302\002\n\006Phrase\022\n\n\002id\030\001 \001("
+  "\021\n\twords_max\030\003 \001(\r\"\276\002\n\006Phrase\022\n\n\002id\030\001 \001("
   "\004\022\021\n\tfrequency\030\002 \001(\004\022,\n\005words\030\003 \003(\0132\035.ne"
-  "tspeak.service.Phrase.Word\032\352\001\n\004Word\022.\n\003t"
+  "tspeak.service.Phrase.Word\032\346\001\n\004Word\022.\n\003t"
   "ag\030\001 \001(\0162!.netspeak.service.Phrase.Word."
-  "Tag\022\014\n\004text\030\002 \001(\t\"\243\001\n\003Tag\022\010\n\004WORD\020\000\022\022\n\016W"
-  "ORD_FOR_QMARK\020\001\022\025\n\021WORD_FOR_ASTERISK\020\002\022\023"
-  "\n\017WORD_IN_DICTSET\020\003\022\024\n\020WORD_IN_ORDERSET\020"
-  "\004\022\025\n\021WORD_IN_OPTIONSET\020\005\022\021\n\rWORD_FOR_PLU"
-  "S\020\006\022\022\n\016WORD_FOR_REGEX\020\007\"\230\003\n\016SearchRespon"
-  "se\0229\n\006result\030\001 \001(\0132\'.netspeak.service.Se"
-  "archResponse.ResultH\000\0227\n\005error\030\002 \001(\0132&.n"
-  "etspeak.service.SearchResponse.ErrorH\000\032I"
-  "\n\006Result\022)\n\007phrases\030\001 \003(\0132\030.netspeak.ser"
-  "vice.Phrase\022\024\n\014unknown_word\030\002 \003(\t\032\272\001\n\005Er"
-  "ror\0229\n\004kind\030\001 \001(\0162+.netspeak.service.Sea"
-  "rchResponse.Error.Kind\022\017\n\007message\030\002 \001(\t\""
-  "e\n\004Kind\022\013\n\007UNKNOWN\020\000\022\022\n\016INTERNAL_ERROR\020\001"
-  "\022\025\n\021INVALID_PARAMETER\020d\022\021\n\rINVALID_QUERY"
-  "\020n\022\022\n\016INVALID_CORPUS\020oB\n\n\010response\"\020\n\016Co"
-  "rporaRequest\"5\n\006Corpus\022\013\n\003key\030\001 \001(\t\022\014\n\004n"
-  "ame\030\002 \001(\t\022\020\n\010language\030\003 \001(\t\"<\n\017CorporaRe"
-  "sponse\022)\n\007corpora\030\001 \003(\0132\030.netspeak.servi"
-  "ce.Corpus2\261\001\n\017NetspeakService\022K\n\006Search\022"
-  "\037.netspeak.service.SearchRequest\032 .netsp"
-  "eak.service.SearchResponse\022Q\n\nGetCorpora"
-  "\022 .netspeak.service.CorporaRequest\032!.net"
-  "speak.service.CorporaResponseB\030\n\024org.net"
-  "speak.serviceH\001b\006proto3"
+  "Tag\022\014\n\004text\030\002 \001(\t\"\237\001\n\003Tag\022\010\n\004WORD\020\000\022\022\n\016W"
+  "ORD_FOR_QMARK\020\001\022\021\n\rWORD_FOR_STAR\020\002\022\023\n\017WO"
+  "RD_IN_DICTSET\020\003\022\024\n\020WORD_IN_ORDERSET\020\004\022\025\n"
+  "\021WORD_IN_OPTIONSET\020\005\022\021\n\rWORD_FOR_PLUS\020\006\022"
+  "\022\n\016WORD_FOR_REGEX\020\007\"\231\003\n\016SearchResponse\0229"
+  "\n\006result\030\001 \001(\0132\'.netspeak.service.Search"
+  "Response.ResultH\000\0227\n\005error\030\002 \001(\0132&.netsp"
+  "eak.service.SearchResponse.ErrorH\000\032J\n\006Re"
+  "sult\022)\n\007phrases\030\001 \003(\0132\030.netspeak.service"
+  ".Phrase\022\025\n\runknown_words\030\002 \003(\t\032\272\001\n\005Error"
+  "\0229\n\004kind\030\001 \001(\0162+.netspeak.service.Search"
+  "Response.Error.Kind\022\017\n\007message\030\002 \001(\t\"e\n\004"
+  "Kind\022\013\n\007UNKNOWN\020\000\022\022\n\016INTERNAL_ERROR\020\001\022\025\n"
+  "\021INVALID_PARAMETER\020d\022\021\n\rINVALID_QUERY\020n\022"
+  "\022\n\016INVALID_CORPUS\020oB\n\n\010response\"\020\n\016Corpo"
+  "raRequest\"5\n\006Corpus\022\013\n\003key\030\001 \001(\t\022\014\n\004name"
+  "\030\002 \001(\t\022\020\n\010language\030\003 \001(\t\"<\n\017CorporaRespo"
+  "nse\022)\n\007corpora\030\001 \003(\0132\030.netspeak.service."
+  "Corpus2\261\001\n\017NetspeakService\022K\n\006Search\022\037.n"
+  "etspeak.service.SearchRequest\032 .netspeak"
+  ".service.SearchResponse\022Q\n\nGetCorpora\022 ."
+  "netspeak.service.CorporaRequest\032!.netspe"
+  "ak.service.CorporaResponseB\030\n\024org.netspe"
+  "ak.serviceH\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_NetspeakService_2eproto_deps[1] = {
 };
@@ -370,7 +370,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_Net
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_NetspeakService_2eproto_once;
 static bool descriptor_table_NetspeakService_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_NetspeakService_2eproto = {
-  &descriptor_table_NetspeakService_2eproto_initialized, descriptor_table_protodef_NetspeakService_2eproto, "NetspeakService.proto", 1343,
+  &descriptor_table_NetspeakService_2eproto_initialized, descriptor_table_protodef_NetspeakService_2eproto, "NetspeakService.proto", 1340,
   &descriptor_table_NetspeakService_2eproto_once, descriptor_table_NetspeakService_2eproto_sccs, descriptor_table_NetspeakService_2eproto_deps, 10, 0,
   schemas, file_default_instances, TableStruct_NetspeakService_2eproto::offsets,
   file_level_metadata_NetspeakService_2eproto, 10, file_level_enum_descriptors_NetspeakService_2eproto, file_level_service_descriptors_NetspeakService_2eproto,
@@ -403,7 +403,7 @@ bool Phrase_Word_Tag_IsValid(int value) {
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 constexpr Phrase_Word_Tag Phrase_Word::WORD;
 constexpr Phrase_Word_Tag Phrase_Word::WORD_FOR_QMARK;
-constexpr Phrase_Word_Tag Phrase_Word::WORD_FOR_ASTERISK;
+constexpr Phrase_Word_Tag Phrase_Word::WORD_FOR_STAR;
 constexpr Phrase_Word_Tag Phrase_Word::WORD_IN_DICTSET;
 constexpr Phrase_Word_Tag Phrase_Word::WORD_IN_ORDERSET;
 constexpr Phrase_Word_Tag Phrase_Word::WORD_IN_OPTIONSET;
@@ -1483,7 +1483,7 @@ SearchResponse_Result::SearchResponse_Result(const SearchResponse_Result& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr),
       phrases_(from.phrases_),
-      unknown_word_(from.unknown_word_) {
+      unknown_words_(from.unknown_words_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   // @@protoc_insertion_point(copy_constructor:netspeak.service.SearchResponse.Result)
 }
@@ -1516,7 +1516,7 @@ void SearchResponse_Result::Clear() {
   (void) cached_has_bits;
 
   phrases_.Clear();
-  unknown_word_.Clear();
+  unknown_words_.Clear();
   _internal_metadata_.Clear();
 }
 
@@ -1539,15 +1539,15 @@ const char* SearchResponse_Result::_InternalParse(const char* ptr, ::PROTOBUF_NA
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else goto handle_unusual;
         continue;
-      // repeated string unknown_word = 2;
+      // repeated string unknown_words = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           ptr -= 1;
           do {
             ptr += 1;
-            auto str = _internal_add_unknown_word();
+            auto str = _internal_add_unknown_words();
             ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-            CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "netspeak.service.SearchResponse.Result.unknown_word"));
+            CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "netspeak.service.SearchResponse.Result.unknown_words"));
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
@@ -1587,13 +1587,13 @@ failure:
       InternalWriteMessage(1, this->_internal_phrases(i), target, stream);
   }
 
-  // repeated string unknown_word = 2;
-  for (int i = 0, n = this->_internal_unknown_word_size(); i < n; i++) {
-    const auto& s = this->_internal_unknown_word(i);
+  // repeated string unknown_words = 2;
+  for (int i = 0, n = this->_internal_unknown_words_size(); i < n; i++) {
+    const auto& s = this->_internal_unknown_words(i);
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       s.data(), static_cast<int>(s.length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "netspeak.service.SearchResponse.Result.unknown_word");
+      "netspeak.service.SearchResponse.Result.unknown_words");
     target = stream->WriteString(2, s, target);
   }
 
@@ -1620,12 +1620,12 @@ size_t SearchResponse_Result::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // repeated string unknown_word = 2;
+  // repeated string unknown_words = 2;
   total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(unknown_word_.size());
-  for (int i = 0, n = unknown_word_.size(); i < n; i++) {
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(unknown_words_.size());
+  for (int i = 0, n = unknown_words_.size(); i < n; i++) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-      unknown_word_.Get(i));
+      unknown_words_.Get(i));
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1660,7 +1660,7 @@ void SearchResponse_Result::MergeFrom(const SearchResponse_Result& from) {
   (void) cached_has_bits;
 
   phrases_.MergeFrom(from.phrases_);
-  unknown_word_.MergeFrom(from.unknown_word_);
+  unknown_words_.MergeFrom(from.unknown_words_);
 }
 
 void SearchResponse_Result::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -1685,7 +1685,7 @@ void SearchResponse_Result::InternalSwap(SearchResponse_Result* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   phrases_.InternalSwap(&other->phrases_);
-  unknown_word_.InternalSwap(&other->unknown_word_);
+  unknown_words_.InternalSwap(&other->unknown_words_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SearchResponse_Result::GetMetadata() const {

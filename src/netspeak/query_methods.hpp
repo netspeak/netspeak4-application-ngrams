@@ -4,7 +4,6 @@
 #include <ostream>
 #include <string>
 
-#include "netspeak/generated/NetspeakMessages.pb.h"
 
 namespace netspeak {
 
@@ -33,11 +32,6 @@ generated::Query& append(generated::Query& query, InputIterator first,
   }
   return query;
 }
-
-size_t count_unit(const generated::Query& query,
-                  generated::Query::Unit::Tag tag);
-
-bool has_unit(const generated::Query& query, generated::Query::Unit::Tag tag);
 
 bool has_wildcard(const generated::Query& query);
 

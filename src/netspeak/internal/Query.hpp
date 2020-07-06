@@ -16,7 +16,7 @@ namespace internal {
 
 class QueryUnit__ {
 public:
-  typedef enum class Tag {
+  enum class Tag {
     // Terminals
     WORD,
     QMARK,
@@ -30,7 +30,7 @@ public:
     OPTIONSET,
     ALTERNATION,
     CONCAT,
-  } Tag;
+  };
 
 private:
   typedef QueryUnit__ Unit;

@@ -5,82 +5,26 @@
 #include <grpcpp/server_context.h>
 
 #include <cstdio>
+#include <iomanip>
 #include <memory>
 #include <string>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
+#include "netspeak/NetspeakServiceImpl.hpp"
 #include "netspeak/error.hpp"
 #include "netspeak/indexing.hpp"
 #include "netspeak/regex/DefaultRegexIndex.hpp"
 #include "netspeak/regex/parsers.hpp"
+#include "netspeak/service/NetspeakService.pb.h"
 #include "netspeak/shell.hpp"
-#include "netspeak/NetspeakServiceImpl.hpp"
 
 
 namespace netspeak {
 
 namespace bfs = boost::filesystem;
 namespace bpo = boost::program_options;
-
-// -----------------------------------------------------------------------------
-// This example shows how to search Netspeak.
-// -----------------------------------------------------------------------------
-int HowToSearchNetspeak() {
-  // Set up the Netspeak configuration.
-  // home_dir is the directory defined by dst_dir_bn in howto_build_netspeak.
-  const Configurations::Map config = {
-    { Configurations::path_to_home,
-      "/home/temir/Schreibtisch/data-in-production/netspeak/netspeak3-web-en" },
-    { Configurations::cache_capacity, "1000" }
-  };
-
-  // Start Netspeak. This should happen only once in the initialization code
-  // of your application. If not stated otherwise, use RetrievalStrategy3 as
-  // the latest and best performing retrieval strategy. Depending on the size
-  // of the n-gram collection the initialization can take some seconds.
-  Netspeak<RetrievalStrategy3Tag> netspeak;
-  try {
-    netspeak.initialize(config);
-  } catch (std::exception& error) {
-    std::cerr << "Some error occured: " << error.what() << std::endl;
-  }
-
-  // Set up a Netspeak request.
-  generated::Request request;
-  while (true) {
-    std::cout << "Insert a netspeak query ('q' to exit): ";
-    char input[10000];
-    std::cin.getline(input, sizeof(input));
-
-    std::string in = input;
-    if (in == "q")
-      break;
-
-    request.set_query(in);
-    request.set_max_phrase_count(100); // Optional: Get the top ten results.
-
-    // Search Netspeak. This call do never throw an exception.
-    std::shared_ptr<generated::Response> response = netspeak.search(request);
-
-    // Check if any error occurred.
-    if (to_error_code(response->error_code()) != error_code::no_error) {
-      std::printf("Error: %s : %s\n",
-                  to_string(to_error_code(response->error_code())).c_str(),
-                  response->error_message().c_str());
-    } else {
-      // Print all retrieved phrases.
-
-      for (const auto& phrase : response->phrase()) {
-        std::printf("%-13lu %s\n", phrase.frequency(),
-                    to_string(phrase).c_str());
-      }
-    }
-  }
-
-  return EXIT_SUCCESS;
-}
 
 // -----------------------------------------------------------------------------
 // Prints generic program information if no specific command is selected
@@ -297,7 +241,7 @@ int RunServe(const std::vector<std::string>& opts) {
     auto config_file = variables["config"].as<std::string>();
     auto port = variables["port"].as<uint16_t>();
     std::string server_address("localhost:");
-    server_address.extend(std::to_string(port));
+    server_address.append(std::to_string(port));
 
     NetspeakServiceImpl service(config_file);
 
