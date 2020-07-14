@@ -13,7 +13,7 @@ namespace regex {
 
 class RegexIndex {
 public:
-  virtual ~RegexIndex();
+  virtual ~RegexIndex() {}
 
   /**
    * @brief Adds all words matching the given query to the given vector.

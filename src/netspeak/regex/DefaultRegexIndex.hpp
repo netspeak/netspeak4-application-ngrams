@@ -103,7 +103,7 @@ public:
    */
   DefaultRegexIndex(const std::string& vocabulary);
   DefaultRegexIndex(const DefaultRegexIndex&) = delete;
-  ~DefaultRegexIndex() override {}
+  ~DefaultRegexIndex() override = default;
 
   /**
    * @brief Adds all words matching the given query to the given vector.

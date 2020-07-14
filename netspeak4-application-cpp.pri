@@ -40,9 +40,9 @@ SOURCES += \
     $$PWD/src/netspeak/internal/RawResult.cpp \
     $$PWD/src/netspeak/internal/SimpleQuery.cpp \
     $$PWD/src/netspeak/internal/Words.cpp \
+    $$PWD/src/netspeak/regex/RegexQuery.cpp \
     $$PWD/src/netspeak/regex/DefaultRegexIndex.cpp \
     $$PWD/src/netspeak/regex/parsers.cpp \
-    $$PWD/src/netspeak/regex/RegexQuery.cpp \
     $$PWD/src/netspeak/service/NetspeakService.grpc.pb.cc \
     $$PWD/src/netspeak/service/NetspeakService.pb.cc
 
@@ -74,16 +74,33 @@ LIBS += \
     -lboost_system \
     -lboost_program_options \
     -lboost_regex \
-    -lprotobuf \
+    -l:libprotobuf.a \
     -lcmph \
     -lrt \
+    -lz \
+    -lpthread \
     -licui18n \
     -licuuc \
     -L$$/usr/lib/ \
 #    -L$$/usr/lib/x86_64-linux-gnu/ \
     -lantlr4-runtime \
-    -lgrpc \
-    -lgrpc++
+    -l:libgrpc++.a \
+    -l:libgrpc_unsecure.a \
+    -l:libcares.a \
+    -l:libgrpc.a \
+    -l:libgpr.a \
+    -l:libabsl_bad_optional_access.a \
+    -l:libabsl_base.a \
+    -l:libabsl_log_severity.a \
+    -l:libabsl_spinlock_wait.a \
+    -l:libabsl_str_format_internal.a \
+    -l:libabsl_strings.a \
+    -l:libabsl_raw_logging_internal.a \
+    -l:libabsl_strings_internal.a \
+    -l:libabsl_int128.a \
+    -l:libabsl_throw_delegate.a \
+    -l:libaddress_sorting.a \
+    -l:libupb.a \
 
 CONFIG(debug) {
   DESTDIR = $$PWD/build/debug
