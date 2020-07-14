@@ -12,7 +12,6 @@
 
 #include "netspeak/Configurations.hpp"
 #include "netspeak/Netspeak.hpp"
-#include "netspeak/RetrievalStrategy3.hpp"
 
 namespace netspeak {
 
@@ -20,7 +19,7 @@ namespace netspeak {
  * Runs an interactive Netspeak with the default retrieval strategy.
  */
 void RunNetspeakShell(const std::string& home_dir) {
-  Netspeak<RetrievalStrategy3Tag> netspeak;
+  Netspeak netspeak;
   try {
     const Configurations::Map config = {
       { Configurations::path_to_home, home_dir },

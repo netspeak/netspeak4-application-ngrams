@@ -99,6 +99,8 @@ public:
           return m_units[1].type == RegexUnit::Type::QMARK;
         case RegexUnit::Type::QMARK:
           return m_units[1].type == RegexUnit::Type::STAR;
+        default:
+          break;
       }
     }
     return false;

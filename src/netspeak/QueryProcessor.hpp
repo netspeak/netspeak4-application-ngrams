@@ -17,7 +17,6 @@
 #include "netspeak/internal/NormQuery.hpp"
 #include "netspeak/internal/RawRefResult.hpp"
 #include "netspeak/internal/SearchOptions.hpp"
-//#include "netspeak/query_methods.hpp"
 
 namespace netspeak {
 
@@ -73,7 +72,7 @@ public:
 private:
   void process_(const SearchOptions& options, RawRefResult& query_result,
                 const NormQuery& query) {
-    std::vector<retrieval_strategy::unit_metadata> unit_metadata;
+    std::vector<typename RetrievalStrategyTag::unit_metadata> unit_metadata;
     strategy_.initialize_query(options, query, unit_metadata);
     std::sort(unit_metadata.begin(), unit_metadata.end());
 
@@ -133,7 +132,6 @@ private:
         break;
     }
 
-    uint32_t length = query.size();
     for (const auto& index_entry : index_entries) {
       uint32_t freq = traits::get_phrase_frequency(index_entry);
       uint32_t id = traits::get_phrase_id(index_entry);

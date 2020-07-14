@@ -49,7 +49,7 @@ class QueryConstructor : public QueryBaseListener {
 private:
   std::vector<std::shared_ptr<Unit>> stack_;
   std::shared_ptr<Query> query_;
-  bool in_dictset;
+  bool in_dictset_ = false;
 
   static const size_t MAX_STACK_SIZE = 30;
 
@@ -79,7 +79,7 @@ private:
   }
 
 public:
-  QueryConstructor() : stack_(), query_(), in_dictset(false) {}
+  QueryConstructor() {}
   QueryConstructor(const QueryConstructor&) = delete;
 
   std::shared_ptr<Query> query() {
@@ -87,69 +87,69 @@ public:
   }
 
 public:
-  virtual void enterQuery(QueryParser::QueryContext* context) override {
-    query_ = std::make_shared<Query>(new Query());
+  virtual void enterQuery(QueryParser::QueryContext*) override {
+    query_ = std::make_shared<Query>();
     stack_.clear();
     stack_.push_back(query_->alternatives());
   }
-  virtual void exitQuery(QueryParser::QueryContext* context) override {
+  virtual void exitQuery(QueryParser::QueryContext*) override {
     if (stack_.size() != 1) {
       throw std::logic_error(
           "Some operation either pushed too much or popped too little.");
     }
   }
 
-  virtual void enterUnits(QueryParser::UnitsContext* context) override {
+  virtual void enterUnits(QueryParser::UnitsContext*) override {
     push_stack(Unit::non_terminal(Tag::CONCAT));
   }
-  virtual void exitUnits(QueryParser::UnitsContext* context) override {
+  virtual void exitUnits(QueryParser::UnitsContext*) override {
     pop_stack();
   }
 
   // A unit is just a wrapper around all of the below units (see grammar).
   // Since, it's not a "physical" unit, we can ignore it.
-  virtual void enterUnit(QueryParser::UnitContext* context) override {}
-  virtual void exitUnit(QueryParser::UnitContext* context) override {}
+  virtual void enterUnit(QueryParser::UnitContext*) override {}
+  virtual void exitUnit(QueryParser::UnitContext*) override {}
 
-  virtual void enterOptionset(QueryParser::OptionsetContext* context) override {
+  virtual void enterOptionset(QueryParser::OptionsetContext*) override {
     push_stack(Unit::non_terminal(Tag::OPTIONSET));
   }
-  virtual void exitOptionset(QueryParser::OptionsetContext* context) override {
+  virtual void exitOptionset(QueryParser::OptionsetContext*) override {
     pop_stack();
   }
 
-  virtual void enterOrderset(QueryParser::OrdersetContext* context) override {
+  virtual void enterOrderset(QueryParser::OrdersetContext*) override {
     push_stack(Unit::non_terminal(Tag::ORDERSET));
   }
-  virtual void exitOrderset(QueryParser::OrdersetContext* context) override {
+  virtual void exitOrderset(QueryParser::OrdersetContext*) override {
     pop_stack();
   }
 
-  virtual void enterDictset(QueryParser::DictsetContext* context) override {
-    in_dictset = true;
+  virtual void enterDictset(QueryParser::DictsetContext*) override {
+    in_dictset_ = true;
   }
-  virtual void exitDictset(QueryParser::DictsetContext* context) override {
-    in_dictset = false;
+  virtual void exitDictset(QueryParser::DictsetContext*) override {
+    in_dictset_ = false;
   }
 
-  virtual void enterPhrase(QueryParser::PhraseContext* context) override {
+  virtual void enterPhrase(QueryParser::PhraseContext*) override {
     push_stack(Unit::non_terminal(Tag::CONCAT));
   }
-  virtual void exitPhrase(QueryParser::PhraseContext* context) override {
+  virtual void exitPhrase(QueryParser::PhraseContext*) override {
     pop_stack();
   }
 
   virtual void enterAsterisk(QueryParser::AsteriskContext* context) override {
     push_stack(Unit::terminal(Tag::STAR, context->getText()));
   }
-  virtual void exitAsterisk(QueryParser::AsteriskContext* context) override {
+  virtual void exitAsterisk(QueryParser::AsteriskContext*) override {
     pop_stack();
   }
 
   virtual void enterRegexword(QueryParser::RegexwordContext* context) override {
     push_stack(Unit::terminal(Tag::REGEX, context->getText()));
   }
-  virtual void exitRegexword(QueryParser::RegexwordContext* context) override {
+  virtual void exitRegexword(QueryParser::RegexwordContext*) override {
     pop_stack();
   }
 
@@ -157,36 +157,34 @@ public:
     std::string text = context->getText();
     unescape_word(text);
 
-    if (in_dictset) {
+    if (in_dictset_) {
       push_stack(Unit::terminal(Tag::DICTSET, text));
     } else {
       push_stack(Unit::terminal(Tag::WORD, text));
     }
   }
-  virtual void exitWord(QueryParser::WordContext* context) override {
+  virtual void exitWord(QueryParser::WordContext*) override {
     pop_stack();
   }
 
   virtual void enterQmark(QueryParser::QmarkContext* context) override {
     push_stack(Unit::terminal(Tag::QMARK, context->getText()));
   }
-  virtual void exitQmark(QueryParser::QmarkContext* context) override {
+  virtual void exitQmark(QueryParser::QmarkContext*) override {
     pop_stack();
   }
 
   virtual void enterPlus(QueryParser::PlusContext* context) override {
     push_stack(Unit::terminal(Tag::PLUS, context->getText()));
   }
-  virtual void exitPlus(QueryParser::PlusContext* context) override {
+  virtual void exitPlus(QueryParser::PlusContext*) override {
     pop_stack();
   }
 
   // Association tokens are just the '|' character for some reason
   // TODO: Make a the '|' a token and not a rule in the grammar
-  virtual void enterAssociation(
-      QueryParser::AssociationContext* context) override {}
-  virtual void exitAssociation(
-      QueryParser::AssociationContext* context) override {}
+  virtual void enterAssociation(QueryParser::AssociationContext*) override {}
+  virtual void exitAssociation(QueryParser::AssociationContext*) override {}
 };
 
 /**
@@ -196,8 +194,6 @@ public:
  */
 class QueryErrorHandler : public antlr4::BaseErrorListener {
 public:
-  static QueryErrorHandler INSTANCE = QueryErrorHandler();
-
   /**
    * @brief Is called when a syntax error occurs e.g. an unexpected token is
    * read.
@@ -222,7 +218,7 @@ public:
 
 std::shared_ptr<Query> parse_query(const std::string& query) {
   if (query.empty()) {
-    return std::make_shared<Query>(new Query());
+    return std::make_shared<Query>();
   }
   if (query.size() > 2000) {
     throw netspeak::invalid_query_error("Query too long");
@@ -232,8 +228,10 @@ std::shared_ptr<Query> parse_query(const std::string& query) {
   QueryLexer lexer(&input);
   CommonTokenStream tokens(&lexer);
   QueryParser parser(&tokens);
+
+  QueryErrorHandler error_listener;
   parser.removeErrorListeners();
-  parser.addErrorListener(&antlr4::QueryErrorHandler::INSTANCE);
+  parser.addErrorListener(&error_listener);
 
   QueryConstructor construct;
   antlr4::tree::ParseTreeWalker::DEFAULT.walk(&construct, parser.query());

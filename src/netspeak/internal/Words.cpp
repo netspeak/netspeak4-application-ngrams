@@ -4,18 +4,20 @@
 namespace netspeak {
 namespace internal {
 
-Words::Words() : data_() {}
 
 bool Words::is_subsequence_of(const Words& words) const {
   return is_subsequence_of(words.data());
 }
-bool Words::is_subsequence_of(const std::vector<const Word>& words) const {
+bool Words::is_subsequence_of(const std::vector<Word>& words) const {
+  std::ptrdiff_t _size = size();
   for (auto it = words.begin(); it != words.end(); ++it) {
-    if (size() > std::distance(it, words.end()))
+    if (_size > std::distance(it, words.end())) {
       break;
+    }
 
-    if (std::equal(begin(), end(), it))
+    if (std::equal(begin(), end(), it)) {
       return true;
+    }
   }
 
   return false;

@@ -10,7 +10,7 @@
 #include "aitools/invertedindex/ByteBuffer.hpp"
 
 #include "netspeak/internal/Phrase.hpp"
-#include "netspeak/typedefs.hpp"
+#include "netspeak/internal/typedefs.hpp"
 
 namespace netspeak {
 

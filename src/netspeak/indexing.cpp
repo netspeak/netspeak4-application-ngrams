@@ -24,8 +24,8 @@
 #include "netspeak/Netspeak.hpp"
 #include "netspeak/PhraseCorpus.hpp"
 #include "netspeak/PhraseFileReader.hpp"
-#include "netspeak/RetrievalStrategy3.hpp"
 #include "netspeak/error.hpp"
+#include "netspeak/service/NetspeakService.pb.h"
 //#include "netspeak/generated/NetspeakMessages.pb.h"
 
 namespace netspeak {
@@ -130,7 +130,7 @@ uint64_t BuildPhraseCorpus(const bfs::path& phrase_dir,
   std::unordered_map<size_t, PhraseId> phrase_len_to_id;
   std::unordered_map<std::string, PhraseId> unigram_to_id;
 
-  generated::Phrase phrase;
+  PhraseFileParserItem parser_item;
   PhraseId phrase_id;
   PhraseCorpusPhraseFreq phrase_freq;
   const bfs::directory_iterator dir_end;
@@ -139,38 +139,38 @@ uint64_t BuildPhraseCorpus(const bfs::path& phrase_dir,
     aitools::check(ifs.is_open(), error_message::cannot_open, it->path());
     PhraseFileParser<false> parser(ifs);
     aitools::log("Processing", it->path());
-    while (parser.read_next(phrase)) {
+    while (parser.read_next(parser_item)) {
+      auto length = parser_item.words.size();
       // Add words to the vocabulary (assigning a new id to new words).
-      for (const auto& word : phrase.word()) {
-        unigram_to_id.insert(std::make_pair(word.text(), unigram_to_id.size()));
+      for (const auto& word : parser_item.words) {
+        unigram_to_id.insert(std::make_pair(word, unigram_to_id.size()));
       }
       // Create text and binary file if not present.
-      if (phrase_len_to_id.find(phrase.word_size()) == phrase_len_to_id.end()) {
+      if (phrase_len_to_id.find(length) == phrase_len_to_id.end()) {
         std::ostringstream oss;
-        oss << PhraseCorpus::phrase_file << '.' << phrase.word_size();
+        oss << PhraseCorpus::phrase_file << '.' << length;
         const bfs::path txt_file = pc_txt_dir / oss.str();
-        phrase_len_to_txt_os[phrase.word_size()] =
+        phrase_len_to_txt_os[length] =
             std::shared_ptr<std::ostream>(new bfs::ofstream(txt_file));
         oss.clear();
         oss.str("");
-        oss << PhraseCorpus::phrase_file << '.' << phrase.word_size();
+        oss << PhraseCorpus::phrase_file << '.' << length;
         const bfs::path bin_file = pc_bin_dir / oss.str();
-        phrase_len_to_bin_os[phrase.word_size()] =
-            std::shared_ptr<std::ostream>(
-                new bfs::ofstream(bin_file, std::ios_base::binary));
+        phrase_len_to_bin_os[length] = std::shared_ptr<std::ostream>(
+            new bfs::ofstream(bin_file, std::ios_base::binary));
       }
       // Set phrase-id and auto-increment id.
-      phrase.set_id(phrase_len_to_id[phrase.word_size()]++);
+      parser_item.id = phrase_len_to_id[length]++;
       // Write phrase in text representation.
-      auto& txt_os = phrase_len_to_txt_os[phrase.word_size()];
-      println_as_text_freq_id_to(phrase, *txt_os);
+      auto& txt_os = phrase_len_to_txt_os[length];
+      PhraseFileParser<true>::write(*txt_os, parser_item);
       // Write phrase in binary representation.
-      phrase_freq = phrase.frequency();
-      auto& bin_os = *phrase_len_to_bin_os[phrase.word_size()];
+      phrase_freq = parser_item.freq;
+      auto& bin_os = *phrase_len_to_bin_os[length];
       bin_os.write(reinterpret_cast<const char*>(&phrase_freq),
                    sizeof(PhraseCorpusPhraseFreq));
-      for (const auto& word : phrase.word()) {
-        phrase_id = unigram_to_id[word.text()];
+      for (const auto& word : parser_item.words) {
+        phrase_id = unigram_to_id[word];
         bin_os.write(reinterpret_cast<const char*>(&phrase_id),
                      sizeof(PhraseId));
       }
@@ -347,22 +347,25 @@ void add_missing(std::vector<WordFreqPair>& word_freq_pairs,
   if (!missing.empty()) {
     // since the index is basically ready, we will just query "* <word> *" for
     // every missing word and use the highest frequency.
-    Netspeak<RetrievalStrategy3Tag> netspeak;
+    Netspeak netspeak;
     netspeak.initialize(config);
 
     for (const auto& word : missing) {
-      generated::Request req;
+      service::SearchRequest req;
       req.set_query("* " + word + " *");
-      req.set_phrase_length_min(2); // it's not a 1-gram
-      req.set_max_phrase_count(2);
+      req.set_max_phrases(2);
+      req.mutable_phrase_constraints()->set_words_min(2); // it's not a 1-gram
 
       uint64_t freq = 0;
 
-      const auto response = *(netspeak.search(req));
-      if (response.error_code() == to_ordinal(error_code::no_error)) {
-        if (response.phrase_size() > 0) {
+      service::SearchResponse res;
+      netspeak.search(req, res);
+      if (res.has_result()) {
+        const auto& result = res.result();
+
+        if (result.phrases_size() > 0) {
           // found at least one phrase with that word
-          freq = response.phrase(0).frequency();
+          freq = result.phrases(0).frequency();
         } else {
           // no phrases with that word
           std::printf(
@@ -370,13 +373,15 @@ void add_missing(std::vector<WordFreqPair>& word_freq_pairs,
               word.c_str());
         }
       } else {
+        const auto& error = res.error();
+
         // error occurred
         std::printf(
             "Warning: Unknown error occurred while searching for \"%s\": "
             "%s : %s\n",
             word.c_str(),
-            to_string(to_error_code(response.error_code())).c_str(),
-            response.error_message().c_str());
+            service::SearchResponse::Error::Kind_Name(error.kind()).c_str(),
+            error.message().c_str());
       }
 
       std::cout << "Assumed frequency " << freq << " for missing word: " << word
@@ -404,8 +409,7 @@ void BuildRegexVocabulary(const boost::filesystem::path& regex_vocabulary_dir,
             });
 
   // output to file
-  const bfs::path regex_vocabulary_file =
-      regex_vocabulary_dir / "vocab.sorted";
+  const bfs::path regex_vocabulary_file = regex_vocabulary_dir / "vocab.sorted";
   bfs::ofstream ofs(regex_vocabulary_file);
   aitools::check(ofs.is_open(), error_message::cannot_create,
                  regex_vocabulary_file);

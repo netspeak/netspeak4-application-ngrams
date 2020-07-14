@@ -37,21 +37,21 @@ public:
   //  }
 
   virtual bool read(record_type& record) {
-    if (phrase_.word_size() == 0 ||
-        phrase_.word_size() == static_cast<int>(wordpos_)) {
-      if (!parser_.read_next(phrase_))
+    if (item_.words.empty() || item_.words.size() == wordpos_) {
+      if (!parser_.read_next(item_)) {
         return false;
+      }
       wordpos_ = 0;
     }
     // <key> = <phrase-length>:<word-position>_<single-word>
-    record.key().assign(aitools::to_string(phrase_.word_size()));
+    record.key().assign(aitools::to_string(item_.words.size()));
     record.key().push_back(':');
     record.key().append(aitools::to_string(wordpos_));
     record.key().push_back('_');
-    record.key().append(phrase_.word(wordpos_).text());
+    record.key().append(item_.words[wordpos_]);
     // <value> = (<phrase-frequency>, <phrase-id>)
-    record.value().set_e1(phrase_.frequency());
-    record.value().set_e2(phrase_.id());
+    record.value().set_e1(item_.freq);
+    record.value().set_e2(item_.id);
     ++wordpos_;
     return true;
   }
@@ -62,7 +62,7 @@ public:
 
 private:
   size_t wordpos_;
-  generated::Phrase phrase_;
+  PhraseFileParserItem item_;
   PhraseFileParser<stream_provides_phrase_id> parser_;
 };
 

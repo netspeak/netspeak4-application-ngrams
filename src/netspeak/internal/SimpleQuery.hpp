@@ -30,21 +30,21 @@ private:
   typedef SimpleQueryUnit__ Unit;
 
   Tag tag_;
-  Source source_;
   Text text_;
-  std::vector<const std::shared_ptr<Unit>> children_;
+  Source source_;
+  std::vector<std::shared_ptr<Unit>> children_;
   std::weak_ptr<Unit> self_;
   std::weak_ptr<Unit> parent_;
-
-  SimpleQueryUnit__() = delete;
-  SimpleQueryUnit__(const SimpleQueryUnit__&) = delete;
-  SimpleQueryUnit__(Tag tag, const Text& text, const Source& source)
-      : tag_(tag), text_(text), source_(source){};
 
   static std::shared_ptr<Unit> new_unit(Tag tag, const Text& text,
                                         const Source& source);
 
 public:
+  SimpleQueryUnit__() = delete;
+  SimpleQueryUnit__(const SimpleQueryUnit__&) = delete;
+  SimpleQueryUnit__(Tag tag, const Text& text, const Source& source)
+      : tag_(tag), text_(text), source_(source){};
+
   static std::shared_ptr<Unit> new_word(const Text& text, const Source& source);
   static std::shared_ptr<Unit> new_regex(const Text& text,
                                          const Source& source);
@@ -69,7 +69,7 @@ public:
   const Source& source() const {
     return source_;
   }
-  const std::vector<const std::shared_ptr<Unit>>& children() const {
+  const std::vector<std::shared_ptr<Unit>>& children() const {
     return children_;
   }
   std::shared_ptr<Unit> parent() {
@@ -125,7 +125,7 @@ public:
   std::shared_ptr<Unit>& root() {
     return root_;
   }
-  const std::shared_ptr<const Unit>& root() const {
+  const std::shared_ptr<Unit>& root() const {
     return root_;
   }
 

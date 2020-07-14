@@ -10,19 +10,6 @@ namespace internal {
 typedef Query::Unit Unit;
 
 
-Unit::QueryUnit__(Tag tag, const std::string& text) : tag_(tag), text_(text) {}
-
-std::shared_ptr<Unit> Unit::terminal(Tag tag, const std::string& text) {
-  const auto unit = std::make_shared<Unit>(Unit(tag, text));
-  unit->self_ = unit;
-  return unit;
-}
-std::shared_ptr<Unit> Unit::non_terminal(Tag tag) {
-  const auto unit = std::make_shared<Unit>(Unit(tag, ""));
-  unit->self_ = unit;
-  return unit;
-}
-
 void Unit::add_child(const std::shared_ptr<Unit>& unit) {
   assert(unit);
 
@@ -57,7 +44,7 @@ LengthRange Unit::length_range() const {
     case Tag::WORD:
     case Tag::QMARK:
     case Tag::REGEX:
-      return LengthRange(1,1);
+      return LengthRange(1, 1);
     case Tag::STAR:
       return LengthRange(0);
     case Tag::PLUS:
@@ -68,7 +55,7 @@ LengthRange Unit::length_range() const {
       return LengthRange(1);
 
     case Tag::OPTIONSET: {
-      LengthRange range(0,0);
+      LengthRange range(0, 0);
       for (const auto& child : children()) {
         range |= child->length_range();
       }
@@ -84,7 +71,7 @@ LengthRange Unit::length_range() const {
 
     case Tag::ORDERSET: // for order sets, the same rules as for concats apply
     case Tag::CONCAT: {
-       LengthRange range(0, 0);
+      LengthRange range(0, 0);
       for (const auto& child : children()) {
         range &= child->length_range();
         if (range.empty()) {
@@ -147,7 +134,7 @@ std::ostream& operator<<(std::ostream& out, const Unit& unit) {
     case Unit::Tag::ORDERSET:
     case Unit::Tag::OPTIONSET:
     case Unit::Tag::ALTERNATION:
-    case Unit::Tag::CONCAT:
+    case Unit::Tag::CONCAT: {
       out << "{";
       auto it = unit.children().begin();
       auto end = unit.children().end();
@@ -160,6 +147,7 @@ std::ostream& operator<<(std::ostream& out, const Unit& unit) {
       }
       out << " }";
       break;
+    }
 
     default:
       throw std::logic_error("Unknown tag");

@@ -7,12 +7,12 @@
 
 #include "boost/algorithm/string.hpp"
 
+#include "netspeak/error.hpp"
 #include "netspeak/internal/SimpleQuery.hpp"
 #include "netspeak/regex/parsers.hpp"
 #include "netspeak/util/ChainCutter.hpp"
 #include "netspeak/util/Math.hpp"
 #include "netspeak/util/Vec.hpp"
-#include "netspeak/error.hpp"
 
 
 namespace netspeak {
@@ -283,8 +283,7 @@ private:
 
 public:
   std::unique_ptr<SimpleQuery> to_simple(const Query& query) {
-    return std::make_unique<SimpleQuery>(
-        new SimpleQuery(unit_to_simple(query.alternatives())));
+    return std::make_unique<SimpleQuery>(unit_to_simple(query.alternatives()));
   }
 };
 
@@ -522,8 +521,8 @@ private:
       // alternation absorbing everything or inlining nested concats.
 
       // lookbehind
-      for (size_t j = i - 1; j >= 0; j--) {
-        const auto& child = unit.children()[j];
+      for (size_t j = i; j > 0; j--) {
+        const auto& child = unit.children()[j - 1];
         if (child->tag() == SimpleQuery::Unit::Tag::QMARK) {
           continue;
         }
@@ -700,7 +699,7 @@ const std::shared_ptr<const std::string> STAR_STR =
  */
 class StarQuery {
 public:
-  typedef struct StarUnit {
+  struct Unit {
   public:
     enum class Tag { WORD, QMARK, STAR };
     typedef std::shared_ptr<const std::string> Text;
@@ -710,27 +709,27 @@ public:
     Text text;
     Source source;
 
-    StarUnit() = delete;
-    StarUnit(Tag tag, const Text& text, const Source& source)
+    Unit() = delete;
+    Unit(Tag tag, const Text& text, const Source& source)
         : tag(tag), text(text), source(source) {}
 
-    static StarUnit new_word(const Text& text, const Source& source) {
-      return StarUnit(Tag::WORD, text, source);
+    static Unit new_word(const Text& text, const Source& source) {
+      return Unit(Tag::WORD, text, source);
     }
-    static StarUnit new_qmark(const Source& source) {
-      return StarUnit(Tag::QMARK, QMARK_STR, source);
+    static Unit new_qmark(const Source& source) {
+      return Unit(Tag::QMARK, QMARK_STR, source);
     }
-    static StarUnit new_star(const Source& source) {
-      return StarUnit(Tag::STAR, STAR_STR, source);
+    static Unit new_star(const Source& source) {
+      return Unit(Tag::STAR, STAR_STR, source);
     }
-  } Unit;
+  };
 
 private:
-  std::vector<const Unit> units_;
+  std::vector<Unit> units_;
   uint32_t min_length_;
 
 public:
-  const std::vector<const Unit>& units() const {
+  const std::vector<Unit>& units() const {
     return units_;
   }
 
@@ -1054,8 +1053,10 @@ size_t binary_search(size_t min, size_t max,
   return min;
 }
 
-void normalize_regexes(SimpleQuery& query,const QueryNormalizer::Options& options, const std::shared_ptr<const RegexIndex>& regex_index) {
-const auto regexes = find_regexes(query);
+void normalize_regexes(SimpleQuery& query,
+                       const QueryNormalizer::Options& options,
+                       const std::shared_ptr<const RegexIndex>& regex_index) {
+  const auto regexes = find_regexes(query);
   if (!regexes.empty()) {
     // try to find out with how many words we can replace each regex and still
     // fall within our budget.
@@ -1095,7 +1096,7 @@ const auto regexes = find_regexes(query);
         const auto regex_query =
             regex::parse_netspeak_regex_query(regex_unit->text());
         regex_index->match_query(regex_query, matches, best_max_matches,
-                                  options.max_regex_time);
+                                 options.max_regex_time);
 
         const auto source = regex_unit->source();
         const auto alt = SimpleQuery::Unit::new_alternation(source);
@@ -1108,7 +1109,6 @@ const auto regexes = find_regexes(query);
       }
     }
   }
-
 }
 
 void QueryNormalizer::normalize(const Query& query, const Options& options,

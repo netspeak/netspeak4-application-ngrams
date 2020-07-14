@@ -24,15 +24,15 @@ struct RetrievalStrategy3Tag {
    * entry = ( n-gram-frequency, n-gram-id )
    */
   typedef aitools::pair<uint32_t, uint32_t> index_entry_type;
-  typedef struct meta {
+  struct unit_metadata {
     size_t position;
     uint64_t frequency;
     uint32_t pruning;
 
-    bool operator<(const meta& rhs) const {
+    bool operator<(const unit_metadata& rhs) const {
       return frequency < rhs.frequency;
     }
-  } unit_metadata;
+  };
 };
 
 /**
@@ -299,8 +299,8 @@ private:
     for (const auto& unit : query.units()) {
       if (unit.tag() == NormQuery::Unit::Tag::WORD) {
         // TODO: Can the empty case every happen?
-        if (!unit.text().empty()) {
-          word_buffer.push_back(unit.text());
+        if (!unit.text()->empty()) {
+          word_buffer.push_back(*unit.text());
         }
       } else {
         if (word_buffer.size() >= max_word_count) {

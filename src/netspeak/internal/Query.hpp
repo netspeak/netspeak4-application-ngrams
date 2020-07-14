@@ -37,20 +37,28 @@ private:
 
   Tag tag_;
   std::string text_;
-  std::vector<const std::shared_ptr<const Unit>> children_;
+  std::vector<std::shared_ptr<const Unit>> children_;
   std::weak_ptr<const Unit> parent_;
   // This is a weak ref to this object. This is necessary to set the parent of
   // children. Not nice, but hey. It works.
   std::weak_ptr<Unit> self_;
 
-  QueryUnit__(Tag tag, const std::string& text);
+public:
+  QueryUnit__(Tag tag, const std::string& text) : tag_(tag), text_(text) {}
   QueryUnit__() = delete;
   QueryUnit__(const QueryUnit__&) = delete;
-  ~QueryUnit__();
 
-public:
-  static std::shared_ptr<Unit> terminal(Unit::Tag tag, const std::string& text);
-  static std::shared_ptr<Unit> non_terminal(Unit::Tag tag);
+  inline static std::shared_ptr<Unit> terminal(Unit::Tag tag,
+                                               const std::string& text) {
+    const auto unit = std::make_shared<Unit>(tag, text);
+    unit->self_ = unit;
+    return unit;
+  }
+  inline static std::shared_ptr<Unit> non_terminal(Unit::Tag tag) {
+    const auto unit = std::make_shared<Unit>(tag, "");
+    unit->self_ = unit;
+    return unit;
+  }
 
 
   Tag tag() const {
@@ -73,7 +81,7 @@ public:
     return text_;
   }
 
-  const std::vector<const std::shared_ptr<const Unit>>& children() const {
+  const std::vector<std::shared_ptr<const Unit>>& children() const {
     return children_;
   }
 
@@ -108,19 +116,14 @@ public:
   typedef QueryUnit__ Unit;
 
 private:
-  const std::shared_ptr<Unit> alternatives_;
+  std::shared_ptr<Unit> alternatives_;
 
   Query(const Query&) = delete;
 
 public:
-  Query()
-      : alternatives_(std::make_shared<Unit>(
-            Unit::non_terminal(Unit::Tag::ALTERNATION))){};
+  Query() : alternatives_(Unit::non_terminal(Unit::Tag::ALTERNATION)){};
 
-  const std::shared_ptr<Unit>& alternatives() {
-    return alternatives_;
-  }
-  const std::shared_ptr<const Unit>& alternatives() const {
+  const std::shared_ptr<Unit>& alternatives() const {
     return alternatives_;
   }
 

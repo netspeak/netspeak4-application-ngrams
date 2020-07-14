@@ -47,28 +47,24 @@ struct stats_type {
  */
 template <typename RetrievalStrategyTag> class RetrievalStrategy {
 public:
-  typedef RetrievalStrategyTag::unit_metadata unit_metadata;
-
   void initialize(const Configurations::Map& config);
 
-  void initialize_query(const SearchOptions& options,
-                        const internal::NormQuery& query,
-                        std::vector<unit_metadata>& metadata);
+  void initialize_query(
+      const SearchOptions& options, const internal::NormQuery& query,
+      std::vector<typename RetrievalStrategyTag::unit_metadata>& metadata);
 
   template <typename OutputIterator>
-  const stats_type initialize_result_set(const unit_metadata& unit_meta,
-                                         const internal::NormQuery& query,
-                                         uint64_t max_phrase_frequency,
-                                         uint64_t max_phrase_count,
-                                         OutputIterator output);
+  const stats_type initialize_result_set(
+      const typename RetrievalStrategyTag::unit_metadata& unit_meta,
+      const internal::NormQuery& query, uint64_t max_phrase_frequency,
+      uint64_t max_phrase_count, OutputIterator output);
 
   template <typename IntersectionSet, typename OutputIterator>
-  const stats_type intersect_result_set(const IntersectionSet& input,
-                                        const unit_metadata& unit_meta,
-                                        const internal::NormQuery& query,
-                                        size_t max_phrase_frequency,
-                                        size_t max_phrase_count,
-                                        OutputIterator& output);
+  const stats_type intersect_result_set(
+      const IntersectionSet& input,
+      const typename RetrievalStrategyTag::unit_metadata& unit_meta,
+      const internal::NormQuery& query, size_t max_phrase_frequency,
+      size_t max_phrase_count, OutputIterator& output);
 
   const Properties properties() const;
 };

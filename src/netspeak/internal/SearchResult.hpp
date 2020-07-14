@@ -44,9 +44,10 @@ public:
 
 private:
   std::vector<Item> phrases_;
-  std::vector<const std::string> unknown_words_;
+  std::vector<std::string> unknown_words_;
 
 public:
+  SearchResult(){};
   SearchResult(const SearchResult&) = delete;
 
   std::vector<Item>& phrases() {
@@ -56,10 +57,10 @@ public:
     return phrases_;
   }
 
-  std::vector<const std::string>& unknown_words() {
+  std::vector<std::string>& unknown_words() {
     return unknown_words_;
   }
-  const std::vector<const std::string>& unknown_words() const {
+  const std::vector<std::string>& unknown_words() const {
     return unknown_words_;
   }
 };

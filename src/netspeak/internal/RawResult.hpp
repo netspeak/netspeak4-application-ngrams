@@ -34,9 +34,11 @@ public:
 private:
   std::vector<PhraseItem> phrases_;
   std::vector<RefItem> refs_;
-  std::set<const std::string> unknown_words_;
+  std::set<std::string> unknown_words_;
 
 public:
+  RawResult() {}
+
   /**
    * @brief All added phrase result sets with at least one phrase.
    */
@@ -59,7 +61,7 @@ public:
   void add_item(const NormQuery& query,
                 const std::shared_ptr<const RawRefResult>& result);
 
-  const std::set<const std::string>& unknown_words() const {
+  const std::set<std::string>& unknown_words() const {
     return unknown_words_;
   }
 };

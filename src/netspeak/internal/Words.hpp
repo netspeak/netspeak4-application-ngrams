@@ -10,17 +10,17 @@ namespace internal {
 
 typedef std::string Word;
 
-struct Words {
+class Words {
 private:
-  std::vector<const Word> data_;
+  std::vector<Word> data_;
 
 public:
-  Words();
+  Words() {}
 
-  std::vector<const Word>& data() {
+  std::vector<Word>& data() {
     return data_;
   }
-  const std::vector<const Word>& data() const {
+  const std::vector<Word>& data() const {
     return data_;
   }
 
@@ -30,10 +30,10 @@ public:
   size_t size() const {
     return data_.size();
   }
-  std::vector<const Word>::const_iterator begin() const {
+  std::vector<Word>::const_iterator begin() const {
     return data_.begin();
   }
-  std::vector<const Word>::const_iterator end() const {
+  std::vector<Word>::const_iterator end() const {
     return data_.end();
   }
 
@@ -46,7 +46,7 @@ public:
   }
 
   bool is_subsequence_of(const Words& words) const;
-  bool is_subsequence_of(const std::vector<const Word>& words) const;
+  bool is_subsequence_of(const std::vector<Word>& words) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const Words& phrase);

@@ -89,7 +89,7 @@ public:
 
 private:
   std::vector<Ref> refs_;
-  std::vector<const std::string> unknown_words_;
+  std::vector<std::string> unknown_words_;
 
 public:
   /**
@@ -110,10 +110,10 @@ public:
     return refs_.empty();
   }
 
-  std::vector<const std::string>& unknown_words() {
+  std::vector<std::string>& unknown_words() {
     return unknown_words_;
   }
-  const std::vector<const std::string>& unknown_words() const {
+  const std::vector<std::string>& unknown_words() const {
     return unknown_words_;
   }
 

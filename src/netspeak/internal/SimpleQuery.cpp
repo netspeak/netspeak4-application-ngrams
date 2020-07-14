@@ -13,7 +13,7 @@ typedef SimpleQuery::Unit Unit;
 
 inline std::shared_ptr<Unit> Unit::new_unit(Tag tag, const Text& text,
                                             const Source& source) {
-  const auto unit = std::make_shared<Unit>(Unit(tag, text, source));
+  const auto unit = std::make_shared<Unit>(tag, text, source);
   unit->self_ = unit;
   return unit;
 }

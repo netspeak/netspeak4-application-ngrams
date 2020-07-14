@@ -22,6 +22,7 @@
 #include "netspeak/Properties.hpp"
 #include "netspeak/QueryNormalizer.hpp"
 #include "netspeak/QueryProcessor.hpp"
+#include "netspeak/RetrievalStrategy3.hpp"
 #include "netspeak/error.hpp"
 #include "netspeak/internal/NormQuery.hpp"
 #include "netspeak/internal/Phrase.hpp"
@@ -49,7 +50,6 @@ const size_t MAX_QUERY_LENGTH = 2000;
 namespace bfs = boost::filesystem;
 using namespace internal;
 
-template <typename RetrievalStrategyTag>
 class Netspeak {
 public:
   Netspeak() {}
@@ -169,7 +169,7 @@ public:
         aitools::value::value_traits<PhraseDictionary::Value>::type_name();
     // hash dictionary properties
     properties[Properties::hash_dictionary_size] =
-        std::to_string(hash_dictionary_.size());
+        std::to_string(hash_dictionary_->size());
     properties[Properties::hash_dictionary_value_type] =
         aitools::value::value_traits<
             Dictionaries::Map::mapped_type>::type_name();
@@ -546,6 +546,11 @@ private:
   public:
     SearchOptions options;
     std::shared_ptr<const RawRefResult> result;
+
+    result_cache_item() = delete;
+    result_cache_item(const SearchOptions& options,
+                      const std::shared_ptr<const RawRefResult>& result)
+        : options(options), result(result) {}
   };
 
   std::shared_ptr<Dictionaries::Map> hash_dictionary_;
@@ -553,7 +558,7 @@ private:
   std::shared_ptr<netspeak::regex::DefaultRegexIndex> regex_index_;
   std::unique_ptr<PhraseDictionary> phrase_dictionary_;
   QueryNormalizer query_normalizer_;
-  QueryProcessor<RetrievalStrategyTag> query_processor_;
+  QueryProcessor<RetrievalStrategy3Tag> query_processor_;
   util::LfuCache<result_cache_item> result_cache_;
   PhraseCorpus phrase_corpus_;
 };

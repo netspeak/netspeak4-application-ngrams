@@ -20,18 +20,18 @@ namespace internal {
  */
 class RawPhraseResult {
 private:
-  std::vector<const Phrase> phrases_;
-  std::vector<const std::string> unknown_words_;
+  std::vector<Phrase> phrases_;
+  std::vector<std::string> unknown_words_;
 
 public:
   /**
    * @brief The phrases of this result set sorted by frequency in descending
    * order.
    */
-  std::vector<const Phrase>& phrases() {
+  std::vector<Phrase>& phrases() {
     return phrases_;
   }
-  const std::vector<const Phrase>& phrases() const {
+  const std::vector<Phrase>& phrases() const {
     return phrases_;
   }
 
@@ -42,10 +42,10 @@ public:
     return phrases_.empty();
   }
 
-  std::vector<const std::string>& unknown_words() {
+  std::vector<std::string>& unknown_words() {
     return unknown_words_;
   }
-  const std::vector<const std::string>& unknown_words() const {
+  const std::vector<std::string>& unknown_words() const {
     return unknown_words_;
   }
 };

@@ -1,4 +1,3 @@
-
 #include "netspeak/internal/NormQuery.hpp"
 
 #include <ostream>

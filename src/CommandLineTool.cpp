@@ -12,7 +12,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-#include "netspeak/NetspeakServiceImpl.hpp"
 #include "netspeak/error.hpp"
 #include "netspeak/indexing.hpp"
 #include "netspeak/regex/DefaultRegexIndex.hpp"
@@ -243,12 +242,13 @@ int RunServe(const std::vector<std::string>& opts) {
     std::string server_address("localhost:");
     server_address.append(std::to_string(port));
 
-    NetspeakServiceImpl service(config_file);
+    // TODO:
+    //NetspeakServiceImpl service(config_file);
 
-    ServerBuilder builder;
+    grpc::ServerBuilder builder;
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    builder.RegisterService(&service);
-    std::unique_ptr<Server> server(builder.BuildAndStart());
+    //builder.RegisterService(&service);
+    std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << std::endl;
     server->Wait();
   } catch (std::exception& e) {
