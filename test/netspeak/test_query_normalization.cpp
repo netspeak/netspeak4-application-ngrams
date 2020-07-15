@@ -5,7 +5,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "netspeak/query_methods.hpp"
-#include "netspeak/query_normalization.hpp"
 
 // Boost.Test needs operator<< for each involved type.
 namespace std {
@@ -26,11 +25,11 @@ inline ostream& operator<<(ostream& os, const set<string>& set) {
   return os;
 }
 
-inline ostream& operator<<(ostream& os,
+/*inline ostream& operator<<(ostream& os,
                            const vector<netspeak::generated::Query>& queries) {
   copy(queries.begin(), queries.end(),
        ostream_iterator<netspeak::generated::Query>(os, "\n"));
   return os;
-}
+}*/
 
 } // namespace std

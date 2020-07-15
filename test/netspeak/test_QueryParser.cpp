@@ -10,13 +10,11 @@
 
 #include "antlr4-runtime.h"
 #include "antlr4/QueryErrorHandler.hpp"
-#include "antlr4/RawQueryListener.hpp"
 #include "antlr4/generated/QueryLexer.h"
 #include "antlr4/generated/QueryParser.h"
 
 #include "netspeak/Dictionaries.hpp"
 #include "netspeak/error.hpp"
-//#include "netspeak/generated/NetspeakMessages.pb.h"
 
 using namespace antlr4;
 
@@ -53,8 +51,10 @@ BOOST_AUTO_TEST_CASE(test_detection) {
       QueryLexer lexer(&input);
       antlr4::CommonTokenStream tokens(&lexer);
       QueryParser parser(&tokens);
+
+      antlr4::QueryErrorHandler error_handler;
       parser.removeErrorListeners();
-      parser.addErrorListener(&antlr4::QueryErrorHandler::INSTANCE);
+      parser.addErrorListener(&error_handler);
 
       std::string actual;
       try {

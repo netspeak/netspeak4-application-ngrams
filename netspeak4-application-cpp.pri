@@ -1,8 +1,8 @@
 CONFIG += c++11
 CONFIG -= qt
 DEFINES -= QT_WEBKIT
-QMAKE_CXX = clang++
-QMAKE_LINK = clang++
+QMAKE_CXX = g++
+QMAKE_LINK = g++
 QMAKE_CXXFLAGS += -Wall -Wextra
 
 INCLUDEPATH += \
@@ -20,6 +20,7 @@ SOURCES += \
     $$PWD/src/antlr4/generated/QueryParser.cpp \
     $$PWD/src/antlr4/generated/QueryVisitor.cpp \
     $$PWD/src/antlr4/parse.cpp \
+    $$PWD/src/antlr4/QueryErrorHandler.cpp \
 #    $$PWD/src/netspeak/request_methods.cpp \
 #    $$PWD/src/netspeak/query_result_methods.cpp \
 #    $$PWD/src/netspeak/query_normalization.cpp \
@@ -74,16 +75,15 @@ LIBS += \
     -lboost_system \
     -lboost_program_options \
     -lboost_regex \
-    -l:libprotobuf.a \
+    -lz \
     -lcmph \
     -lrt \
-    -lz \
     -lpthread \
     -licui18n \
     -licuuc \
     -L$$/usr/lib/ \
-#    -L$$/usr/lib/x86_64-linux-gnu/ \
     -lantlr4-runtime \
+    -l:libprotobuf.a \
     -l:libgrpc++.a \
     -l:libgrpc_unsecure.a \
     -l:libcares.a \

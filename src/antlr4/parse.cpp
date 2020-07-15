@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "antlr4-runtime.h"
+#include "antlr4/QueryErrorHandler.hpp"
 #include "antlr4/generated/QueryBaseListener.h"
 #include "antlr4/generated/QueryLexer.h"
 #include "antlr4/generated/QueryParser.h"
@@ -185,34 +186,6 @@ public:
   // TODO: Make a the '|' a token and not a rule in the grammar
   virtual void enterAssociation(QueryParser::AssociationContext*) override {}
   virtual void exitAssociation(QueryParser::AssociationContext*) override {}
-};
-
-/**
- * @brief The QueryErrorHandler class
- *
- * Is called whenever a error in the parser occurs.
- */
-class QueryErrorHandler : public antlr4::BaseErrorListener {
-public:
-  /**
-   * @brief Is called when a syntax error occurs e.g. an unexpected token is
-   * read.
-   */
-  void syntaxError(Recognizer*, Token* offendingSymbol, size_t line,
-                   size_t charPositionInLine, const std::string& msg,
-                   std::exception_ptr) override {
-    size_t startLine = line;
-    size_t startPoint = (charPositionInLine + 1);
-    size_t endLine = offendingSymbol->getLine();
-    size_t endPoint = offendingSymbol->getStopIndex() + 1;
-
-    std::stringstream what;
-    what << "(" << startLine << ":" << startPoint << ", " << endLine << ":"
-         << endPoint << ")";
-    what << " " << msg;
-
-    throw netspeak::invalid_query_error(what.str());
-  }
 };
 
 

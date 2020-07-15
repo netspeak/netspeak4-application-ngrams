@@ -156,7 +156,7 @@ std::ostream& operator<<(std::ostream& out, const Unit& unit) {
   return out;
 }
 std::ostream& operator<<(std::ostream& out, const Query& query) {
-  out << "Query(" << query.alternatives() << ")";
+  out << "Query(" << *query.alternatives() << ")";
   return out;
 }
 
