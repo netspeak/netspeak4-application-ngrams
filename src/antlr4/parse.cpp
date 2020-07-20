@@ -23,7 +23,7 @@ typedef Query::Unit::Tag Tag;
 void unescape_word(std::string& word) {
   size_t write_i = 0;
 
-  for (size_t i = 0; i != word.size(); i++) {
+  for (size_t i = 0; i < word.size(); i++) {
     char c = word[i];
     if (c == '\\') {
       size_t next = i + 1;
@@ -36,7 +36,7 @@ void unescape_word(std::string& word) {
     write_i++;
   }
 
-  word.erase(word.begin() + write_i);
+  word.erase(write_i);
 }
 
 /**
@@ -207,6 +207,7 @@ std::shared_ptr<Query> parse_query(const std::string& query) {
   parser.addErrorListener(&error_listener);
 
   QueryConstructor construct;
+  std::cout << "LOG: " << __FILE__ << ":" << __LINE__ << "\n";
   antlr4::tree::ParseTreeWalker::DEFAULT.walk(&construct, parser.query());
   return construct.query();
 }

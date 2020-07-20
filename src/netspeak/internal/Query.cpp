@@ -139,10 +139,10 @@ std::ostream& operator<<(std::ostream& out, const Unit& unit) {
       auto it = unit.children().begin();
       auto end = unit.children().end();
       if (it != end) {
-        out << *it;
+        out << " " << **it;
         it++;
         for (; it != end; it++) {
-          out << ", " << *it;
+          out << ", " << **it;
         }
       }
       out << " }";
