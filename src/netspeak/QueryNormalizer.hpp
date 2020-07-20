@@ -72,7 +72,7 @@ public:
     std::chrono::nanoseconds max_regex_time;
   };
 
-  void normalize(const Query& query, const Options& options,
+  void normalize(std::shared_ptr<const Query> query, const Options& options,
                  std::vector<NormQuery>& norm_queries);
 };
 

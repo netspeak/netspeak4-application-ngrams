@@ -84,7 +84,7 @@ public:
     // initialize output
     output_.reserve(cuts + 1);
     for (size_t i = 0; i <= cuts; i++) {
-      state_.push_back(0);
+      output_.push_back(0);
     }
     set_output();
   }

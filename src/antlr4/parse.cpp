@@ -190,9 +190,6 @@ public:
 
 
 std::shared_ptr<Query> parse_query(const std::string& query) {
-  if (query.empty()) {
-    return std::make_shared<Query>();
-  }
   if (query.size() > 2000) {
     throw netspeak::invalid_query_error("Query too long");
   }
@@ -207,7 +204,6 @@ std::shared_ptr<Query> parse_query(const std::string& query) {
   parser.addErrorListener(&error_listener);
 
   QueryConstructor construct;
-  std::cout << "LOG: " << __FILE__ << ":" << __LINE__ << "\n";
   antlr4::tree::ParseTreeWalker::DEFAULT.walk(&construct, parser.query());
   return construct.query();
 }

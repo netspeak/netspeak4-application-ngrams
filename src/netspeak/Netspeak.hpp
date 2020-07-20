@@ -194,7 +194,7 @@ public:
       const auto search_options = option_pair.second;
 
       // perform the raw seach (returns phrases and phrase references)
-      auto raw_result = search_raw_(normalizer_options, search_options, *query);
+      auto raw_result = search_raw_(normalizer_options, search_options, query);
       // resolve the phrase references and merge with the other phrases
       auto phrase_result = merge_raw_response_(search_options, *raw_result);
 
@@ -231,7 +231,7 @@ public:
 
 private:
   static service::Phrase::Word::Tag to_tag(const NormQuery::Unit& unit) {
-    std::shared_ptr<const Query::Unit> source = unit.source();
+    std::shared_ptr<const Query::Unit> source = unit.source().unit;
     while (source) {
       switch (source->tag()) {
         case Query::Unit::Tag::QMARK:
@@ -534,7 +534,7 @@ private:
 
   std::unique_ptr<RawResult> search_raw_(
       const QueryNormalizer::Options& normalizer_options,
-      const SearchOptions& options, const Query& query) {
+      const SearchOptions& options, std::shared_ptr<Query> query) {
     std::vector<NormQuery> normQueries;
     query_normalizer_.normalize(query, normalizer_options, normQueries);
     return process_norm_queries_(options, normQueries);

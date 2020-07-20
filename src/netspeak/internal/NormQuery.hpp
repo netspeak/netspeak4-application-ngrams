@@ -30,7 +30,13 @@ public:
     QMARK,
   };
   typedef std::shared_ptr<const std::string> Text;
-  typedef std::shared_ptr<const Query::Unit> Source;
+  struct Source {
+    std::shared_ptr<const Query> query;
+    std::shared_ptr<const Query::Unit> unit;
+    Source(const std::shared_ptr<const Query>& query,
+           const std::shared_ptr<const Query::Unit>& unit)
+        : query(query), unit(unit) {}
+  };
 
 private:
   Tag tag_;

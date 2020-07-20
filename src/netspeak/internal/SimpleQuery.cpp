@@ -193,7 +193,7 @@ void Unit::replace_with(const std::shared_ptr<Unit>& unit) {
   }
 }
 void Unit::remove() {
-  replace_with(std::shared_ptr<Unit>());
+  replace_with(nullptr);
 }
 
 
@@ -277,10 +277,10 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit) {
       if (it == end) {
         out << "Alt{}";
       } else {
-        out << "Alt{ " << *it;
+        out << "Alt{ " << **it;
         it++;
         for (; it != end; it++) {
-          out << " | " << *it;
+          out << " | " << **it;
         }
         out << " }";
       }
@@ -297,7 +297,7 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit) {
       } else {
         out << "Concat{";
         for (; it != end; it++) {
-          out << " " << *it;
+          out << " " << **it;
         }
         out << " }";
       }
@@ -310,7 +310,7 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit) {
   }
 }
 std::ostream& operator<<(std::ostream& out, const SimpleQuery& query) {
-  return out << "SimpleQuery( " << query.root() << " )";
+  return out << "SimpleQuery( " << *query.root() << " )";
 }
 
 

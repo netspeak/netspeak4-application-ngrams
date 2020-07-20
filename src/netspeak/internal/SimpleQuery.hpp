@@ -23,7 +23,7 @@ public:
     CONCAT,
     ALTERNATION,
   };
-  typedef std::shared_ptr<const Query::Unit> Source;
+  typedef NormQuery::Unit::Source Source;
   typedef std::string Text;
 
 private:
