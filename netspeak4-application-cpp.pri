@@ -1,9 +1,8 @@
 CONFIG += c++11
 CONFIG -= qt
 DEFINES -= QT_WEBKIT
-QMAKE_CXX = g++
-QMAKE_LINK = g++
-QMAKE_CXXFLAGS += -Wall -Wextra
+QMAKE_CXXFLAGS += -Wall -Wextra -g -ggdb -O0
+QMAKE_LFLAGS += -g -O0 -rdynamic
 
 INCLUDEPATH += \
     $$PWD/src \
@@ -75,6 +74,10 @@ LIBS += \
     -lboost_system \
     -lboost_program_options \
     -lboost_regex \
+    -lboost_stacktrace_basic \
+    -lboost_stacktrace_backtrace \
+    -lboost_stacktrace_addr2line \
+    -ldl \
     -lz \
     -lcmph \
     -lrt \

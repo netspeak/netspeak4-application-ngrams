@@ -73,7 +73,7 @@ private:
 
   void pop_stack() {
     if (stack_.size() <= 1) {
-      throw std::logic_error(
+      throw netspeak::tracable_logic_error(
           "Some operation either pushed too little or popped too much.");
     }
     stack_.pop_back();
@@ -95,7 +95,7 @@ public:
   }
   virtual void exitQuery(QueryParser::QueryContext*) override {
     if (stack_.size() != 1) {
-      throw std::logic_error(
+      throw netspeak::tracable_logic_error(
           "Some operation either pushed too much or popped too little.");
     }
   }

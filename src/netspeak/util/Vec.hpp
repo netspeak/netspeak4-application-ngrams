@@ -26,6 +26,20 @@ inline bool vec_contains(std::vector<T>& base, const T& item) {
 }
 
 /**
+ * @brief A move version of vector<T>.pop_back().
+ *
+ * @tparam T
+ * @param base
+ * @return T
+ */
+template <typename T>
+inline T vec_pop(std::vector<T>& base) {
+  auto back = std::move(base.back());
+  base.pop_back();
+  return back;
+}
+
+/**
  * @brief Assuming a sorted vector, this will remove all duplicate elements in
  * the vector.
  *

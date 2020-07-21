@@ -6,7 +6,31 @@
 #include <stdexcept>
 #include <string>
 
+#ifndef NDEBUG
+#include <boost/stacktrace.hpp>
+#endif
+
 namespace netspeak {
+
+struct tracable_logic_error : public std::logic_error {
+private:
+  static inline std::string add_trace(const std::string& what) {
+#ifndef NDEBUG
+    // add stack trace in debugging mode
+    std::stringstream out;
+    out << what << "\nAt:\n" << boost::stacktrace::stacktrace();
+    return out.str();
+#else
+    // just keep the error message as is
+    return what;
+#endif
+  }
+
+public:
+  inline tracable_logic_error(const std::string& what)
+      : std::logic_error(add_trace(what)) {}
+  virtual ~tracable_logic_error() throw() override {}
+};
 
 struct invalid_query_error : public std::logic_error {
   invalid_query_error(const std::string& what) : std::logic_error(what) {}

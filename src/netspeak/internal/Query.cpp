@@ -3,6 +3,8 @@
 #include <cassert>
 #include <ostream>
 
+#include "netspeak/error.hpp"
+
 
 namespace netspeak {
 namespace internal {
@@ -82,7 +84,7 @@ LengthRange Unit::length_range() const {
     }
 
     default:
-      throw std::logic_error("Unknown tag");
+      throw netspeak::tracable_logic_error("Unknown tag");
   }
 }
 
@@ -112,7 +114,7 @@ std::ostream& operator<<(std::ostream& out, const Unit::Tag& tag) {
       return out << "Concat";
 
     default:
-      throw std::logic_error("Unknown tag");
+      throw netspeak::tracable_logic_error("Unknown tag");
   }
 }
 std::ostream& operator<<(std::ostream& out, const Unit& unit) {
@@ -150,7 +152,7 @@ std::ostream& operator<<(std::ostream& out, const Unit& unit) {
     }
 
     default:
-      throw std::logic_error("Unknown tag");
+      throw netspeak::tracable_logic_error("Unknown tag");
   }
 
   return out;

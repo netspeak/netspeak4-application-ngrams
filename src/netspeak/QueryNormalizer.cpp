@@ -30,31 +30,31 @@ public:
   QuerySimplifier(const QueryNormalizer::Options& options)
       : options(options), allow_regex(false) {}
 
-  typedef std::shared_ptr<SimpleQuery::Unit> SimpleUnitPtr;
   typedef std::shared_ptr<const Query::Unit> UnitPtr;
   typedef std::shared_ptr<const Query> QueryPtr;
 
 private:
-  static void add_to_concat(SimpleQuery::Unit& concat, SimpleUnitPtr unit) {
+  static void add_to_concat(SimpleQuery::Unit& concat, SimpleQuery::Unit unit) {
     // If a concat is added to a concat, then we can just inline the elements of
     // the child concat.
-    if (unit->tag() == SimpleQuery::Unit::Tag::CONCAT) {
-      for (auto& child : unit->drain_children()) {
-        concat.add_child(child);
+    if (unit.tag() == SimpleQuery::Unit::Tag::CONCAT) {
+      for (auto& child : unit.drain_children()) {
+        concat.add_child(std::move(child));
       }
     } else {
-      concat.add_child(unit);
+      concat.add_child(std::move(unit));
     }
   }
-  static void add_to_alternation(SimpleQuery::Unit& alt, SimpleUnitPtr unit) {
+  static void add_to_alternation(SimpleQuery::Unit& alt,
+                                 SimpleQuery::Unit unit) {
     // If an alt is added to an alt, then we can add all alternatives of the
     // child alt instead.
-    if (unit->tag() == SimpleQuery::Unit::Tag::ALTERNATION) {
-      for (auto& child : unit->drain_children()) {
-        alt.add_child(child);
+    if (unit.tag() == SimpleQuery::Unit::Tag::ALTERNATION) {
+      for (auto& child : unit.drain_children()) {
+        alt.add_child(std::move(child));
       }
     } else {
-      alt.add_child(unit);
+      alt.add_child(std::move(unit));
     }
   }
   static SimpleQuery::Unit::Source to_source(const QueryPtr& query,
@@ -63,16 +63,17 @@ private:
   }
 
 private:
-  SimpleUnitPtr plus_to_simple(const QueryPtr& query, const UnitPtr& unit) {
+  SimpleQuery::Unit plus_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
-    const auto plus = SimpleQuery::Unit::new_concat(source);
-    plus->add_child(SimpleQuery::Unit::new_qmark(source));
-    plus->add_child(SimpleQuery::Unit::new_star(source));
+    auto plus = SimpleQuery::Unit::new_concat(source);
+    plus.add_child(SimpleQuery::Unit::new_qmark(source));
+    plus.add_child(SimpleQuery::Unit::new_star(source));
     return plus;
   }
 
-  SimpleUnitPtr regex_to_simple(const QueryPtr& query, const UnitPtr& unit) {
+  SimpleQuery::Unit regex_to_simple(const QueryPtr& query,
+                                    const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
     if (allow_regex) {
@@ -83,11 +84,11 @@ private:
     }
   }
 
-  SimpleUnitPtr dict_to_simple(const QueryPtr& query, const UnitPtr& unit) {
+  SimpleQuery::Unit dict_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
     const std::string& text = unit->text();
-    const auto text_unit = SimpleQuery::Unit::new_word(text, source);
+    auto text_unit = SimpleQuery::Unit::new_word(text, source);
 
     if (!dictionary) {
       // no dictionary for this index
@@ -103,8 +104,8 @@ private:
     // make an alternation with the text itself and all of its synonyms
     // (be sure to ignore the original word just in case)
 
-    const auto alt = SimpleQuery::Unit::new_alternation(source);
-    alt->add_child(text_unit);
+    auto alt = SimpleQuery::Unit::new_alternation(source);
+    alt.add_child(std::move(text_unit));
 
     std::vector<std::string> words; // just a temporary buffer
 
@@ -121,38 +122,40 @@ private:
 
       if (words.size() == 1) {
         // the synonym is just one word
-        alt->add_child(SimpleQuery::Unit::new_word(words[0], source));
+        alt.add_child(SimpleQuery::Unit::new_word(words[0], source));
       } else {
         // the synonym is a phrase
-        const auto concat = SimpleQuery::Unit::new_concat(source);
+        auto concat = SimpleQuery::Unit::new_concat(source);
         for (const auto& word : words) {
-          concat->add_child(SimpleQuery::Unit::new_word(word, source));
+          concat.add_child(SimpleQuery::Unit::new_word(word, source));
         }
-        alt->add_child(concat);
+        alt.add_child(std::move(concat));
       }
     }
 
     return alt;
   }
 
-  SimpleUnitPtr option_to_simple(const QueryPtr& query, const UnitPtr& unit) {
+  SimpleQuery::Unit option_to_simple(const QueryPtr& query,
+                                     const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
-    const auto option = SimpleQuery::Unit::new_alternation(source);
+    auto option = SimpleQuery::Unit::new_alternation(source);
 
     if (unit->children().size() <= 1) {
       // If an option set has 0 or 1 elements, the option set is optional. E.g.
       // `[ foo ]` == `foo | EMPTY_CONCAT` and `[ ]` == `EMPTY_CONCAT`
-      option->add_child(SimpleQuery::Unit::new_concat(source));
+      option.add_child(SimpleQuery::Unit::new_concat(source));
     }
 
     for (const auto& child : unit->children()) {
-      add_to_alternation(*option, unit_to_simple(query, child));
+      add_to_alternation(option, unit_to_simple(query, child));
     }
     return option;
   }
 
-  SimpleUnitPtr order_to_simple(const QueryPtr& query, const UnitPtr& unit) {
+  SimpleQuery::Unit order_to_simple(const QueryPtr& query,
+                                    const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
     // Order sets easily blow up simple queries because an order set with n
@@ -175,11 +178,11 @@ private:
     // options.max_norm_queries, we can abort early because the input query will
     // (very likely) create too many norm queries.
 
-    std::vector<SimpleUnitPtr> elements;
+    std::vector<SimpleQuery::Unit> elements;
     uint32_t elements_min_length = 0;
     for (const auto& child : unit->children()) {
       const auto child_simple = unit_to_simple(query, child);
-      const auto range = child_simple->length_range();
+      const auto range = child_simple.length_range();
       if (range.empty()) {
         // any concat with a unit that doesn't accept any phrases will also not
         // accept any phrases
@@ -218,13 +221,13 @@ private:
     }
     if (elements.size() == 1) {
       // An order set with one unit is equal to its unit.
-      return elements[0];
+      return std::move(elements[0]);
     }
 
     // This is the general case.
     // Make an alternative that contains the all permutations.
 
-    const auto alt = SimpleQuery::Unit::new_alternation(source);
+    auto alt = SimpleQuery::Unit::new_alternation(source);
 
     std::vector<size_t> indexes;
     for (size_t i = 0; i < elements.size(); i++) {
@@ -236,39 +239,40 @@ private:
     // All the permutating is done by std::next_permutation.
     // https://en.cppreference.com/w/cpp/algorithm/next_permutation
     do {
-      const auto perm_concat = SimpleQuery::Unit::new_concat(source);
+      auto perm_concat = SimpleQuery::Unit::new_concat(source);
 
       for (const auto i : indexes) {
-        add_to_concat(*perm_concat, elements[i]->clone());
+        add_to_concat(perm_concat, elements[i].clone());
       }
 
-      alt->add_child(perm_concat);
+      alt.add_child(std::move(perm_concat));
     } while (std::next_permutation(indexes.begin(), indexes.end()));
 
     return alt;
   }
 
-  SimpleUnitPtr alt_to_simple(const QueryPtr& query, const UnitPtr& unit) {
+  SimpleQuery::Unit alt_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
-    const auto alt = SimpleQuery::Unit::new_alternation(source);
+    auto alt = SimpleQuery::Unit::new_alternation(source);
     for (const auto& child : unit->children()) {
-      add_to_alternation(*alt, unit_to_simple(query, child));
+      add_to_alternation(alt, unit_to_simple(query, child));
     }
     return alt;
   }
 
-  SimpleUnitPtr concat_to_simple(const QueryPtr& query, const UnitPtr& unit) {
+  SimpleQuery::Unit concat_to_simple(const QueryPtr& query,
+                                     const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
-    const auto concat = SimpleQuery::Unit::new_concat(source);
+    auto concat = SimpleQuery::Unit::new_concat(source);
     for (const auto& child : unit->children()) {
-      add_to_concat(*concat, unit_to_simple(query, child));
+      add_to_concat(concat, unit_to_simple(query, child));
     }
     return concat;
   }
 
-  SimpleUnitPtr unit_to_simple(const QueryPtr& query, const UnitPtr& unit) {
+  SimpleQuery::Unit unit_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
     switch (unit->tag()) {
@@ -298,91 +302,13 @@ private:
         return concat_to_simple(query, unit);
 
       default:
-        throw std::logic_error("Unknown tag");
+        throw netspeak::tracable_logic_error("Unknown tag");
     }
   }
 
 public:
-  std::unique_ptr<SimpleQuery> to_simple(const QueryPtr& query) {
-    return std::make_unique<SimpleQuery>(
-        unit_to_simple(query, query->alternatives()));
-  }
-};
-
-/**
- * @brief A class that compute the length ranges of given units can caches the
- * results.
- */
-class LengthRangeCacher {
-private:
-  std::unordered_map<std::shared_ptr<const SimpleQuery::Unit>, uint32_t> cache_;
-
-  uint32_t compute_min_length(const SimpleQuery::Unit& unit) {
-    switch (unit.tag()) {
-      case SimpleQuery::Unit::Tag::STAR:
-        return 0;
-
-      case SimpleQuery::Unit::Tag::WORD:
-      case SimpleQuery::Unit::Tag::QMARK:
-      case SimpleQuery::Unit::Tag::REGEX:
-        return 1;
-
-      case SimpleQuery::Unit::Tag::ALTERNATION: {
-        uint32_t min = UINT32_MAX;
-        for (const auto& child : unit.children()) {
-          const auto c_min = get_min_length(child);
-          if (c_min < min) {
-            if (c_min == 0) {
-              return 0;
-            }
-            min = c_min;
-          }
-        }
-        return min;
-      }
-
-      case SimpleQuery::Unit::Tag::CONCAT: {
-        uint32_t min = 0;
-        for (const auto& child : unit.children()) {
-          const auto c_min = get_min_length(child);
-          if (c_min == UINT32_MAX) {
-            return UINT32_MAX;
-          }
-          min += c_min;
-        }
-        return min;
-      }
-
-      default:
-        throw std::logic_error("Unknown tag");
-    }
-  }
-
-public:
-  uint32_t get_min_length(
-      const std::shared_ptr<const SimpleQuery::Unit>& unit) {
-    switch (unit->tag()) {
-      case SimpleQuery::Unit::Tag::WORD:
-      case SimpleQuery::Unit::Tag::QMARK:
-      case SimpleQuery::Unit::Tag::REGEX:
-        return 1;
-      case SimpleQuery::Unit::Tag::STAR:
-        return 0;
-      default:
-        break;
-    }
-
-    // only concats and alts have to be changed
-
-    const auto res = cache_.find(unit);
-    if (res == cache_.end()) {
-      // compute and cache
-      const auto min = unit->min_length();
-      cache_.emplace(unit, min);
-      return min;
-    } else {
-      return res->second;
-    }
+  SimpleQuery to_simple(const QueryPtr& query) {
+    return SimpleQuery(unit_to_simple(query, query->alternatives()));
   }
 };
 
@@ -419,23 +345,7 @@ private:
   // The optimizer tries to minimize the number of units in the tree by applying
   // trivial optimizations like inlining nested concatentation and nested
   // alternations.
-  //
-  // During these optimizations, units are only allowed to replace themselves
-  // with exactly one element. They **are not** allowed to remove themselves or
-  // any other child of any of their ancestors. They are also not allowed to
-  // replace themselves with more than one unit or to add units to any of their
-  // ancestors.
 
-  /**
-   * @brief This will optimize the given unit.
-   *
-   * During the optimization, the given unit may be replaced with exactly one
-   * other unit. It will not be removed or replaced with more than one unit.
-   *
-   * Note: This method assumes that the given unit has a parent!
-   *
-   * @param unit
-   */
   void optimize_simple_unit(SimpleQuery::Unit& unit) const {
     // the only thing to optimize are alternations and concatenations
     if (unit.tag() == SimpleQuery::Unit::Tag::CONCAT) {
@@ -445,40 +355,30 @@ private:
     }
   }
 
-  /**
-   * @brief Optimizes only the children of the given unit. The unit itself will
-   * not be removed or replaced.
-   *
-   * @param unit
-   */
   void optimize_simple_children(SimpleQuery::Unit& unit) const {
-    const auto& children = unit.children();
-    // use the indexing method.
-    for (size_t i = 0; i < children.size(); i++) {
-      optimize_simple_unit(*children[i]);
+    for (auto& child : unit.children()) {
+      optimize_simple_unit(child);
     }
   }
 
   static bool contains_child(const SimpleQuery::Unit& unit,
                              const SimpleQuery::Unit::Tag tag) {
-    return std::any_of(unit.children().begin(), unit.children().end(),
-                       [&tag](std::shared_ptr<SimpleQuery::Unit> u) {
-                         return u->tag() == tag;
-                       });
+    return std::any_of(
+        unit.children().begin(), unit.children().end(),
+        [&tag](const SimpleQuery::Unit& u) { return u.tag() == tag; });
   }
 
   static void inline_nested(SimpleQuery::Unit& unit,
                             const SimpleQuery::Unit::Tag tag) {
     // check if there are nested units to inline
     if (contains_child(unit, tag)) {
-      const auto old = unit.drain_children();
-      for (const auto& u : old) {
-        if (u->tag() == tag) {
-          for (const auto nested_child : u->drain_children()) {
-            unit.add_child(nested_child);
+      for (auto& child : unit.drain_children()) {
+        if (child.tag() == tag) {
+          for (auto& nested_child : child.drain_children()) {
+            unit.add_child(std::move(nested_child));
           }
         } else {
-          unit.add_child(u);
+          unit.add_child(std::move(child));
         }
       }
     }
@@ -504,7 +404,7 @@ private:
     // The whole thing is implemented in 2 passes, so we cache the min length
     std::vector<uint32_t> min_lengths;
     for (const auto& child : concat.children()) {
-      min_lengths.push_back(child->min_length());
+      min_lengths.push_back(child.min_length());
     }
 
     // A list of the indexes of all children to be removed
@@ -532,7 +432,7 @@ private:
 
       while (move_next()) {
         processed++;
-        const auto& child = *concat.children()[index];
+        const auto& child = concat.children()[index];
         if (child.tag() == SimpleQuery::Unit::Tag::QMARK) {
           // skip qmarks.
         } else if (min_lengths[index] == 0) {
@@ -553,7 +453,7 @@ private:
 
       for (auto index : to_remove) {
         min_lengths.erase(min_lengths.begin() + index);
-        concat.children()[index]->remove();
+        concat.remove_child(index);
       }
 
       to_remove.clear();
@@ -561,7 +461,7 @@ private:
 
     // First pass: Remove all zero-min-length units preceeded by a star
     for (size_t i = 0; i < concat.children().size(); i++) {
-      const auto& star = *concat.children()[i];
+      const auto& star = concat.children()[i];
       if (star.tag() == SimpleQuery::Unit::Tag::STAR) {
         i += mark_for_removal(i, true);
       }
@@ -571,7 +471,7 @@ private:
     // Second pass: This is basically the same as the first pass, but we will
     // remove all zero-min-length units followed by a star
     for (size_t i = concat.children().size(); i > 0; i--) {
-      const auto& star = *concat.children()[i - 1];
+      const auto& star = concat.children()[i - 1];
       if (star.tag() == SimpleQuery::Unit::Tag::STAR) {
         i -= mark_for_removal(i - 1, false);
       }
@@ -588,9 +488,7 @@ private:
 
     if (unit.children().size() == 1) {
       // replace the one-children concat with its child
-      const auto child = unit.children()[0];
-      unit.clear_children(); // detach child from tree
-      unit.replace_with(child);
+      unit = unit.pop_back();
       return;
     }
 
@@ -600,14 +498,13 @@ private:
     // The empty alternation is the absorbing element of concatenation
     const auto empty =
         std::find_if(unit.children().begin(), unit.children().end(),
-                     [](std::shared_ptr<SimpleQuery::Unit> u) {
-                       return u->tag() == SimpleQuery::Unit::Tag::ALTERNATION &&
-                              u->children().empty();
+                     [](const SimpleQuery::Unit& u) {
+                       return u.tag() == SimpleQuery::Unit::Tag::ALTERNATION &&
+                              u.children().empty();
                      });
     if (empty != unit.children().end()) {
-      const auto empty_alt = *empty;
-      unit.clear_children(); // detach children from tree
-      unit.replace_with(empty_alt);
+      const auto empty_source = empty->source();
+      unit = SimpleQuery::Unit::new_alternation(empty_source);
       return;
     }
 
@@ -626,9 +523,7 @@ private:
 
     if (unit.children().size() == 1) {
       // replace the one-children alt with its child
-      const auto child = unit.children()[0];
-      unit.clear_children(); // detach child from tree
-      unit.replace_with(child);
+      unit = unit.pop_back();
       return;
     }
 
@@ -645,7 +540,7 @@ private:
 
 public:
   void optimize(SimpleQuery& query) const {
-    optimize_simple_children(*query.root());
+    optimize_simple_children(query.root());
   }
 };
 
@@ -657,8 +552,9 @@ public:
       : options(options) {}
 
   /**
-   * @brief Returns an estimate for the number of norm queries creates by the
-   * given query.
+   * @brief Returns a function that, given the number of words each regex will
+   * be replaced with, return an estimate for the number of norm queries creates
+   * by the given query.
    *
    * The returned estimate is guaranteed to be always higher than the actual
    * number of norm queries (but also bounded by the maximum number
@@ -670,17 +566,102 @@ public:
    * @param query
    * @param regex_matches
    */
-  uint64_t estimate(const SimpleQuery& query, size_t regex_matches) {
-    LengthRangeCacher cacher;
+  std::function<uint64_t(size_t)> estimate(const SimpleQuery& query) {
     MinLengthMargin margin(0, 0);
-    return estimate_impl(query.root(), regex_matches, cacher, margin);
+    const auto result = estimate_impl(query.root(), margin);
+    if (result.is_constant) {
+      const auto constant = result.constant;
+      return [=](size_t) { return constant; };
+    } else {
+      const auto function = result.function;
+      return [=](size_t regex_matches) { return function(regex_matches); };
+    }
   }
 
 private:
-  uint64_t estimate_impl(const std::shared_ptr<const SimpleQuery::Unit>& unit,
-                         size_t regex_matches, LengthRangeCacher& cacher,
-                         const MinLengthMargin margin) {
-    switch (unit->tag()) {
+  struct UnitResult {
+    bool is_constant;
+    uint64_t constant;
+    std::function<uint64_t(size_t)> function;
+
+    UnitResult(uint64_t constant) : is_constant(true), constant(constant) {}
+    UnitResult(std::function<uint64_t(size_t)> function)
+        : is_constant(false), function(function) {}
+
+    static uint64_t safe_add(uint64_t a, uint64_t b) {
+      uint64_t sum = a + b;
+      if (sum < a) {
+        // overflow occurred
+        return UINT64_MAX;
+      } else {
+        return sum;
+      }
+    }
+    static std::function<uint64_t(size_t)> safe_add(
+        uint64_t a, std::function<uint64_t(size_t)> b) {
+      return [=](size_t input) { return safe_add(a, b(input)); };
+    }
+    static std::function<uint64_t(size_t)> safe_add(
+        std::function<uint64_t(size_t)> a, std::function<uint64_t(size_t)> b) {
+      return [=](size_t input) { return safe_add(a(input), b(input)); };
+    }
+    static uint64_t safe_mult(uint64_t a, uint64_t b) {
+      uint64_t prod = a * b;
+      if (prod < a || prod < b) {
+        // overflow occurred
+        return UINT64_MAX;
+      } else {
+        return prod;
+      }
+    }
+    static std::function<uint64_t(size_t)> safe_mult(
+        uint64_t a, std::function<uint64_t(size_t)> b) {
+      return [=](size_t input) { return safe_mult(a, b(input)); };
+    }
+    static std::function<uint64_t(size_t)> safe_mult(
+        std::function<uint64_t(size_t)> a, std::function<uint64_t(size_t)> b) {
+      return [=](size_t input) { return safe_mult(a(input), b(input)); };
+    }
+
+    UnitResult operator+(const UnitResult& rhs) const {
+      if (is_constant && constant == UINT64_MAX) {
+        return UINT64_MAX;
+      } else if (rhs.is_constant && rhs.constant == UINT64_MAX) {
+        return UINT64_MAX;
+      } else if (is_constant && rhs.is_constant) {
+        return safe_add(constant, rhs.constant);
+      } else if (is_constant) {
+        return safe_add(constant, rhs.function);
+      } else if (rhs.is_constant) {
+        return safe_add(rhs.constant, function);
+      } else {
+        return safe_add(function, rhs.function);
+      }
+    }
+    UnitResult operator*(const UnitResult& rhs) const {
+      if (is_constant && constant == 0) {
+        return 0;
+      } else if (rhs.is_constant && rhs.constant == 0) {
+        return 0;
+      } else if (is_constant && constant == UINT64_MAX) {
+        return UINT64_MAX;
+      } else if (rhs.is_constant && rhs.constant == UINT64_MAX) {
+        return UINT64_MAX;
+      } else if (is_constant && rhs.is_constant) {
+        return safe_mult(constant, rhs.constant);
+      } else if (is_constant) {
+        return safe_mult(constant, rhs.function);
+      } else if (rhs.is_constant) {
+        return safe_mult(rhs.constant, function);
+      } else {
+        return safe_mult(function, rhs.function);
+      }
+    }
+  };
+
+  UnitResult estimate_impl(const SimpleQuery::Unit& unit,
+                           const MinLengthMargin margin) {
+    switch (unit.tag()) {
       case SimpleQuery::Unit::Tag::WORD:
       case SimpleQuery::Unit::Tag::QMARK:
         return 1;
@@ -689,56 +670,51 @@ private:
         return 1UL + std::max<uint32_t>(0, options.max_length - margin.total());
 
       case SimpleQuery::Unit::Tag::REGEX:
-        return regex_matches;
+        return UnitResult([](size_t input) { return (uint64_t)input; });
 
       case SimpleQuery::Unit::Tag::ALTERNATION: {
-        uint64_t sum = 0;
-        for (const auto& child : unit->children()) {
-          const uint64_t c_num =
-              estimate_impl(child, regex_matches, cacher, margin);
-          if (c_num == UINT64_MAX) {
-            return UINT64_MAX;
-          }
-          sum += c_num;
+        UnitResult sum = 0;
+        for (const auto& child : unit.children()) {
+          sum = sum + estimate_impl(child, margin);
         }
         return sum;
       }
 
       case SimpleQuery::Unit::Tag::CONCAT: {
-        uint64_t total = 1;
-
-        const uint32_t unit_min_len = cacher.get_min_length(unit);
-        if (unit_min_len == UINT32_MAX) {
-          return 0;
-        }
-
-        uint32_t min_before = 0;
-        for (const auto& child : unit->children()) {
-          const uint32_t child_min = cacher.get_min_length(child);
-          const uint32_t min_after = unit_min_len - min_before - child_min;
-          const uint64_t c_num =
-              estimate_impl(child, regex_matches, cacher,
-                            margin + MinLengthMargin(min_before, min_after));
-          min_before += child_min;
-
-          if (c_num == UINT64_MAX) {
-            return UINT64_MAX;
-          }
-          if (c_num == 0) {
+        uint32_t uint_min_length = 0;
+        std::vector<uint32_t> min_lengths;
+        for (const auto& child : unit.children()) {
+          auto min_len = child.min_length();
+          if (min_len == UINT32_MAX) {
             return 0;
           }
-          const uint64_t prod = c_num * total;
-          if (prod < c_num || prod < total) {
-            // an overflow occurred
+          uint_min_length += min_len;
+          min_lengths.push_back(min_len);
+        }
+
+        UnitResult total = 1;
+        uint32_t min_before = 0;
+        for (size_t i = 0; i != unit.children().size(); i++) {
+          const auto& child = unit.children()[i];
+          const uint32_t child_min = min_lengths[i];
+          const uint32_t min_after = uint_min_length - min_before - child_min;
+          const auto c_num = estimate_impl(
+              child, margin + MinLengthMargin(min_before, min_after));
+          min_before += child_min;
+
+          if (c_num.is_constant && c_num.constant == UINT64_MAX) {
             return UINT64_MAX;
           }
-          total = prod;
+          if (c_num.is_constant && c_num.constant == 0) {
+            return 0;
+          }
+          total = total * c_num;
         }
         return total;
       }
 
       default:
-        throw std::logic_error("Unknown tag");
+        throw netspeak::tracable_logic_error("Unknown tag");
     }
   }
 };
@@ -826,7 +802,7 @@ public:
 
   std::vector<StarQuery> to_star_queries(const SimpleQuery& query) {
     std::vector<StarQuery> result;
-    alternation(result, *query.root());
+    alternation(result, query.root());
     return result;
   }
 
@@ -856,7 +832,8 @@ private:
         break;
       }
       case SimpleQuery::Unit::Tag::REGEX: {
-        throw std::logic_error("Regexes should have already been handled.");
+        throw netspeak::tracable_logic_error(
+            "Regexes should have already been handled.");
       }
       case SimpleQuery::Unit::Tag::ALTERNATION: {
         std::vector<StarQuery> alt;
@@ -894,12 +871,12 @@ private:
       }
       case SimpleQuery::Unit::Tag::CONCAT: {
         for (const auto& child : unit.children()) {
-          concat(queries, *child);
+          concat(queries, child);
         }
         break;
       }
       default:
-        throw std::logic_error("Unknown Tag");
+        throw netspeak::tracable_logic_error("Unknown Tag");
     }
   }
   void alternation(std::vector<StarQuery>& queries,
@@ -925,11 +902,12 @@ private:
         break;
       }
       case SimpleQuery::Unit::Tag::REGEX: {
-        throw std::logic_error("Regexes should have already been handled.");
+        throw netspeak::tracable_logic_error(
+            "Regexes should have already been handled.");
       }
       case SimpleQuery::Unit::Tag::ALTERNATION: {
         for (const auto& child : unit.children()) {
-          alternation(queries, *child);
+          alternation(queries, child);
         }
         break;
       }
@@ -947,7 +925,7 @@ private:
         break;
       }
       default:
-        throw std::logic_error("Unknown Tag");
+        throw netspeak::tracable_logic_error("Unknown Tag");
     }
   }
 };
@@ -1009,7 +987,7 @@ private:
           nq.units().push_back(NormQuery::Unit::qmark(u.source));
           break;
         default:
-          throw std::logic_error("Star is not valid here.");
+          throw netspeak::tracable_logic_error("Star is not valid here.");
       }
     }
     norm_queries.push_back(nq);
@@ -1051,7 +1029,7 @@ private:
             break;
           }
           default:
-            throw std::logic_error("Unknown tag");
+            throw netspeak::tracable_logic_error("Unknown tag");
         }
       }
       if (nq.size() >= options.min_length) {
@@ -1062,15 +1040,15 @@ private:
   }
 };
 
-void find_regexes(const std::shared_ptr<SimpleQuery::Unit>& unit,
-                  std::vector<std::shared_ptr<SimpleQuery::Unit>>& regexes) {
-  switch (unit->tag()) {
+void find_regexes(SimpleQuery::Unit& unit,
+                  std::vector<SimpleQuery::Unit*>& regexes) {
+  switch (unit.tag()) {
     case SimpleQuery::Unit::Tag::REGEX:
-      regexes.push_back(unit);
+      regexes.push_back(&unit);
       break;
     case SimpleQuery::Unit::Tag::ALTERNATION:
     case SimpleQuery::Unit::Tag::CONCAT:
-      for (const auto& child : unit->children()) {
+      for (auto& child : unit.children()) {
         find_regexes(child, regexes);
       }
       break;
@@ -1078,9 +1056,8 @@ void find_regexes(const std::shared_ptr<SimpleQuery::Unit>& unit,
       break;
   }
 }
-std::vector<std::shared_ptr<SimpleQuery::Unit>> find_regexes(
-    SimpleQuery& query) {
-  std::vector<std::shared_ptr<SimpleQuery::Unit>> regexes;
+std::vector<SimpleQuery::Unit*> find_regexes(SimpleQuery& query) {
+  std::vector<SimpleQuery::Unit*> regexes;
   find_regexes(query.root(), regexes);
   return regexes;
 }
@@ -1117,12 +1094,12 @@ void normalize_regexes(SimpleQuery& query,
     // try to find out with how many words we can replace each regex and still
     // fall within our budget.
     // It's like Blackjack - try to go as high as possible but don't go over.
-    NormQueryCounter counter(options);
+    auto estimator = NormQueryCounter(options).estimate(query);
 
     // This comparer will return <= 0 if the number of regexes matches fall
     // which our budget and > 0 other wise.
     auto comparer = [&](size_t m) {
-      size_t estimate = counter.estimate(query, m);
+      auto estimate = estimator(m);
       if (estimate == options.max_norm_queries) {
         return 0;
       } else {
@@ -1144,24 +1121,23 @@ void normalize_regexes(SimpleQuery& query,
       // without going over the budget.
 
       // TODO: What now?
+      throw invalid_query_error("Query too complex");
     } else {
-      // TODO: Parallelize the regex matching
-
       std::vector<std::string> matches;
-      for (const auto& regex_unit : regexes) {
+      for (auto regex_unit : regexes) {
         const auto regex_query =
             regex::parse_netspeak_regex_query(regex_unit->text());
         regex_index->match_query(regex_query, matches, best_max_matches,
                                  options.max_regex_time);
 
         const auto source = regex_unit->source();
-        const auto alt = SimpleQuery::Unit::new_alternation(source);
+        auto alt = SimpleQuery::Unit::new_alternation(source);
         for (const auto& word : matches) {
-          alt->add_child(SimpleQuery::Unit::new_word(word, source));
+          alt.add_child(SimpleQuery::Unit::new_word(word, source));
         }
-        regex_unit->replace_with(alt);
-
         matches.clear();
+
+        *regex_unit = std::move(alt);
       }
     }
   }
@@ -1186,18 +1162,18 @@ void QueryNormalizer::normalize(std::shared_ptr<const Query> query,
   QuerySimplifier simplifier(options);
   simplifier.dictionary = dictionary_;
   simplifier.allow_regex = allow_regex;
-  const std::unique_ptr<SimpleQuery> simple = simplifier.to_simple(query);
+  SimpleQuery simple = simplifier.to_simple(query);
 
   // optimize the simple form
   SimpleQueryOptimizer optimizer;
-  optimizer.optimize(*simple);
+  optimizer.optimize(simple);
 
   // replaces all regexes with a list of words
-  normalize_regexes(*simple, options, regex_index_);
+  normalize_regexes(simple, options, regex_index_);
 
-  // create the norm queries
+  // create norm queries
   SimpleQueryNormalizer normalizer(options);
-  normalizer.to_norm_queries(norm_queries, *simple);
+  normalizer.to_norm_queries(norm_queries, simple);
 }
 
 QueryNormalizer::QueryNormalizer(const InitConfig& config)

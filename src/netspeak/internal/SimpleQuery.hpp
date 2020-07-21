@@ -1,7 +1,6 @@
 #ifndef NETSPEAK_INTERNAL_SIMPLE_QUERY_HPP
 #define NETSPEAK_INTERNAL_SIMPLE_QUERY_HPP
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -32,33 +31,27 @@ private:
   Tag tag_;
   Text text_;
   Source source_;
-  std::vector<std::shared_ptr<Unit>> children_;
-  std::weak_ptr<Unit> self_;
-  std::weak_ptr<Unit> parent_;
+  std::vector<Unit> children_;
 
-  static std::shared_ptr<Unit> new_unit(Tag tag, const Text& text,
-                                        const Source& source);
+  static Unit new_unit(Tag tag, const Text& text, const Source& source);
 
 public:
   SimpleQueryUnit__() = delete;
   SimpleQueryUnit__(const SimpleQueryUnit__&) = delete;
+  SimpleQueryUnit__(SimpleQueryUnit__&&) = default;
+  SimpleQueryUnit__& operator=(SimpleQueryUnit__&& other) = default;
+
   SimpleQueryUnit__(Tag tag, const Text& text, const Source& source)
       : tag_(tag), text_(text), source_(source){};
 
-  static std::shared_ptr<Unit> new_word(const Text& text, const Source& source);
-  static std::shared_ptr<Unit> new_regex(const Text& text,
-                                         const Source& source);
-  static std::shared_ptr<Unit> new_qmark(const Source& source);
-  static std::shared_ptr<Unit> new_star(const Source& source);
-  static std::shared_ptr<Unit> new_concat(const Source& source);
-  static std::shared_ptr<Unit> new_alternation(const Source& source);
+  static Unit new_word(const Text& text, const Source& source);
+  static Unit new_regex(const Text& text, const Source& source);
+  static Unit new_qmark(const Source& source);
+  static Unit new_star(const Source& source);
+  static Unit new_concat(const Source& source);
+  static Unit new_alternation(const Source& source);
 
-  /**
-   * @brief Creates a deep copy of this unit.
-   *
-   * @return std::shared_ptr<Unit>
-   */
-  std::shared_ptr<Unit> clone() const;
+  Unit clone() const;
 
   Tag tag() const {
     return tag_;
@@ -69,14 +62,11 @@ public:
   const Source& source() const {
     return source_;
   }
-  const std::vector<std::shared_ptr<Unit>>& children() const {
+  std::vector<Unit>& children() {
     return children_;
   }
-  std::shared_ptr<Unit> parent() {
-    return parent_.lock();
-  }
-  std::shared_ptr<const Unit> parent() const {
-    return parent_.lock();
+  const std::vector<Unit>& children() const {
+    return children_;
   }
 
   bool is_terminal() const;
@@ -95,11 +85,11 @@ public:
    */
   uint32_t min_length() const;
 
-  void add_child(const std::shared_ptr<Unit>& unit);
+  void add_child(Unit);
+  Unit pop_back();
+  Unit remove_child(size_t index);
   void clear_children();
-  std::vector<std::shared_ptr<Unit>> drain_children();
-  void replace_with(const std::shared_ptr<Unit>& unit);
-  void remove();
+  std::vector<Unit> drain_children();
 };
 
 bool operator==(const SimpleQueryUnit__& lhs, const SimpleQueryUnit__& rhs);
@@ -114,18 +104,21 @@ public:
   typedef SimpleQueryUnit__ Unit;
 
 private:
-  std::shared_ptr<Unit> root_;
+  Unit root_;
 
   SimpleQuery() = delete;
   SimpleQuery(const SimpleQuery&) = delete;
 
 public:
-  SimpleQuery(const std::shared_ptr<Unit>& root) : root_(root) {}
+  SimpleQuery(SimpleQuery&&) = default;
+  SimpleQuery& operator=(SimpleQuery&& other) = default;
 
-  std::shared_ptr<Unit>& root() {
+  SimpleQuery(Unit root) : root_(std::move(root)) {}
+
+  Unit& root() {
     return root_;
   }
-  const std::shared_ptr<Unit>& root() const {
+  const Unit& root() const {
     return root_;
   }
 

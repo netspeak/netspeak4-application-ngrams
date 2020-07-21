@@ -4,6 +4,9 @@
 #include <cassert>
 #include <ostream>
 
+#include "netspeak/error.hpp"
+#include "netspeak/util/Vec.hpp"
+
 
 namespace netspeak {
 namespace internal {
@@ -11,35 +14,33 @@ namespace internal {
 typedef SimpleQuery::Unit Unit;
 
 
-inline std::shared_ptr<Unit> Unit::new_unit(Tag tag, const Text& text,
-                                            const Source& source) {
-  const auto unit = std::make_shared<Unit>(tag, text, source);
-  unit->self_ = unit;
-  return unit;
+inline Unit Unit::new_unit(Tag tag, const Text& text, const Source& source) {
+  return Unit(tag, text, source);
+  ;
 }
-std::shared_ptr<Unit> Unit::new_word(const Text& text, const Source& source) {
+Unit Unit::new_word(const Text& text, const Source& source) {
   return Unit::new_unit(Tag::WORD, text, source);
 }
-std::shared_ptr<Unit> Unit::new_regex(const Text& text, const Source& source) {
+Unit Unit::new_regex(const Text& text, const Source& source) {
   return Unit::new_unit(Tag::REGEX, text, source);
 }
-std::shared_ptr<Unit> Unit::new_qmark(const Source& source) {
+Unit Unit::new_qmark(const Source& source) {
   return Unit::new_unit(Tag::QMARK, "?", source);
 }
-std::shared_ptr<Unit> Unit::new_star(const Source& source) {
+Unit Unit::new_star(const Source& source) {
   return Unit::new_unit(Tag::STAR, "*", source);
 }
-std::shared_ptr<Unit> Unit::new_concat(const Source& source) {
+Unit Unit::new_concat(const Source& source) {
   return Unit::new_unit(Tag::CONCAT, "", source);
 }
-std::shared_ptr<Unit> Unit::new_alternation(const Source& source) {
+Unit Unit::new_alternation(const Source& source) {
   return Unit::new_unit(Tag::ALTERNATION, "", source);
 }
 
-std::shared_ptr<Unit> Unit::clone() const {
-  const auto unit = Unit::new_unit(tag(), text(), source());
+Unit Unit::clone() const {
+  auto unit = Unit::new_unit(tag(), text(), source());
   for (const auto& child : children()) {
-    unit->add_child(child->clone());
+    unit.add_child(child.clone());
   }
   return unit;
 }
@@ -72,7 +73,7 @@ LengthRange Unit::length_range() const {
     case Unit::Tag::ALTERNATION: {
       LengthRange range;
       for (const auto& child : children()) {
-        range |= child->length_range();
+        range |= child.length_range();
       }
       return range;
     }
@@ -80,7 +81,7 @@ LengthRange Unit::length_range() const {
     case Unit::Tag::CONCAT: {
       LengthRange range(0, 0);
       for (const auto& child : children()) {
-        range &= child->length_range();
+        range &= child.length_range();
         if (range.empty()) {
           return range;
         }
@@ -89,7 +90,7 @@ LengthRange Unit::length_range() const {
     }
 
     default:
-      throw std::logic_error("Unknown tag");
+      throw netspeak::tracable_logic_error("Unknown tag");
   }
 }
 
@@ -106,7 +107,7 @@ uint32_t Unit::min_length() const {
     case Unit::Tag::ALTERNATION: {
       uint32_t min = UINT32_MAX;
       for (const auto& child : children()) {
-        const auto c_min = child->min_length();
+        const auto c_min = child.min_length();
         if (c_min < min) {
           if (c_min == 0) {
             return 0;
@@ -120,7 +121,7 @@ uint32_t Unit::min_length() const {
     case Unit::Tag::CONCAT: {
       uint32_t min = 0;
       for (const auto& child : children()) {
-        const auto c_min = child->min_length();
+        const auto c_min = child.min_length();
         if (c_min == UINT32_MAX) {
           return UINT32_MAX;
         }
@@ -130,70 +131,41 @@ uint32_t Unit::min_length() const {
     }
 
     default:
-      throw std::logic_error("Unknown tag");
+      throw netspeak::tracable_logic_error("Unknown tag");
   }
 }
 
-void Unit::add_child(const std::shared_ptr<Unit>& unit) {
-  assert(unit);
-
+void Unit::add_child(Unit unit) {
   if (is_terminal()) {
-    throw new std::logic_error("A non-terminal cannot have children.");
-  }
-  if (unit->parent()) {
-    throw new std::logic_error("The unit is already has a parent.");
+    throw new netspeak::tracable_logic_error(
+        "A non-terminal cannot have children.");
   }
 
-  unit->parent_ = self_;
-  children_.push_back(unit);
+  children_.push_back(std::move(unit));
 }
+Unit Unit::pop_back() {
+  if (children_.empty()) {
+    throw new netspeak::tracable_logic_error(
+        "Cannot pop back of a unit without children.");
+  }
+  return util::vec_pop(children_);
+}
+Unit Unit::remove_child(size_t index) {
+  if (index >= children_.size()) {
+    throw new netspeak::tracable_logic_error("Index out of range.");
+  }
+  Unit child = std::move(children_[index]);
+  children_.erase(children_.begin() + index);
+  return child;
+}
+
 void Unit::clear_children() {
-  for (auto& child : children_) {
-    child->parent_.reset();
-  }
   children_.clear();
 }
-std::vector<std::shared_ptr<Unit>> Unit::drain_children() {
-  std::vector<std::shared_ptr<Unit>> ret;
-  for (auto& child : children_) {
-    child->parent_.reset();
-    ret.push_back(child);
-  }
-  children_.clear();
+std::vector<Unit> Unit::drain_children() {
+  std::vector<Unit> ret;
+  std::swap(children_, ret);
   return ret;
-}
-void Unit::replace_with(const std::shared_ptr<Unit>& unit) {
-  const auto p = parent();
-  if (!p) {
-    throw std::logic_error(
-        "Cannot replace or remove if this unit doesn't have a parent.");
-  }
-
-  // replace or remove, we will detach this unit from its parent
-  parent_.reset();
-
-  // find this unit
-  auto& p_children = p->children_;
-  auto pos = std::find(p_children.begin(), p_children.end(), self_.lock());
-  if (pos == p_children.end()) {
-    throw std::logic_error("Cannot find this unit in parent.");
-  }
-
-  if (unit) {
-    // replace
-    if (unit->parent()) {
-      throw std::logic_error(
-          "The given unit is already child of another parent.");
-    }
-
-    *pos = unit;
-  } else {
-    // remove
-    p_children.erase(pos);
-  }
-}
-void Unit::remove() {
-  replace_with(nullptr);
 }
 
 
@@ -212,7 +184,7 @@ bool operator==(const Unit& lhs, const Unit& rhs) {
     for (size_t i = 0; i < l_children.size(); i++) {
       const auto& l_child = l_children[i];
       const auto& r_child = r_children[i];
-      if (*l_child != *r_child) {
+      if (l_child != r_child) {
         return false;
       }
     }
@@ -224,7 +196,7 @@ bool operator==(const Unit& lhs, const Unit& rhs) {
 bool unit_contains_wildcards(const Unit& unit) {
   if (unit.is_terminal()) {
     for (const auto& child : unit.children()) {
-      if (unit_contains_wildcards(*child)) {
+      if (unit_contains_wildcards(child)) {
         return true;
       }
     }
@@ -234,7 +206,7 @@ bool unit_contains_wildcards(const Unit& unit) {
   }
 }
 bool SimpleQuery::has_wildcards() const {
-  return root() && unit_contains_wildcards(*root());
+  return unit_contains_wildcards(root());
 }
 
 
@@ -255,7 +227,7 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit::Tag& tag) {
       return out << "Concat";
 
     default:
-      throw std::logic_error("Unknown tag");
+      throw netspeak::tracable_logic_error("Unknown tag");
   }
 }
 std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit) {
@@ -277,10 +249,10 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit) {
       if (it == end) {
         out << "Alt{}";
       } else {
-        out << "Alt{ " << **it;
+        out << "Alt{ " << *it;
         it++;
         for (; it != end; it++) {
-          out << " | " << **it;
+          out << " | " << *it;
         }
         out << " }";
       }
@@ -297,7 +269,7 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit) {
       } else {
         out << "Concat{";
         for (; it != end; it++) {
-          out << " " << **it;
+          out << " " << *it;
         }
         out << " }";
       }
@@ -306,11 +278,11 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit) {
     }
 
     default:
-      throw std::logic_error("Unknown tag");
+      throw netspeak::tracable_logic_error("Unknown tag");
   }
 }
 std::ostream& operator<<(std::ostream& out, const SimpleQuery& query) {
-  return out << "SimpleQuery( " << *query.root() << " )";
+  return out << "SimpleQuery( " << query.root() << " )";
 }
 
 

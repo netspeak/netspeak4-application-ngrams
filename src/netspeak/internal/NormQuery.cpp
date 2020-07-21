@@ -3,6 +3,7 @@
 #include <ostream>
 
 #include "aitools/util/exception.hpp"
+#include "netspeak/error.hpp"
 
 
 namespace netspeak {
@@ -90,7 +91,7 @@ std::ostream& operator<<(std::ostream& out, const NormQuery::Unit::Tag& tag) {
       return out << "QMark";
 
     default:
-      throw std::logic_error("Unknown tag");
+      throw netspeak::tracable_logic_error("Unknown tag");
   }
 }
 std::ostream& operator<<(std::ostream& out, const NormQuery::Unit& unit) {
@@ -101,7 +102,7 @@ std::ostream& operator<<(std::ostream& out, const NormQuery::Unit& unit) {
       return out << "?";
 
     default:
-      throw std::logic_error("Unknown tag");
+      throw netspeak::tracable_logic_error("Unknown tag");
   }
 
   return out;

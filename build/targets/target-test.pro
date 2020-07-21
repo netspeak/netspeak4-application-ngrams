@@ -12,17 +12,17 @@ COMMON_INCLUDE = netspeak4-application-cpp.pri
 
 SOURCES += \
     ../../test/netspeak/runner.cpp \
+    ../../test/netspeak/test_ChainCutter.cpp \
     ../../test/netspeak/test_LfuCache.cpp \
-    ../../test/netspeak/test_Netspeak.cpp \
-    ../../test/netspeak/test_PhraseCorpus.cpp \
-    ../../test/netspeak/test_phrase_methods.cpp \
-    ../../test/netspeak/test_postprocessing.cpp \
-    ../../test/netspeak/test_query_methods.cpp \
-    ../../test/netspeak/test_query_normalization.cpp \
+#    ../../test/netspeak/test_Netspeak.cpp \
+#    ../../test/netspeak/test_PhraseCorpus.cpp \
+#    ../../test/netspeak/test_phrase_methods.cpp \
+#    ../../test/netspeak/test_postprocessing.cpp \
+#    ../../test/netspeak/test_query_normalization.cpp \
     ../../test/netspeak/test_QueryParser.cpp \
     ../../test/netspeak/test_normalization.cpp \
-    ../../test/netspeak/test_regex.cpp
+    ../../test/netspeak/test_regex.cpp \
+    ../../test/netspeak/test_parse.cpp \
 
 HEADERS += \
-    ../../test/netspeak/test_normalization.hpp \
-    ../../test/netspeak/paths.hpp
+    ../../test/netspeak/paths.hpp \
