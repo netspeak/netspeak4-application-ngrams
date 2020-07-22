@@ -4,7 +4,7 @@
 #include "aitools/invertedindex/RecordReader.hpp"
 
 #include "netspeak/PhraseFileParser.hpp"
-#include "netspeak/typedefs.hpp"
+#include "netspeak/internal/typedefs.hpp"
 
 namespace netspeak {
 
@@ -18,14 +18,14 @@ namespace netspeak {
  */
 template <bool stream_provides_phrase_id>
 class PhraseFileReader
-    : public aitools::invertedindex::RecordReader<PhraseIndexValue> {
+    : public aitools::invertedindex::RecordReader<internal::PhraseIndexValue> {
 public:
-  typedef aitools::invertedindex::RecordReader<PhraseIndexValue> base_type;
+  typedef aitools::invertedindex::RecordReader<internal::PhraseIndexValue> base_type;
   typedef typename base_type::record_type record_type;
 
   PhraseFileReader(std::istream& is) : base_type(), wordpos_(), parser_(is) {}
 
-  PhraseFileReader(std::istream& is, PhraseIndexValue::e2_type id_offset)
+  PhraseFileReader(std::istream& is, internal::PhraseIndexValue::e2_type id_offset)
       : base_type(), wordpos_(), parser_(is, id_offset) {}
 
   virtual ~PhraseFileReader() {}

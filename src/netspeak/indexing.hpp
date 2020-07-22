@@ -9,7 +9,7 @@
 #include "aitools/invertedindex/Postlist.hpp"
 
 #include "netspeak/Configurations.hpp"
-#include "netspeak/typedefs.hpp"
+#include "netspeak/internal/typedefs.hpp"
 
 namespace netspeak {
 
@@ -86,8 +86,9 @@ void BuildPhraseIndex(const boost::filesystem::path& phrase_dir,
                       const boost::filesystem::path& phrase_index_dir,
                       uint64_t expected_record_count);
 
-std::vector<PostlistIndexValue> IndexPostlist(
-    const aitools::invertedindex::Postlist<PhraseIndexValue>& postlist,
+std::vector<internal::PostlistIndexValue> IndexPostlist(
+    const aitools::invertedindex::Postlist<internal::PhraseIndexValue>&
+        postlist,
     std::size_t resolution);
 
 /**

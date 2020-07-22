@@ -25,13 +25,14 @@
 #include "netspeak/PhraseCorpus.hpp"
 #include "netspeak/PhraseFileReader.hpp"
 #include "netspeak/error.hpp"
+#include "netspeak/internal/Phrase.hpp"
 #include "netspeak/service/NetspeakService.pb.h"
-//#include "netspeak/generated/NetspeakMessages.pb.h"
 
 namespace netspeak {
 
 namespace ai = aitools::invertedindex;
 namespace bfs = boost::filesystem;
+using namespace internal;
 
 void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   aitools::check(bfs::exists(phrase_dir), error_message::does_not_exist,
@@ -127,12 +128,12 @@ uint64_t BuildPhraseCorpus(const bfs::path& phrase_dir,
   typedef std::shared_ptr<std::ostream> ostream_pointer;
   std::unordered_map<size_t, ostream_pointer> phrase_len_to_txt_os;
   std::unordered_map<size_t, ostream_pointer> phrase_len_to_bin_os;
-  std::unordered_map<size_t, PhraseId> phrase_len_to_id;
-  std::unordered_map<std::string, PhraseId> unigram_to_id;
+  std::unordered_map<size_t, Phrase::Id::Local> phrase_len_to_id;
+  std::unordered_map<std::string, Phrase::Id::Local> unigram_to_id;
 
   PhraseFileParserItem parser_item;
-  PhraseId phrase_id;
-  PhraseCorpusPhraseFreq phrase_freq;
+  Phrase::Id::Local phrase_id;
+  Phrase::Frequency phrase_freq;
   const bfs::directory_iterator dir_end;
   for (bfs::directory_iterator it(phrase_dir); it != dir_end; ++it) {
     bfs::ifstream ifs(it->path());
@@ -168,11 +169,11 @@ uint64_t BuildPhraseCorpus(const bfs::path& phrase_dir,
       phrase_freq = parser_item.freq;
       auto& bin_os = *phrase_len_to_bin_os[length];
       bin_os.write(reinterpret_cast<const char*>(&phrase_freq),
-                   sizeof(PhraseCorpusPhraseFreq));
+                   sizeof(Phrase::Frequency));
       for (const auto& word : parser_item.words) {
         phrase_id = unigram_to_id[word];
         bin_os.write(reinterpret_cast<const char*>(&phrase_id),
-                     sizeof(PhraseId));
+                     sizeof(Phrase::Id::Local));
       }
     }
   }
@@ -193,7 +194,7 @@ uint64_t BuildPhraseCorpus(const bfs::path& phrase_dir,
 
 void BuildPhraseDictionary(const bfs::path& phrase_dir,
                            const bfs::path& phrase_dictionary_dir) {
-  typedef aitools::pair<PhraseCorpusPhraseFreq, PhraseId> Value;
+  typedef aitools::pair<Phrase::Frequency, Phrase::Id::Local> Value;
   aitools::BigHashMap<Value>::Build(phrase_dir, phrase_dictionary_dir);
 }
 

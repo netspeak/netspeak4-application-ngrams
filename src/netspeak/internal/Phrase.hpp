@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "netspeak/internal/Words.hpp"
+#include "netspeak/internal/typedefs.hpp"
 
 
 namespace netspeak {
@@ -21,7 +22,7 @@ namespace internal {
 struct PhraseId__ {
 public:
   typedef uint32_t Length;
-  typedef uint32_t Local;
+  typedef __PhraseLocalId Local;
 
 private:
   Length length_;
