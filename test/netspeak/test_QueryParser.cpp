@@ -9,6 +9,7 @@
 #include "paths.hpp"
 
 #include "antlr4-runtime.h"
+#include "antlr4/parse.hpp"
 #include "antlr4/QueryErrorHandler.hpp"
 #include "antlr4/generated/QueryLexer.h"
 #include "antlr4/generated/QueryParser.h"
@@ -65,6 +66,11 @@ BOOST_AUTO_TEST_CASE(test_detection) {
       }
 
       BOOST_REQUIRE_EQUAL(actual, expected);
+
+      if (actual != "FAIL") {
+        // it's a valid query, so let's test the parse method
+        BOOST_REQUIRE_NO_THROW(antlr4::parse_query(query));
+      }
     }
     inputStream.close();
   }

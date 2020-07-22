@@ -20,21 +20,22 @@ namespace internal {
  */
 struct PhraseId__ {
 public:
-  typedef uint32_t Local;
   typedef uint32_t Length;
+  typedef uint32_t Local;
 
 private:
   Length length_;
   Local local_;
 
 public:
+  PhraseId__() = delete;
   PhraseId__(Length len, Local local_id) : length_(len), local_(local_id) {}
 
-  Local local() const {
-    return local_;
-  }
   Length length() const {
     return length_;
+  }
+  Local local() const {
+    return local_;
   }
 
   operator uint64_t() const {
@@ -85,6 +86,7 @@ private:
   Words words_;
 
 public:
+  Phrase() = delete;
   Phrase(Id id, Frequency freq) : id_(id), freq_(freq), words_() {}
 
   Id id() const {
@@ -110,9 +112,9 @@ public:
     return !(*this == rhs);
   }
   inline bool operator<(const Phrase& rhs) const {
-    // Phrases are naturally sorted by descending frequency.
     if (freq() != rhs.freq()) {
-      return freq() < rhs.freq();
+      // Phrases are naturally sorted by descending frequency.
+      return freq() > rhs.freq();
     } else {
       // If the frequency is that same, then we will sort by id. The order of
       // ids within a frequency class doesn't really matter, so we will just go

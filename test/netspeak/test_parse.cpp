@@ -34,13 +34,12 @@ std::string parse(const std::string& query_str) {
 
 // The syntax for this test suite is brought to you by the C preprocessor.
 // https://gcc.gnu.org/onlinedocs/gcc-4.8.5/cpp/Stringification.html
-#define ASSERT_QUERY(query, expected)                \
-  do {                                               \
-    BOOST_CHECK_EQUAL(remove_spaces(parse(query)), \
-                        remove_spaces(#expected));   \
+#define ASSERT_QUERY(query, expected)                                         \
+  do {                                                                        \
+    BOOST_CHECK_EQUAL(remove_spaces(parse(query)), remove_spaces(#expected)); \
   } while (0)
-#define ASSERT_INCORRECT_QUERY(query)                                 \
-  do {                                                                \
+#define ASSERT_INCORRECT_QUERY(query)                               \
+  do {                                                              \
     BOOST_CHECK_THROW(parse(query), netspeak::invalid_query_error); \
   } while (0)
 

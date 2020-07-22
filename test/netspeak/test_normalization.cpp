@@ -327,6 +327,17 @@ BOOST_AUTO_TEST_CASE(test_normalize_optionset) {
     };
     NORMALIZE_QUERY(query, expected, DEFAULT_INIT, DEFAULT_OPTIONS);
   }
+  {
+    // the star should absorb the optional option set
+    const auto query = "test [ foo ] ? *";
+    std::vector<std::string> expected{
+      "test ? ? ? ?",
+      "test ? ? ?",
+      "test ? ?",
+      "test ?",
+    };
+    NORMALIZE_QUERY(query, expected, DEFAULT_INIT, DEFAULT_OPTIONS);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_normalize_orderset) {

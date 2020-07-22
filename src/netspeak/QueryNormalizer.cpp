@@ -569,24 +569,44 @@ public:
   std::function<uint64_t(size_t)> estimate(const SimpleQuery& query) {
     MinLengthMargin margin(0, 0);
     const auto result = estimate_impl(query.root(), margin);
-    if (result.is_constant) {
-      const auto constant = result.constant;
+    if (result.is_constant()) {
+      // the estimate is a constant
+      const auto constant = result.constant();
       return [=](size_t) { return constant; };
     } else {
-      const auto function = result.function;
+      // the estimate depends on the number of regex matches
+      const auto function = result.function();
       return [=](size_t regex_matches) { return function(regex_matches); };
     }
   }
 
 private:
+  /**
+   * @brief This is the result of an estimate. It's either a constant value or a
+   * function dependent on the number of words each regex will be replaced with.
+   */
   struct UnitResult {
-    bool is_constant;
-    uint64_t constant;
-    std::function<uint64_t(size_t)> function;
+  private:
+    bool _is_constant;
+    uint64_t _constant;
+    std::function<uint64_t(size_t)> _function;
 
-    UnitResult(uint64_t constant) : is_constant(true), constant(constant) {}
+  public:
+    UnitResult(uint64_t constant) : _is_constant(true), _constant(constant) {}
     UnitResult(std::function<uint64_t(size_t)> function)
-        : is_constant(false), function(function) {}
+        : _is_constant(false), _function(function) {}
+
+    bool is_constant() const {
+      return _is_constant;
+    }
+    uint64_t constant() const {
+      assert(_is_constant);
+      return _constant;
+    }
+    const std::function<uint64_t(size_t)>& function() const {
+      assert(!_is_constant);
+      return _function;
+    }
 
     static uint64_t safe_add(uint64_t a, uint64_t b) {
       uint64_t sum = a + b;
@@ -624,37 +644,37 @@ private:
     }
 
     UnitResult operator+(const UnitResult& rhs) const {
-      if (is_constant && constant == UINT64_MAX) {
+      if (is_constant() && constant() == UINT64_MAX) {
         return UINT64_MAX;
-      } else if (rhs.is_constant && rhs.constant == UINT64_MAX) {
+      } else if (rhs.is_constant() && rhs.constant() == UINT64_MAX) {
         return UINT64_MAX;
-      } else if (is_constant && rhs.is_constant) {
-        return safe_add(constant, rhs.constant);
-      } else if (is_constant) {
-        return safe_add(constant, rhs.function);
-      } else if (rhs.is_constant) {
-        return safe_add(rhs.constant, function);
+      } else if (is_constant() && rhs.is_constant()) {
+        return safe_add(constant(), rhs.constant());
+      } else if (is_constant()) {
+        return safe_add(constant(), rhs.function());
+      } else if (rhs.is_constant()) {
+        return safe_add(rhs.constant(), function());
       } else {
-        return safe_add(function, rhs.function);
+        return safe_add(function(), rhs.function());
       }
     }
     UnitResult operator*(const UnitResult& rhs) const {
-      if (is_constant && constant == 0) {
+      if (is_constant() && constant() == 0) {
         return 0;
-      } else if (rhs.is_constant && rhs.constant == 0) {
+      } else if (rhs.is_constant() && rhs.constant() == 0) {
         return 0;
-      } else if (is_constant && constant == UINT64_MAX) {
+      } else if (is_constant() && constant() == UINT64_MAX) {
         return UINT64_MAX;
-      } else if (rhs.is_constant && rhs.constant == UINT64_MAX) {
+      } else if (rhs.is_constant() && rhs.constant() == UINT64_MAX) {
         return UINT64_MAX;
-      } else if (is_constant && rhs.is_constant) {
-        return safe_mult(constant, rhs.constant);
-      } else if (is_constant) {
-        return safe_mult(constant, rhs.function);
-      } else if (rhs.is_constant) {
-        return safe_mult(rhs.constant, function);
+      } else if (is_constant() && rhs.is_constant()) {
+        return safe_mult(constant(), rhs.constant());
+      } else if (is_constant()) {
+        return safe_mult(constant(), rhs.function());
+      } else if (rhs.is_constant()) {
+        return safe_mult(rhs.constant(), function());
       } else {
-        return safe_mult(function, rhs.function);
+        return safe_mult(function(), rhs.function());
       }
     }
   };
@@ -702,10 +722,10 @@ private:
               child, margin + MinLengthMargin(min_before, min_after));
           min_before += child_min;
 
-          if (c_num.is_constant && c_num.constant == UINT64_MAX) {
+          if (c_num.is_constant() && c_num.constant() == UINT64_MAX) {
             return UINT64_MAX;
           }
-          if (c_num.is_constant && c_num.constant == 0) {
+          if (c_num.is_constant() && c_num.constant() == 0) {
             return 0;
           }
           total = total * c_num;

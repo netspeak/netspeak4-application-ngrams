@@ -1,6 +1,8 @@
 CONFIG += c++11
 CONFIG -= qt
 DEFINES -= QT_WEBKIT
+QMAKE_CXX = clang++
+QMAKE_LINK = clang++
 QMAKE_CXXFLAGS += -Wall -Wextra -g -ggdb -O0
 QMAKE_LFLAGS += -g -O0 -rdynamic
 
@@ -30,6 +32,7 @@ SOURCES += \
     $$PWD/src/netspeak/indexing.cpp \
     $$PWD/src/netspeak/error.cpp \
     $$PWD/src/netspeak/Dictionaries.cpp \
+    $$PWD/src/netspeak/Netspeak.cpp \
     $$PWD/src/netspeak/QueryNormalizer.cpp \
     $$PWD/src/netspeak/Configurations.cpp \
     $$PWD/src/netspeak/internal/LengthRange.cpp \
@@ -113,5 +116,5 @@ CONFIG(debug) {
 CONFIG(release, release|debug) {
   DESTDIR = $$PWD/build/release
   OBJECTS_DIR = $$PWD/build/release
-  DEFINES += NDEBUG
+  #DEFINES += NDEBUG
 }

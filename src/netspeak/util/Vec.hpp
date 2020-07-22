@@ -46,6 +46,10 @@ inline T vec_pop(std::vector<T>& base) {
  * Elements are compared using the standard != operator.
  */
 template <typename T> void vec_sorted_filter_dups(std::vector<T>& base) {
+  if (base.size() < 2) {
+    return;
+  }
+
   size_t write_i = 0;
   for (size_t read_i = 1; read_i != base.size(); read_i++) {
     if (base[read_i] != base[write_i]) {
