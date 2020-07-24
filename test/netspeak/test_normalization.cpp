@@ -48,8 +48,8 @@ const QueryNormalizer::InitConfig DEFAULT_INIT = {
 };
 const QueryNormalizer::Options DEFAULT_OPTIONS = {
   .max_norm_queries = 1000,
-  .max_length = 5,
   .min_length = 1,
+  .max_length = 5,
   .max_regex_matches = 10,
   .max_regex_time = std::chrono::milliseconds(30),
 };
