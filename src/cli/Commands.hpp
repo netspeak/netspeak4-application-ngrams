@@ -11,11 +11,11 @@ namespace cli {
 
 class Commands {
 private:
-  std::vector<std::unique_ptr<Command>> _commands;
+  std::vector<std::unique_ptr<Command>> commands_;
 
 public:
   void add_command(std::unique_ptr<Command> command) {
-    _commands.push_back(std::move(command));
+    commands_.push_back(std::move(command));
   }
 
   int run(int argc, char* argv[]);

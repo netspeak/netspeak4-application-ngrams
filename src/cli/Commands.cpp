@@ -90,7 +90,7 @@ int run_command(Command& command, std::vector<std::string> opts) {
 
 int Commands::run(int argc, char* argv[]) {
   if (argc < 2) {
-    print_error(_commands, "Not enough arguments.");
+    print_error(commands_, "Not enough arguments.");
     return EXIT_FAILURE;
   }
 
@@ -115,7 +115,7 @@ int Commands::run(int argc, char* argv[]) {
 
     std::string command_name = variables["command"].as<std::string>();
 
-    for (const auto& command_ptr : _commands) {
+    for (const auto& command_ptr : commands_) {
       auto& command = *command_ptr;
       if (command.name() == command_name) {
         // collect all arguments
@@ -134,10 +134,10 @@ int Commands::run(int argc, char* argv[]) {
       }
     }
 
-    print_error(_commands, "Unknown command \"" + command_name + "\".");
+    print_error(commands_, "Unknown command \"" + command_name + "\".");
     return EXIT_FAILURE;
   } catch (std::exception& e) {
-    print_error(_commands, e.what());
+    print_error(commands_, e.what());
     return EXIT_FAILURE;
   }
 }
