@@ -8,4 +8,6 @@ COMMON_INCLUDE = netspeak4-application-cpp.pri
   error("Could not find $$COMMON_INCLUDE file")
 }
 
-SOURCES += $$PWD/../../src/CommandLineTool.cpp
+SOURCES += \
+    $$PWD/../../src/cli/*.cpp \
+    $$PWD/../../src/CommandLineTool.cpp \

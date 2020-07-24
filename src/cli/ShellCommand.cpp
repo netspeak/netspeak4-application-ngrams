@@ -1,19 +1,24 @@
-#ifndef NETSPEAK_SHELL_HPP
-#define NETSPEAK_SHELL_HPP
+#include "cli/ShellCommand.hpp"
 
 #include <cstdio>
-#include <memory>
-#include <string>
+#include <iomanip>
 
-#include <boost/algorithm/string/join.hpp>
-#include <boost/filesystem.hpp>
-
-#include "aitools/util/logging.hpp"
+#include "boost/filesystem.hpp"
 
 #include "netspeak/Configurations.hpp"
 #include "netspeak/Netspeak.hpp"
 
-namespace netspeak {
+namespace cli {
+
+namespace bpo = boost::program_options;
+namespace bfs = boost::filesystem;
+using namespace netspeak;
+
+void ShellCommand::add_options(
+    boost::program_options::options_description_easy_init& easy_init) {
+  easy_init("in,i", bpo::value<std::string>()->required(),
+            "Directory containing `netspeak` index");
+}
 
 /**
  * Runs an interactive Netspeak with the default retrieval strategy.
@@ -76,6 +81,11 @@ void RunNetspeakShell(const std::string& home_dir) {
   }
 }
 
-} // namespace netspeak
+int ShellCommand::run(boost::program_options::variables_map variables) {
+  bpo::notify(variables);
 
-#endif
+  RunNetspeakShell(variables["in"].as<std::string>());
+  return EXIT_SUCCESS;
+}
+
+} // namespace cli

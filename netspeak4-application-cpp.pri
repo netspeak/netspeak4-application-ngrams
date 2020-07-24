@@ -1,10 +1,10 @@
 CONFIG += c++11
 CONFIG -= qt
 DEFINES -= QT_WEBKIT
-QMAKE_CXX = g++
-QMAKE_LINK = g++
-QMAKE_CXXFLAGS += -Wall -Wextra -g -ggdb -O0
-QMAKE_LFLAGS += -g -O0 -rdynamic
+QMAKE_CXX = clang++
+QMAKE_LINK = clang++
+QMAKE_CXXFLAGS += -Wall -Wextra #-g -O0
+#QMAKE_LFLAGS += -g -O0 -rdynamic
 
 INCLUDEPATH += \
     $$PWD/src \
@@ -14,53 +14,12 @@ INCLUDEPATH += \
 
 
 SOURCES += \
-    $$PWD/src/antlr4/generated/QueryBaseListener.cpp \
-    $$PWD/src/antlr4/generated/QueryBaseVisitor.cpp \
-    $$PWD/src/antlr4/generated/QueryLexer.cpp \
-    $$PWD/src/antlr4/generated/QueryListener.cpp \
-    $$PWD/src/antlr4/generated/QueryParser.cpp \
-    $$PWD/src/antlr4/generated/QueryVisitor.cpp \
-    $$PWD/src/antlr4/parse.cpp \
-    $$PWD/src/antlr4/QueryErrorHandler.cpp \
-    $$PWD/src/netspeak/Configurations.cpp \
-    $$PWD/src/netspeak/Dictionaries.cpp \
-    $$PWD/src/netspeak/error.cpp \
-    $$PWD/src/netspeak/indexing.cpp \
-    $$PWD/src/netspeak/Netspeak.cpp \
-    $$PWD/src/netspeak/PhraseCorpus.cpp \
-    $$PWD/src/netspeak/Properties.cpp \
-    $$PWD/src/netspeak/QueryNormalizer.cpp \
-    $$PWD/src/netspeak/internal/LengthRange.cpp \
-    $$PWD/src/netspeak/internal/NormQuery.cpp \
-    $$PWD/src/netspeak/internal/Phrase.cpp \
-    $$PWD/src/netspeak/internal/Query.cpp \
-    $$PWD/src/netspeak/internal/RawRefResult.cpp \
-    $$PWD/src/netspeak/internal/RawResult.cpp \
-    $$PWD/src/netspeak/internal/SimpleQuery.cpp \
-    $$PWD/src/netspeak/internal/Words.cpp \
-    $$PWD/src/netspeak/regex/DefaultRegexIndex.cpp \
-    $$PWD/src/netspeak/regex/parsers.cpp \
-    $$PWD/src/netspeak/regex/RegexQuery.cpp \
-    $$PWD/src/netspeak/service/NetspeakService.grpc.pb.cc \
-    $$PWD/src/netspeak/service/NetspeakService.pb.cc \
-
-HEADERS += \
-    $$PWD/src/netspeak/shell.hpp \
-    $$PWD/src/netspeak/RetrievalStrategy3.hpp \
-    $$PWD/src/netspeak/RetrievalStrategy.hpp \
-    $$PWD/src/netspeak/QueryProcessor.hpp \
-    $$PWD/src/netspeak/Properties.hpp \
-    $$PWD/src/netspeak/postprocessing.hpp \
-    $$PWD/src/netspeak/PhraseFileReader.hpp \
-    $$PWD/src/netspeak/PhraseFileParser.hpp \
-    $$PWD/src/netspeak/PhraseDictionary.hpp \
-    $$PWD/src/netspeak/PhraseCorpus.hpp \
-    $$PWD/src/netspeak/Netspeak.hpp \
-    $$PWD/src/netspeak/LfuCache.hpp \
-    $$PWD/src/netspeak/indexing.hpp \
-    $$PWD/src/netspeak/error.hpp \
-    $$PWD/src/netspeak/Dictionaries.hpp \
-    $$PWD/src/netspeak/Configurations.hpp \
+    $$PWD/src/antlr4/*.cpp \
+    $$PWD/src/antlr4/generated/*.cpp \
+    $$PWD/src/netspeak/*.cpp \
+    $$PWD/src/netspeak/internal/*.cpp \
+    $$PWD/src/netspeak/regex/*.cpp \
+    $$PWD/src/netspeak/service/*.cc \
 
 LIBS += \
     -lboost_filesystem \
