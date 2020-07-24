@@ -1,8 +1,8 @@
 CONFIG += c++11
 CONFIG -= qt
 DEFINES -= QT_WEBKIT
-QMAKE_CXX = clang++
-QMAKE_LINK = clang++
+QMAKE_CXX = g++
+QMAKE_LINK = g++
 QMAKE_CXXFLAGS += -Wall -Wextra #-g -O0
 #QMAKE_LFLAGS += -g -O0 -rdynamic
 
@@ -20,6 +20,7 @@ SOURCES += \
     $$PWD/src/netspeak/internal/*.cpp \
     $$PWD/src/netspeak/regex/*.cpp \
     $$PWD/src/netspeak/service/*.cc \
+    $$PWD/src/netspeak/service/*.cpp \
 
 LIBS += \
     -lboost_filesystem \
