@@ -78,7 +78,7 @@ LIBS += \
     -licui18n \
     -licuuc \
     -L$$/usr/lib/ \
-    -lantlr4-runtime \
+    -l:libantlr4-runtime.a \
     -l:libprotobuf.a \
     -l:libgrpc++.a \
     -l:libgrpc_unsecure.a \
