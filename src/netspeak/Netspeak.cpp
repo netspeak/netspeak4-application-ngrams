@@ -243,8 +243,8 @@ std::pair<QueryNormalizer::Options, SearchOptions> Netspeak::to_options(
   SearchOptions s_options = {
     .max_phrase_count = request.max_phrases(),
     .max_phrase_frequency = max_freq,
-    .phrase_length_max = max_len,
     .phrase_length_min = min_len,
+    .phrase_length_max = max_len,
     // TODO: Replace these with configurable values
     .pruning_high = 160000,
     .pruning_low = 130000,
@@ -254,8 +254,8 @@ std::pair<QueryNormalizer::Options, SearchOptions> Netspeak::to_options(
     // TODO: Replace this with configurable values
     .max_norm_queries = 10000,
 
-    .max_length = max_len,
     .min_length = min_len,
+    .max_length = max_len,
 
     // TODO: Replace these with configurable values
     .max_regex_matches = 100,

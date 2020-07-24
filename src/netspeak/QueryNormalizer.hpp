@@ -46,16 +46,16 @@ public:
     size_t max_norm_queries;
 
     /**
+     * @brief Same as \c max_length but as a minimum.
+     */
+    uint32_t min_length;
+    /**
      * @brief The maximum length norm queries are allowed to have.
      *
      * This means that only phrases up to this length can be matched by the norm
      * queries.
      */
     uint32_t max_length;
-    /**
-     * @brief Same as \c max_length but as a minimum.
-     */
-    uint32_t min_length;
 
     /**
      * @brief The maximum number of words each regex can be replaced with.
