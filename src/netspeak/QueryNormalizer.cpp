@@ -17,6 +17,9 @@
 
 namespace netspeak {
 
+using namespace internal;
+
+
 /**
  * @brief A converter from a \c Query to its \c SimpleQuery units.
  */
@@ -1106,9 +1109,9 @@ size_t binary_search(size_t min, size_t max,
   return min;
 }
 
-void normalize_regexes(SimpleQuery& query,
-                       const QueryNormalizer::Options& options,
-                       const std::shared_ptr<const RegexIndex>& regex_index) {
+void normalize_regexes(
+    SimpleQuery& query, const QueryNormalizer::Options& options,
+    const std::shared_ptr<const regex::RegexIndex>& regex_index) {
   const auto regexes = find_regexes(query);
   if (!regexes.empty()) {
     // try to find out with how many words we can replace each regex and still

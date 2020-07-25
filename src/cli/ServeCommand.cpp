@@ -12,6 +12,7 @@
 
 #include "netspeak/Netspeak.hpp"
 #include "netspeak/service/UniqueMap.hpp"
+#include "netspeak/util/PropertiesFormat.hpp"
 
 
 namespace cli {
@@ -42,7 +43,7 @@ int ServeCommand::run(boost::program_options::variables_map variables) {
 
   auto config_file = variables["config"].as<std::string>();
   std::vector<service::UniqueMap::entry> entries;
-  entries.push_back(std::move(load_config(config_file)));
+  entries.push_back(load_config(config_file));
   service::UniqueMap service(std::move(entries));
 
   grpc::ServerBuilder builder;

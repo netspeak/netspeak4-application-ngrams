@@ -13,9 +13,6 @@
 
 namespace netspeak {
 
-using namespace internal;
-using namespace regex;
-
 // TODO: cache for regex queries
 
 
@@ -26,12 +23,12 @@ using namespace regex;
  */
 class QueryNormalizer {
 private:
-  std::shared_ptr<RegexIndex> regex_index_;
+  std::shared_ptr<regex::RegexIndex> regex_index_;
   std::shared_ptr<Dictionaries::Map> dictionary_;
 
 public:
   struct InitConfig {
-    std::shared_ptr<RegexIndex> regex_index;
+    std::shared_ptr<regex::RegexIndex> regex_index;
     std::shared_ptr<Dictionaries::Map> dictionary;
   };
 
@@ -72,8 +69,9 @@ public:
     std::chrono::nanoseconds max_regex_time;
   };
 
-  void normalize(std::shared_ptr<const Query> query, const Options& options,
-                 std::vector<NormQuery>& norm_queries);
+  void normalize(std::shared_ptr<const internal::Query> query,
+                 const Options& options,
+                 std::vector<internal::NormQuery>& norm_queries);
 };
 
 } // namespace netspeak

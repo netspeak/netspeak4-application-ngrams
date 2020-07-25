@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(test_write) {
   };
 
   std::stringstream str;
-  util::write_properties(str, data.begin(), data.end());
+  util::write_properties(str, data.cbegin(), data.cend());
   std::map<std::string, std::string> copy;
   util::read_properties(str, std::inserter(copy, copy.end()));
 

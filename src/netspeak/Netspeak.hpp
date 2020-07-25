@@ -38,9 +38,6 @@
 
 namespace netspeak {
 
-using namespace internal;
-
-
 class Netspeak {
 public:
   Netspeak() {}
@@ -55,6 +52,13 @@ public:
 
 
 private:
+  typedef internal::Query Query;
+  typedef internal::NormQuery NormQuery;
+  typedef internal::RawPhraseResult RawPhraseResult;
+  typedef internal::RawRefResult RawRefResult;
+  typedef internal::RawResult RawResult;
+  typedef internal::SearchOptions SearchOptions;
+
   std::pair<QueryNormalizer::Options, SearchOptions> to_options(
       const service::SearchRequest& request);
 
@@ -84,8 +88,7 @@ private:
   };
 
   std::shared_ptr<Dictionaries::Map> hash_dictionary_;
-  std::string regex_index_vocabulary;
-  std::shared_ptr<netspeak::regex::DefaultRegexIndex> regex_index_;
+  std::shared_ptr<regex::DefaultRegexIndex> regex_index_;
   std::unique_ptr<PhraseDictionary> phrase_dictionary_;
   QueryNormalizer query_normalizer_;
   QueryProcessor<RetrievalStrategy3Tag> query_processor_;

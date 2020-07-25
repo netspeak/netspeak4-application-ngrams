@@ -7,6 +7,7 @@
 namespace netspeak {
 
 namespace bfs = boost::filesystem;
+using namespace internal;
 
 
 void Netspeak::initialize(const Configurations::Map& config) {
@@ -72,10 +73,8 @@ void Netspeak::initialize(const Configurations::Map& config) {
       std::string regexwords((std::istreambuf_iterator<char>(ifs)),
                              (std::istreambuf_iterator<char>()));
       ifs.close();
-
-      regex_index_vocabulary = regexwords;
-      regex_index_ = std::shared_ptr<netspeak::regex::DefaultRegexIndex>(
-          new netspeak::regex::DefaultRegexIndex(regex_index_vocabulary));
+      regex_index_ = std::make_shared<netspeak::regex::DefaultRegexIndex>(
+          std::move(regexwords));
       break;
     }
   }
@@ -127,7 +126,7 @@ const Properties::Map Netspeak::properties() const {
       aitools::value::value_traits<Dictionaries::Map::mapped_type>::type_name();
   // regex vocabulary properties
   // BEWARE: The index is optional!
-  auto vocal_size = regex_index_ ? regex_index_vocabulary.size() : 0;
+  auto vocal_size = regex_index_ ? regex_index_->vocabulary().size() : 0;
   properties[Properties::regex_vocabulary_size] = std::to_string(vocal_size);
   properties[Properties::regex_vocabulary_value_type] =
       std::string(typeid(netspeak::regex::DefaultRegexIndex).name());

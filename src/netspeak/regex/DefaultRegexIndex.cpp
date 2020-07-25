@@ -243,25 +243,25 @@ std::string create_regex_pattern(const RegexQuery& query) {
 
 
 void DefaultRegexIndex::initialize_words() {
-  words = std::vector<struct WordEntry>();
+  words_ = std::vector<struct WordEntry>();
 
   // split vocabulary into words
   std::string::size_type pos;
   std::string::size_type prev = 0;
-  while ((pos = vocabulary.find('\n', prev)) != std::string::npos) {
+  while ((pos = vocabulary_.find('\n', prev)) != std::string::npos) {
     auto const length = pos - prev;
     if (length > 0) {
       WordEntry entry = { (uint32_t)prev, (uint16_t)length };
-      words.push_back(entry);
+      words_.push_back(entry);
     }
     prev = pos + 1;
   }
-  if (vocabulary.size() > prev) {
-    WordEntry entry = { (uint32_t)prev, (uint16_t)(vocabulary.size() - prev) };
-    words.push_back(entry);
+  if (vocabulary_.size() > prev) {
+    WordEntry entry = { (uint32_t)prev, (uint16_t)(vocabulary_.size() - prev) };
+    words_.push_back(entry);
   }
 
-  words.shrink_to_fit();
+  words_.shrink_to_fit();
 }
 
 void DefaultRegexIndex::initialize_all_chars() {
@@ -273,53 +273,53 @@ void DefaultRegexIndex::initialize_all_chars() {
   std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
 
   // resever a few slots for good measure
-  all_chars = std::unordered_set<char32_t>();
-  all_chars.reserve(10000);
+  all_chars_ = std::unordered_set<char32_t>();
+  all_chars_.reserve(10000);
 
   // one substring will have this many words.
   size_t group_size = 1024;
-  for (size_t i = 0; i < words.size(); i += group_size) {
-    size_t from = (size_t)words[i].offset;
+  for (size_t i = 0; i < words_.size(); i += group_size) {
+    size_t from = (size_t)words_[i].offset;
     size_t to;
-    if (i + group_size < words.size()) {
-      to = words[i + group_size].offset;
+    if (i + group_size < words_.size()) {
+      to = words_[i + group_size].offset;
     } else {
-      to = vocabulary.size();
+      to = vocabulary_.size();
     }
 
-    const std::string& sub = vocabulary.substr(from, to - from);
+    const std::string& sub = vocabulary_.substr(from, to - from);
     std::u32string u32 = conv.from_bytes(sub);
-    all_chars.insert(u32.begin(), u32.end());
+    all_chars_.insert(u32.begin(), u32.end());
   }
 
-  all_chars.erase('\n');
-  all_chars.erase('\r');
+  all_chars_.erase('\n');
+  all_chars_.erase('\r');
 }
 
 void DefaultRegexIndex::initialize_word_hash_table() {
   // the hash table will be implemented via linear probing, so we need enough
   // spaces between entries.
-  size_t n = next_pow_of_2(words.size());
-  if (n < words.size() + (words.size() / 2))
+  size_t n = next_pow_of_2(words_.size());
+  if (n < words_.size() + (words_.size() / 2))
     n *= 2; // n is too small, so let's make it bigger
 
-  word_hash_table = std::vector<uint32_t>(n);
+  word_hash_table_ = std::vector<uint32_t>(n);
 
   // initialize all slots of the hash table as empty
   for (size_t i = 0; i < n; i++) {
-    word_hash_table[i] = UINT32_MAX;
+    word_hash_table_[i] = UINT32_MAX;
   }
 
   // insert all words
   const uint32_t mask = n - 1;
-  for (uint32_t index = 0, count = words.size(); index < count; index++) {
-    const auto entry = words[index];
-    uint32_t hash = hash_word(vocabulary, entry.offset, entry.length) & mask;
+  for (uint32_t index = 0, count = words_.size(); index < count; index++) {
+    const auto entry = words_[index];
+    uint32_t hash = hash_word(vocabulary_, entry.offset, entry.length) & mask;
 
     while (true) {
-      if (word_hash_table[hash] == UINT32_MAX) {
+      if (word_hash_table_[hash] == UINT32_MAX) {
         // empty slot
-        word_hash_table[hash] = index;
+        word_hash_table_[hash] = index;
         break;
       }
 
@@ -329,8 +329,8 @@ void DefaultRegexIndex::initialize_word_hash_table() {
   }
 }
 
-DefaultRegexIndex::DefaultRegexIndex(const std::string& vocabulary)
-    : vocabulary(vocabulary) {
+DefaultRegexIndex::DefaultRegexIndex(std::string vocabulary)
+    : vocabulary_(std::move(vocabulary)) {
   initialize_words();
   initialize_all_chars();
   initialize_word_hash_table();
@@ -346,7 +346,7 @@ RegexQuery DefaultRegexIndex::optimize_query(const RegexQuery& query) const {
 
     switch (unit.type) {
       case RegexUnit::Type::WORD:
-        if (contains_unknown_characters(value, all_chars)) {
+        if (contains_unknown_characters(value, all_chars_)) {
           // add the empty set causing the query to reject all words
           builder.add(RegexUnit::char_set(U""));
         } else {
@@ -356,7 +356,7 @@ RegexQuery DefaultRegexIndex::optimize_query(const RegexQuery& query) const {
         break;
 
       case RegexUnit::Type::OPTIONAL_WORD:
-        if (contains_unknown_characters(value, all_chars)) {
+        if (contains_unknown_characters(value, all_chars_)) {
           // An optional word which contains an unknown character cannot be
           // matched, so we don't add it to the new query.
         } else {
@@ -366,11 +366,11 @@ RegexQuery DefaultRegexIndex::optimize_query(const RegexQuery& query) const {
         break;
 
       case RegexUnit::Type::CHAR_SET: {
-        if (contains_unknown_characters(value, all_chars)) {
+        if (contains_unknown_characters(value, all_chars_)) {
           // remove all unknown character from the character set
           std::unordered_set<char32_t> set;
           for (const auto& c : value) {
-            if (all_chars.find(c) != all_chars.end()) {
+            if (all_chars_.find(c) != all_chars_.end()) {
               set.insert(c);
             }
           }
@@ -394,26 +394,26 @@ RegexQuery DefaultRegexIndex::optimize_query(const RegexQuery& query) const {
 
 
 std::string DefaultRegexIndex::word_from_entry(const WordEntry& entry) const {
-  return vocabulary.substr(entry.offset, entry.length);
+  return vocabulary_.substr(entry.offset, entry.length);
 }
 std::string DefaultRegexIndex::word_at_index(uint32_t index) const {
-  return word_from_entry(words[index]);
+  return word_from_entry(words_[index]);
 }
 uint32_t DefaultRegexIndex::find_word(const std::string& word) const {
-  const uint32_t mask = word_hash_table.size() - 1;
+  const uint32_t mask = word_hash_table_.size() - 1;
   uint32_t hash = hash_word(word, 0, word.size()) & mask;
 
   while (true) {
-    auto index = word_hash_table[hash];
+    auto index = word_hash_table_[hash];
     if (index == UINT32_MAX)
       return UINT32_MAX; // not found
 
     // found a candidate
-    const auto entry = words[index];
+    const auto entry = words_[index];
 
     // compare words
     if (entry.length == word.size() &&
-        vocabulary.compare(entry.offset, entry.length, word) == 0) {
+        vocabulary_.compare(entry.offset, entry.length, word) == 0) {
       // found the given word in the vocabulary
       return index;
     }
@@ -531,16 +531,16 @@ void DefaultRegexIndex::match_query_regex(
 
   const auto start = std::chrono::steady_clock::now();
   uint32_t matches_added = 0;
-  for (size_t i = 0; i < words.size(); i++) {
-    const auto entry = words[i];
+  for (size_t i = 0; i < words_.size(); i++) {
+    const auto entry = words_[i];
 
     if (entry.length < min_length || entry.length > max_length) {
       // we can reject this word based on length alone
       continue;
     }
 
-    const auto begin = vocabulary.begin() + entry.offset;
-    const auto end = vocabulary.begin() + (entry.offset + entry.length);
+    const auto begin = vocabulary_.begin() + entry.offset;
+    const auto end = vocabulary_.begin() + (entry.offset + entry.length);
     if (boost::regex_match(begin, end, expression)) {
       // found a match
       matches.push_back(word_from_entry(entry));
@@ -573,7 +573,7 @@ void DefaultRegexIndex::match_query(const RegexQuery& query,
     // the query will match all words
     // Note: Technically, the empty word may be part of the index, but that's
     // unlikely because it doesn't make sense in the context of Netspeak.
-    uint32_t to_add = std::min(max_matches, (uint32_t)words.size());
+    uint32_t to_add = std::min(max_matches, (uint32_t)words_.size());
     for (uint32_t i = 0; i < to_add; i++) {
       matches.push_back(word_at_index(i));
     }
