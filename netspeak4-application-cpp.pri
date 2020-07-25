@@ -21,6 +21,7 @@ SOURCES += \
     $$PWD/src/netspeak/regex/*.cpp \
     $$PWD/src/netspeak/service/*.cc \
     $$PWD/src/netspeak/service/*.cpp \
+    $$PWD/src/netspeak/util/*.cpp \
 
 LIBS += \
     -lboost_filesystem \
