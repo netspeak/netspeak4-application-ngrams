@@ -17,10 +17,17 @@ namespace cli {
 namespace bpo = boost::program_options;
 namespace bfs = boost::filesystem;
 
+std::string RegexCommand::desc() {
+  return "Load an interactive shell for a regex word list.";
+};
+
 void RegexCommand::add_options(
     boost::program_options::options_description_easy_init& easy_init) {
   easy_init("in,i", bpo::value<std::string>()->required(),
-            "File of the regex list");
+            "The path of the regex list.\n"
+            "\n"
+            "This has to be a file where each line contains a word and all "
+            "line are separated using one new line character (\\n).");
 }
 
 std::string load_file(std::string path) {

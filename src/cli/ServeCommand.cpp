@@ -21,6 +21,10 @@ namespace bpo = boost::program_options;
 namespace bfs = boost::filesystem;
 using namespace netspeak;
 
+std::string ServeCommand::desc() {
+  return "Create a new gRPC server for a Netspeak index.";
+};
+
 void ServeCommand::add_options(
     boost::program_options::options_description_easy_init& easy_init) {
   easy_init("config,c", bpo::value<std::string>()->required(),
@@ -34,12 +38,19 @@ service::UniqueMap::entry load_config(const std::string& config) {
   throw std::logic_error("Not implemented yet.");
 }
 
+/**
+ * @brief Returns the address of the localhost with the given port.
+ */
+std::string localhost(uint16_t port) {
+  std::string local("localhost:");
+  local.append(std::to_string(port));
+  return local;
+}
+
 int ServeCommand::run(boost::program_options::variables_map variables) {
   bpo::notify(variables);
 
   auto port = variables["port"].as<uint16_t>();
-  std::string server_address("localhost:");
-  server_address.append(std::to_string(port));
 
   auto config_file = variables["config"].as<std::string>();
   std::vector<service::UniqueMap::entry> entries;
@@ -47,10 +58,10 @@ int ServeCommand::run(boost::program_options::variables_map variables) {
   service::UniqueMap service(std::move(entries));
 
   grpc::ServerBuilder builder;
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.AddListeningPort(localhost(port), grpc::InsecureServerCredentials());
   builder.RegisterService(&service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  std::cout << "Server listening on " << server_address << std::endl;
+  std::cout << "Server listening on port " << port << "\n";
   server->Wait();
 
   return EXIT_SUCCESS;

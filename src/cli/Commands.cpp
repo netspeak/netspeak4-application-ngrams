@@ -1,6 +1,7 @@
 #include "cli/Commands.hpp"
 
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include "boost/program_options.hpp"
@@ -8,6 +9,77 @@
 namespace cli {
 
 namespace bpo = boost::program_options;
+
+void print_line(std::ostream& out, std::string line,
+                bool skip_first_indentation, size_t indentation,
+                size_t max_width) {
+  std::string ident(indentation, ' ');
+  size_t available_space = max_width - indentation;
+
+  if (line.empty()) {
+    out << '\n';
+    return;
+  }
+
+  while (!line.empty()) {
+    if (skip_first_indentation) {
+      skip_first_indentation = false;
+    } else {
+      out << ident;
+    }
+
+    if (line.size() <= available_space) {
+      // line fits
+      out << line;
+      line.clear();
+    } else {
+      // we have to split the line
+      size_t space_pos = line.find(' ');
+      if (space_pos == std::string::npos || space_pos > available_space) {
+        // split the word.
+        out << line.substr(0, available_space);
+        line = line.substr(available_space);
+      } else {
+        // try to fit in as many words as possible
+        while (true) {
+          size_t next = line.find(' ', space_pos + 1);
+          if (next == std::string::npos || next > available_space) {
+            break;
+          } else {
+            space_pos = next;
+          }
+        }
+        // split
+        out << line.substr(0, space_pos);
+        line = line.substr(space_pos + 1);
+      }
+    }
+
+    out << '\n';
+  }
+}
+void print_text(std::ostream& out, const std::string& text,
+                size_t indentation = 0, size_t max_width = 100) {
+  std::stringstream str(text);
+
+  std::string line;
+  bool first = true;
+  while (std::getline(str, line, '\n')) {
+    print_line(out, line, first, indentation, max_width);
+    if (first) {
+      first = false;
+    }
+  }
+}
+
+std::string get_first_line(const std::string& text) {
+  size_t pos = text.find('\n');
+  if (pos == std::string::npos) {
+    return text;
+  } else {
+    return text.substr(0, pos);
+  }
+}
 
 /**
  * @brief Print a short help message that lists all available commands.
@@ -21,38 +93,69 @@ void print_commands_help(
     max_name_len = std::max(max_name_len, command->name().size());
   }
 
-  std::cout << "General usage: \"netspeak4 COMMAND ...\"\n"
-            << "where COMMANDS is one of:\n"
+  std::cout << "usage: netspeak4 <command> [<args>]\n"
+            << "where <command> is one of:\n"
             << "\n";
 
   for (const auto& command : commands) {
     const auto& name = command->name();
     const auto& desc = command->desc();
-    auto padding = max_name_len - name.size() + 4;
-    std::cout << "  " << name << std::string(padding, ' ') << desc << "\n";
+    auto padding = max_name_len - name.size();
+    std::cout << "  " << name << std::string(padding, ' ') << "  ";
+    // only print the first line
+    print_text(std::cout, get_first_line(desc), 2 + max_name_len + 2);
   }
 
   std::cout << "\n"
-            << "Run \"netspeak4 COMMAND --help\" to get command-specific usage "
-               "information.\n";
+            << "Run \"netspeak4 <command> --help\" to get command-specific "
+               "usage information.\n";
 }
 
 bpo::options_description get_option_desc(Command& command) {
   bpo::options_description desc(command.desc());
 
   auto easy_init = desc.add_options();
-  easy_init("help,h", "Print help message");
   command.add_options(easy_init);
+  easy_init("help,h", "Print this help message.");
 
   return desc;
 }
 
+std::string get_option_identifier(const bpo::option_description& option) {
+  std::string id = option.format_name();
+  auto arg = option.format_parameter();
+  if (!arg.empty()) {
+    id.push_back(' ');
+    id.append(arg);
+  }
+  return id;
+}
 void print_command_help(Command& command) {
   std::cout << "General usage of \"netspeak4 " << command.name() << " ...\"\n"
             << "\n";
-  auto options = get_option_desc(command);
-  options.print(std::cout, 80);
-  std::cout << "\n";
+
+  // print description
+  print_text(std::cout, command.desc());
+
+  // print options
+  auto option_desc = get_option_desc(command);
+  size_t max_name_len = 0;
+  for (const auto& option_ptr : option_desc.options()) {
+    if (option_ptr) {
+      auto name = get_option_identifier(*option_ptr);
+      max_name_len = std::max(max_name_len, name.size());
+    }
+  }
+  for (const auto& option_ptr : option_desc.options()) {
+    if (option_ptr) {
+      std::cout << "\n";
+      auto name = get_option_identifier(*option_ptr);
+      auto desc = option_ptr->description();
+      auto padding = max_name_len - name.size();
+      std::cout << "  " << name << std::string(padding, ' ') << "  ";
+      print_text(std::cout, desc, 2 + max_name_len + 2);
+    }
+  }
 }
 
 void print_error(const std::vector<std::unique_ptr<Command>>& commands,

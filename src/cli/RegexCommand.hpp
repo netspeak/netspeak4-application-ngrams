@@ -14,9 +14,7 @@ public:
   std::string name() override {
     return "regex";
   };
-  std::string desc() override {
-    return "Load an interactive shell from a regex word list.";
-  };
+  std::string desc() override;
   void add_options(boost::program_options::options_description_easy_init&
                        easy_init) override;
   int run(boost::program_options::variables_map variables) override;

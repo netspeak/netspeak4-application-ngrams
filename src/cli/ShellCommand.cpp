@@ -14,6 +14,10 @@ namespace bpo = boost::program_options;
 namespace bfs = boost::filesystem;
 using namespace netspeak;
 
+std::string ShellCommand::desc() {
+  return "Load an interactive shell from a Netspeak index.";
+};
+
 void ShellCommand::add_options(
     boost::program_options::options_description_easy_init& easy_init) {
   easy_init("in,i", bpo::value<std::string>()->required(),

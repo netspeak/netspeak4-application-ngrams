@@ -9,15 +9,31 @@ namespace cli {
 namespace bpo = boost::program_options;
 namespace bfs = boost::filesystem;
 
+std::string BuildCommand::desc() {
+  return "Builds a new Netspeak index from an n-gram collection.\n"
+         "\n"
+         "If the n-gram collection is not unique (= there are duplicate "
+         "phrases), then those duplicates have to be merged with the "
+         "`--merge-duplicates` option.";
+};
+
 void BuildCommand::add_options(
     boost::program_options::options_description_easy_init& easy_init) {
   easy_init("in,i", bpo::value<std::string>()->required(), "Input directory");
   easy_init("out,o", bpo::value<std::string>()->required(),
-            "Output directory (must be empty)");
-  easy_init("merge-duplicates,md",
-            "If your n-gram collection is not unique, you have to merge");
+            "The output directory (must be empty). If the directory doesn't "
+            "exist, it will be created.");
+  easy_init("merge-duplicates,m",
+            "If the n-gram collection contains duplicates, they have to be "
+            "merged or else the build will fail.\n"
+            "\n"
+            "This will create a complete copy of the n-gram collection during "
+            "the merging process and then in-place merge the copy. The "
+            "location of the copy can be set using the `--merge-dir` option.");
   easy_init("merge-dir", bpo::value<std::string>(),
-            "Overrides default tmp dir");
+            "The directory used to store the merged (aka unique) n-gram "
+            "collection.\n\n"
+            "This defaults to a temporary directory in the `--out` direcotry.");
 }
 
 // -----------------------------------------------------------------------------
