@@ -6,6 +6,7 @@
 #include <ostream>
 #include <string>
 
+
 namespace netspeak {
 namespace util {
 
@@ -18,11 +19,13 @@ namespace util {
 class Config {
 private:
   std::map<std::string, std::string> data_;
+  std::string file_name_;
 
 public:
   typedef std::map<std::string, std::string>::value_type initializer_list_type;
-  Config(std::initializer_list<initializer_list_type> list) : data_(list) {}
-  Config() : data_() {}
+  Config(std::initializer_list<initializer_list_type> list)
+      : data_(list), file_name_() {}
+  Config() : data_(), file_name_() {}
 
   std::map<std::string, std::string>::const_iterator begin() const {
     return data_.begin();
@@ -47,14 +50,37 @@ public:
     return data_.empty();
   }
 
-  const std::string& get(const std::string& key,
-                         const std::string& default_value) const {
-    if (contains(key)) {
-      return data_.at(key);
-    } else {
-      return default_value;
-    }
+  /**
+   * @brief The file name of this config.
+   *
+   * This is mainly for better error messages as it gives the user a way to
+   * identify a config.
+   */
+  const std::string& file_name() const {
+    return file_name_;
   }
+  void set_file_name(const std::string& file_name) {
+    file_name_ = file_name;
+  }
+
+  /**
+   * @brief Returns the value of the given key or the given default value if the
+   * key is not part of the config.
+   *
+   * @param key
+   * @param default_value
+   * @return const std::string&
+   */
+  const std::string& get(const std::string& key,
+                         const std::string& default_value) const;
+  /**
+   * @brief Returns the value of the given key. This will throw an exception if
+   * the key is not part of the config.
+   *
+   * @param key
+   * @return const std::string&
+   */
+  const std::string& get(const std::string& key) const;
 
   std::string& operator[](const std::string& key) {
     return data_[key];
@@ -74,6 +100,7 @@ public:
       data_.insert(*_begin);
     }
   }
+
   /**
    * @brief This will output the config in the `.properties` file format.
    */

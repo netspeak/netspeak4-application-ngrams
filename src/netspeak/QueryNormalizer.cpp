@@ -305,7 +305,7 @@ private:
         return concat_to_simple(query, unit);
 
       default:
-        throw netspeak::tracable_logic_error("Unknown tag");
+        throw tracable_logic_error("Unknown tag");
     }
   }
 
@@ -737,7 +737,7 @@ private:
       }
 
       default:
-        throw netspeak::tracable_logic_error("Unknown tag");
+        throw tracable_logic_error("Unknown tag");
     }
   }
 };
@@ -855,8 +855,7 @@ private:
         break;
       }
       case SimpleQuery::Unit::Tag::REGEX: {
-        throw netspeak::tracable_logic_error(
-            "Regexes should have already been handled.");
+        throw tracable_logic_error("Regexes should have already been handled.");
       }
       case SimpleQuery::Unit::Tag::ALTERNATION: {
         std::vector<StarQuery> alt;
@@ -899,7 +898,7 @@ private:
         break;
       }
       default:
-        throw netspeak::tracable_logic_error("Unknown Tag");
+        throw tracable_logic_error("Unknown Tag");
     }
   }
   void alternation(std::vector<StarQuery>& queries,
@@ -925,8 +924,7 @@ private:
         break;
       }
       case SimpleQuery::Unit::Tag::REGEX: {
-        throw netspeak::tracable_logic_error(
-            "Regexes should have already been handled.");
+        throw tracable_logic_error("Regexes should have already been handled.");
       }
       case SimpleQuery::Unit::Tag::ALTERNATION: {
         for (const auto& child : unit.children()) {
@@ -948,7 +946,7 @@ private:
         break;
       }
       default:
-        throw netspeak::tracable_logic_error("Unknown Tag");
+        throw tracable_logic_error("Unknown Tag");
     }
   }
 };
@@ -1010,7 +1008,7 @@ private:
           nq.units().push_back(NormQuery::Unit::qmark(u.source));
           break;
         default:
-          throw netspeak::tracable_logic_error("Star is not valid here.");
+          throw tracable_logic_error("Star is not valid here.");
       }
     }
     norm_queries.push_back(nq);
@@ -1052,7 +1050,7 @@ private:
             break;
           }
           default:
-            throw netspeak::tracable_logic_error("Unknown tag");
+            throw tracable_logic_error("Unknown tag");
         }
       }
       if (nq.size() >= options.min_length) {
@@ -1199,7 +1197,7 @@ void QueryNormalizer::normalize(std::shared_ptr<const Query> query,
   normalizer.to_norm_queries(norm_queries, simple);
 }
 
-QueryNormalizer::QueryNormalizer(const InitConfig& config)
+QueryNormalizer::QueryNormalizer(InitConfig config)
     : regex_index_(config.regex_index), dictionary_(config.dictionary) {}
 
 } // namespace netspeak

@@ -16,6 +16,10 @@ PREFIX::path_to_regex_vocabulary("path.to.regex.vocabulary");
 
 PREFIX::cache_capacity("cache.capacity");
 
+PREFIX::corpus_key("corpus.registry.key"); // TODO: Change. It's only like this for backwards compatibility
+PREFIX::corpus_name("corpus.name");
+PREFIX::corpus_language("corpus.language");
+
 PREFIX::default_phrase_index_dir_name("phrase-index");
 PREFIX::default_phrase_corpus_dir_name("phrase-corpus");
 PREFIX::default_phrase_dictionary_dir_name("phrase-dictionary");

@@ -22,6 +22,12 @@ public:
 
   static const std::string cache_capacity;
 
+  static const std::string corpus_key;
+  static const std::string corpus_name;
+  static const std::string corpus_language;
+
+  // TODO: Should the default values really be here or should they rather be in
+  // Netspeak.hpp?
   static const std::string default_phrase_index_dir_name;
   static const std::string default_phrase_corpus_dir_name;
   static const std::string default_phrase_dictionary_dir_name;

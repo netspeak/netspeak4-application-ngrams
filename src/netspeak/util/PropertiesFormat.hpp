@@ -4,6 +4,8 @@
 #include <istream>
 #include <ostream>
 
+#include "netspeak/util/traceable_error.hpp"
+
 
 namespace netspeak {
 namespace util {
@@ -24,6 +26,11 @@ void write_value(std::ostream& out, const std::string& value);
 
 } // namespace __properties_format_impl
 
+struct format_properties_error : public tracable_runtime_error {
+  format_properties_error(const std::string& what)
+      : tracable_runtime_error(what) {}
+  virtual ~format_properties_error() throw() override {}
+};
 
 template <typename T> void read_properties(std::istream& in, T inserter) {
   while (__properties_format_impl::has_next_key(in)) {

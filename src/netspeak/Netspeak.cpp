@@ -14,6 +14,7 @@ void Netspeak::initialize(const Configuration& config) {
   Configuration conf(config);
   const auto it = conf.find(Configuration::path_to_home);
   if (it != conf.end()) {
+    // TODO: What if the paths are already set?
     conf[Configuration::path_to_phrase_corpus] =
         it->second + "/" + Configuration::default_phrase_corpus_dir_name;
     conf[Configuration::path_to_phrase_dictionary] =
@@ -28,22 +29,17 @@ void Netspeak::initialize(const Configuration& config) {
         it->second + "/" + Configuration::default_regex_vocabulary_dir_name;
   }
 
-  const std::string msg = "incomplete configuration";
-  const auto pcd = conf.find(Configuration::path_to_phrase_corpus);
-  aitools::check(pcd != conf.end(), msg, Configuration::path_to_phrase_corpus);
-  const auto pdd = conf.find(Configuration::path_to_phrase_dictionary);
-  aitools::check(pdd != conf.end(), msg,
-                 Configuration::path_to_phrase_dictionary);
-  const auto cc = conf.find(Configuration::cache_capacity);
-  aitools::check(cc != conf.end(), msg, Configuration::cache_capacity);
-  result_cache_.reserve(std::stoul(cc->second));
+  const auto pc_dir = conf.get(Configuration::path_to_phrase_corpus);
+  const auto pd_dir = conf.get(Configuration::path_to_phrase_dictionary);
+  const auto cache_cap = conf.get(Configuration::cache_capacity);
+  result_cache_.reserve(std::stoul(cache_cap));
 
-  auto dir = bfs::path(pdd->second);
+  auto dir = bfs::path(pd_dir);
   aitools::log("Open phrase dictionary in", dir);
   phrase_dictionary_.reset(
       PhraseDictionary::Open(dir, aitools::memory_type::min_required));
 
-  dir = bfs::path(pcd->second) / "bin";
+  dir = bfs::path(pc_dir) / "bin";
   aitools::log("Open phrase corpus in", dir);
   phrase_corpus_.open(dir);
 
@@ -55,8 +51,6 @@ void Netspeak::initialize(const Configuration& config) {
     for (bfs::directory_iterator it(sdd->second); it != end; ++it) {
       aitools::log("Open hash dictionary in", *it);
       const auto dict = Dictionaries::read_from_file(*it);
-      //        hash_dictionary_.insert(dict.cbegin(), dict.cend());  //
-      // ambiguous?
       for (const auto& pair : dict) {
         hash_dictionary_->insert(pair);
       }
@@ -74,16 +68,16 @@ void Netspeak::initialize(const Configuration& config) {
       std::string regexwords((std::istreambuf_iterator<char>(ifs)),
                              (std::istreambuf_iterator<char>()));
       ifs.close();
-      regex_index_ = std::make_shared<netspeak::regex::DefaultRegexIndex>(
-          std::move(regexwords));
+      regex_index_ =
+          std::make_shared<regex::DefaultRegexIndex>(std::move(regexwords));
       break;
     }
   }
 
-  QueryNormalizer::InitConfig qn_config;
-  qn_config.regex_index = regex_index_;
-  qn_config.dictionary = hash_dictionary_;
-  query_normalizer_ = QueryNormalizer(qn_config);
+  query_normalizer_ = QueryNormalizer({
+      .regex_index = regex_index_,
+      .dictionary = hash_dictionary_,
+  });
 
   query_processor_.initialize(conf);
 }
@@ -92,6 +86,7 @@ Properties Netspeak::properties() const {
   // Should return phrase_index and postlist_index
   // properties as defined in Properties.hpp.
   auto properties = query_processor_.properties();
+
   // cache properties
   properties[Properties::cache_policy] = "least frequently used";
   properties[Properties::cache_size] = std::to_string(result_cache_.size());
@@ -104,6 +99,7 @@ Properties Netspeak::properties() const {
   std::ostringstream oss;
   result_cache_.list(oss, 100);
   properties[Properties::cache_top_100] = oss.str();
+
   // phrase corpus properties
   properties[Properties::phrase_corpus_1gram_count] =
       std::to_string(phrase_corpus_.count_phrases(1));
@@ -115,22 +111,25 @@ Properties Netspeak::properties() const {
       std::to_string(phrase_corpus_.count_phrases(4));
   properties[Properties::phrase_corpus_5gram_count] =
       std::to_string(phrase_corpus_.count_phrases(5));
+
   // phrase dictionary properties
   properties[Properties::phrase_dictionary_size] =
       std::to_string(phrase_dictionary_->size());
   properties[Properties::phrase_dictionary_value_type] =
       aitools::value::value_traits<PhraseDictionary::Value>::type_name();
+
   // hash dictionary properties
   properties[Properties::hash_dictionary_size] =
       std::to_string(hash_dictionary_->size());
   properties[Properties::hash_dictionary_value_type] =
       aitools::value::value_traits<Dictionaries::Map::mapped_type>::type_name();
+
   // regex vocabulary properties
   // BEWARE: The index is optional!
   auto vocal_size = regex_index_ ? regex_index_->vocabulary().size() : 0;
   properties[Properties::regex_vocabulary_size] = std::to_string(vocal_size);
   properties[Properties::regex_vocabulary_value_type] =
-      std::string(typeid(netspeak::regex::DefaultRegexIndex).name());
+      std::string(typeid(regex::DefaultRegexIndex).name());
   return properties;
 }
 
@@ -204,7 +203,7 @@ void Netspeak::search(const service::SearchRequest& request,
       auto resp_phrase = response_result->add_phrases();
       set_response_phrase(*resp_phrase, phrase);
     }
-  } catch (const netspeak::invalid_query_error& e) {
+  } catch (const invalid_query_error& e) {
     auto resp_error = response.mutable_error();
     resp_error->set_kind(service::SearchResponse::Error::INVALID_QUERY);
     resp_error->set_message(e.what());

@@ -74,8 +74,8 @@ void consume_delimiter(std::istream& in) {
 
   int c = in.get();
   if (c == EOF) {
-    throw std::logic_error("Unexpected EOF after key at " +
-                           std::to_string(in.tellg()));
+    throw format_properties_error("Unexpected EOF after key at " +
+                                  std::to_string(in.tellg()));
   }
   if (is_delimiter(c)) {
     // just consume the following spaces
@@ -90,16 +90,16 @@ void consume_delimiter(std::istream& in) {
       consume_spaces(in);
     }
   } else {
-    throw std::logic_error("Unexpected character after key at " +
-                           std::to_string(in.tellg()));
+    throw format_properties_error("Unexpected character after key at " +
+                                  std::to_string(in.tellg()));
   }
 }
 
 void read_escaped(std::istream& in, std::string& consumer) {
   int c = in.get();
   if (c == EOF) {
-    throw std::logic_error("Unexpected EOF during escape at " +
-                           std::to_string(in.tellg()));
+    throw format_properties_error("Unexpected EOF during escape at " +
+                                  std::to_string(in.tellg()));
   } else if (c == 'u') {
     // unicode escpae
     uint16_t escaped = 0;
@@ -107,8 +107,9 @@ void read_escaped(std::istream& in, std::string& consumer) {
       c = in.get();
       uint16_t digit;
       if (c == EOF) {
-        throw std::logic_error("Unexpected EOF during Unicode escape at " +
-                               std::to_string(in.tellg()));
+        throw format_properties_error(
+            "Unexpected EOF during Unicode escape at " +
+            std::to_string(in.tellg()));
       } else if (c >= '0' && c <= '9') {
         digit = c - '0';
       } else if (c >= 'A' && c <= 'F') {
@@ -116,14 +117,14 @@ void read_escaped(std::istream& in, std::string& consumer) {
       } else if (c >= 'a' && c <= 'f') {
         digit = 10 + c - 'a';
       } else {
-        throw std::logic_error(
+        throw format_properties_error(
             "Unexpected character during Unicode escape at " +
             std::to_string(in.tellg()));
       }
       escaped = (escaped << 4) | digit;
     }
     if (escaped >= 128) {
-      throw new std::logic_error(
+      throw format_properties_error(
           "Right now, only ASCII characters can be escape at " +
           std::to_string(in.tellg()));
     }
@@ -155,14 +156,14 @@ std::string read_key(std::istream& in) {
   while (true) {
     c = in.peek();
     if (c == EOF) {
-      throw std::logic_error("Unexpected EOF after key at " +
-                             std::to_string(in.tellg()));
+      throw format_properties_error("Unexpected EOF after key at " +
+                                    std::to_string(in.tellg()));
     } else if (c == '\\') {
       in.get();
       read_escaped(in, key);
     } else if (is_line_break(c)) {
-      throw std::logic_error("Unexpected line break after key at " +
-                             std::to_string(in.tellg()));
+      throw format_properties_error("Unexpected line break after key at " +
+                                    std::to_string(in.tellg()));
     } else if (is_delimiter(c) || is_space(c)) {
       // reached end of key
       break;
@@ -205,7 +206,7 @@ void write_hex_digit(std::ostream& out, char c) {
 }
 void write_unicode_char(std::ostream& out, char c) {
   if (c < 0) {
-    throw new std::logic_error(
+    throw tracable_logic_error(
         "Right now, only ASCII characters can be escape.");
   }
   out << '\\' << 'u' << '0' << '0';

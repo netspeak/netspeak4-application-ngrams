@@ -48,39 +48,5 @@ const std::string error_message::does_not_exist("does not exist");
 
 const std::string error_message::is_not_empty("is not empty");
 
-error_code to_error_code(uint32_t ec) {
-  return ec < to_ordinal(error_code::size) ? static_cast<error_code>(ec)
-                                           : error_code::unknown_error;
-}
-
-uint32_t to_ordinal(error_code ec) {
-  return static_cast<uint32_t>(ec);
-}
-
-const std::string& to_string(error_code ec) {
-  switch (ec) {
-    case error_code::no_error:
-      return error_message::no_error;
-    case error_code::invalid_query:
-      return error_message::invalid_query;
-    case error_code::server_error:
-      return error_message::server_error;
-    default:
-      return error_message::unknown_error;
-  }
-}
-
-
-std::ostream& operator<<(std::ostream& os, error_code ec) {
-  return os << to_string(ec);
-}
-
-std::string sizetToString(size_t sz) {
-  std::stringstream stream;
-
-  stream << sz;
-
-  return stream.str();
-}
 
 } // namespace netspeak

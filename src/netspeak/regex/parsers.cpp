@@ -12,7 +12,7 @@
 namespace netspeak {
 namespace regex {
 
-typedef netspeak::internal::QuerySyntax Syntax;
+typedef internal::QuerySyntax Syntax;
 
 
 /**

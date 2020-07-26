@@ -16,10 +16,10 @@ void Unit::add_child(const std::shared_ptr<Unit>& unit) {
   assert(unit);
 
   if (is_terminal()) {
-    throw new std::logic_error("A non-terminal cannot have children.");
+    throw tracable_logic_error("A non-terminal cannot have children.");
   }
   if (unit->parent()) {
-    throw new std::logic_error("The unit is already has a parent.");
+    throw tracable_logic_error("The unit is already has a parent.");
   }
 
   unit->parent_ = self_;
@@ -84,7 +84,7 @@ LengthRange Unit::length_range() const {
     }
 
     default:
-      throw netspeak::tracable_logic_error("Unknown tag");
+      throw tracable_logic_error("Unknown tag");
   }
 }
 
@@ -114,7 +114,7 @@ std::ostream& operator<<(std::ostream& out, const Unit::Tag& tag) {
       return out << "Concat";
 
     default:
-      throw netspeak::tracable_logic_error("Unknown tag");
+      throw tracable_logic_error("Unknown tag");
   }
 }
 std::ostream& operator<<(std::ostream& out, const Unit& unit) {
@@ -152,7 +152,7 @@ std::ostream& operator<<(std::ostream& out, const Unit& unit) {
     }
 
     default:
-      throw netspeak::tracable_logic_error("Unknown tag");
+      throw tracable_logic_error("Unknown tag");
   }
 
   return out;

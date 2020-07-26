@@ -90,7 +90,7 @@ LengthRange Unit::length_range() const {
     }
 
     default:
-      throw netspeak::tracable_logic_error("Unknown tag");
+      throw tracable_logic_error("Unknown tag");
   }
 }
 
@@ -131,28 +131,26 @@ uint32_t Unit::min_length() const {
     }
 
     default:
-      throw netspeak::tracable_logic_error("Unknown tag");
+      throw tracable_logic_error("Unknown tag");
   }
 }
 
 void Unit::add_child(Unit unit) {
   if (is_terminal()) {
-    throw new netspeak::tracable_logic_error(
-        "A non-terminal cannot have children.");
+    throw tracable_logic_error("A non-terminal cannot have children.");
   }
 
   children_.push_back(std::move(unit));
 }
 Unit Unit::pop_back() {
   if (children_.empty()) {
-    throw new netspeak::tracable_logic_error(
-        "Cannot pop back of a unit without children.");
+    throw tracable_logic_error("Cannot pop back of a unit without children.");
   }
   return util::vec_pop(children_);
 }
 Unit Unit::remove_child(size_t index) {
   if (index >= children_.size()) {
-    throw new netspeak::tracable_logic_error("Index out of range.");
+    throw tracable_logic_error("Index out of range.");
   }
   Unit child = std::move(children_[index]);
   children_.erase(children_.begin() + index);
@@ -227,7 +225,7 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit::Tag& tag) {
       return out << "Concat";
 
     default:
-      throw netspeak::tracable_logic_error("Unknown tag");
+      throw tracable_logic_error("Unknown tag");
   }
 }
 std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit) {
@@ -278,7 +276,7 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit) {
     }
 
     default:
-      throw netspeak::tracable_logic_error("Unknown tag");
+      throw tracable_logic_error("Unknown tag");
   }
 }
 std::ostream& operator<<(std::ostream& out, const SimpleQuery& query) {

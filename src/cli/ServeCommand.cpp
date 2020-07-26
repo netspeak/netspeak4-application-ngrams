@@ -11,6 +11,7 @@
 #include "boost/filesystem.hpp"
 
 #include "netspeak/Netspeak.hpp"
+#include "netspeak/error.hpp"
 #include "netspeak/service/UniqueMap.hpp"
 #include "netspeak/util/PropertiesFormat.hpp"
 
@@ -28,14 +29,33 @@ std::string ServeCommand::desc() {
 void ServeCommand::add_options(
     boost::program_options::options_description_easy_init& easy_init) {
   easy_init("config,c", bpo::value<std::string>()->required(),
-            "The configuration file of the index");
+            "The configuration file of the index.");
   easy_init("port,p", bpo::value<uint16_t>()->required(),
-            "The port on which the server will listen");
+            "The port on which the server will listen.");
 }
 
-service::UniqueMap::entry load_config(const std::string& config) {
-  // TODO:
-  throw std::logic_error("Not implemented yet.");
+Configuration load_config(const std::string& config_file) {
+  Configuration config;
+  config.set_file_name(config_file);
+  std::ifstream ifs(config_file);
+  config.merge_properties(ifs);
+  return config;
+}
+service::UniqueMap::entry load_map_entry(const std::string& config_file) {
+  Configuration config = load_config(config_file);
+
+  service::Corpus corpus;
+  corpus.set_key(config.get(Configuration::corpus_key));
+  corpus.set_name(config.get(Configuration::corpus_name));
+  corpus.set_language(config.get(Configuration::corpus_language));
+
+  auto netspeak = std::make_unique<Netspeak>();
+  netspeak->initialize(config);
+
+  return service::UniqueMap::entry{
+    .instance = std::move(netspeak),
+    .corpus = corpus,
+  };
 }
 
 /**
@@ -54,7 +74,7 @@ int ServeCommand::run(boost::program_options::variables_map variables) {
 
   auto config_file = variables["config"].as<std::string>();
   std::vector<service::UniqueMap::entry> entries;
-  entries.push_back(load_config(config_file));
+  entries.push_back(load_map_entry(config_file));
   service::UniqueMap service(std::move(entries));
 
   grpc::ServerBuilder builder;

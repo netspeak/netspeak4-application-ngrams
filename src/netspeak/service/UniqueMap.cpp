@@ -1,5 +1,7 @@
 #include "netspeak/service/UniqueMap.hpp"
 
+#include "netspeak/error.hpp"
+
 
 namespace netspeak {
 namespace service {
@@ -10,7 +12,7 @@ UniqueMap::UniqueMap(std::vector<entry> entries) : instances_(), corpora_() {
 
     std::string key = e.corpus.key();
     if (instances_.find(key) != instances_.end()) {
-      throw std::logic_error("Duplicate corpus key " + key);
+      throw tracable_logic_error("Duplicate corpus key " + key);
     }
 
     instances_.emplace(key, std::move(e.instance));
