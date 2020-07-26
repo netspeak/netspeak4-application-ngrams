@@ -5,7 +5,7 @@
 
 #include "boost/filesystem.hpp"
 
-#include "netspeak/Configurations.hpp"
+#include "netspeak/Configuration.hpp"
 #include "netspeak/Netspeak.hpp"
 
 namespace cli {
@@ -30,9 +30,9 @@ void ShellCommand::add_options(
 void RunNetspeakShell(const std::string& home_dir) {
   Netspeak netspeak;
   try {
-    const Configurations::Map config = {
-      { Configurations::path_to_home, home_dir },
-      { Configurations::cache_capacity, "1000" }
+    const Configuration config = {
+      { Configuration::path_to_home, home_dir },
+      { Configuration::cache_capacity, "1000" },
     };
     netspeak.initialize(config);
   } catch (const std::exception& error) {

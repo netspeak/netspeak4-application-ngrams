@@ -10,31 +10,32 @@ namespace bfs = boost::filesystem;
 using namespace internal;
 
 
-void Netspeak::initialize(const Configurations::Map& config) {
-  Configurations::Map conf(config);
-  const auto it = conf.find(Configurations::path_to_home);
+void Netspeak::initialize(const Configuration& config) {
+  Configuration conf(config);
+  const auto it = conf.find(Configuration::path_to_home);
   if (it != conf.end()) {
-    conf[Configurations::path_to_phrase_corpus] =
-        it->second + "/" + Configurations::default_phrase_corpus_dir_name;
-    conf[Configurations::path_to_phrase_dictionary] =
-        it->second + "/" + Configurations::default_phrase_dictionary_dir_name;
-    conf[Configurations::path_to_phrase_index] =
-        it->second + "/" + Configurations::default_phrase_index_dir_name;
-    conf[Configurations::path_to_postlist_index] =
-        it->second + "/" + Configurations::default_postlist_index_dir_name;
-    conf[Configurations::path_to_hash_dictionary] =
-        it->second + "/" + Configurations::default_hash_dictionary_dir_name;
-    conf[Configurations::path_to_regex_vocabulary] =
-        it->second + "/" + Configurations::default_regex_vocabulary_dir_name;
+    conf[Configuration::path_to_phrase_corpus] =
+        it->second + "/" + Configuration::default_phrase_corpus_dir_name;
+    conf[Configuration::path_to_phrase_dictionary] =
+        it->second + "/" + Configuration::default_phrase_dictionary_dir_name;
+    conf[Configuration::path_to_phrase_index] =
+        it->second + "/" + Configuration::default_phrase_index_dir_name;
+    conf[Configuration::path_to_postlist_index] =
+        it->second + "/" + Configuration::default_postlist_index_dir_name;
+    conf[Configuration::path_to_hash_dictionary] =
+        it->second + "/" + Configuration::default_hash_dictionary_dir_name;
+    conf[Configuration::path_to_regex_vocabulary] =
+        it->second + "/" + Configuration::default_regex_vocabulary_dir_name;
   }
+
   const std::string msg = "incomplete configuration";
-  const auto pcd = conf.find(Configurations::path_to_phrase_corpus);
-  aitools::check(pcd != conf.end(), msg, Configurations::path_to_phrase_corpus);
-  const auto pdd = conf.find(Configurations::path_to_phrase_dictionary);
+  const auto pcd = conf.find(Configuration::path_to_phrase_corpus);
+  aitools::check(pcd != conf.end(), msg, Configuration::path_to_phrase_corpus);
+  const auto pdd = conf.find(Configuration::path_to_phrase_dictionary);
   aitools::check(pdd != conf.end(), msg,
-                 Configurations::path_to_phrase_dictionary);
-  const auto cc = conf.find(Configurations::cache_capacity);
-  aitools::check(cc != conf.end(), msg, Configurations::cache_capacity);
+                 Configuration::path_to_phrase_dictionary);
+  const auto cc = conf.find(Configuration::cache_capacity);
+  aitools::check(cc != conf.end(), msg, Configuration::cache_capacity);
   result_cache_.reserve(std::stoul(cc->second));
 
   auto dir = bfs::path(pdd->second);
@@ -48,7 +49,7 @@ void Netspeak::initialize(const Configurations::Map& config) {
 
   // The hash dictionary is optional.
   hash_dictionary_ = std::make_shared<Dictionaries::Map>();
-  auto sdd = conf.find(Configurations::path_to_hash_dictionary);
+  auto sdd = conf.find(Configuration::path_to_hash_dictionary);
   if (sdd != conf.end() && bfs::exists(sdd->second)) {
     const bfs::directory_iterator end;
     for (bfs::directory_iterator it(sdd->second); it != end; ++it) {
@@ -63,7 +64,7 @@ void Netspeak::initialize(const Configurations::Map& config) {
   }
 
   // The regex vocabulary is optional.
-  sdd = conf.find(Configurations::path_to_regex_vocabulary);
+  sdd = conf.find(Configuration::path_to_regex_vocabulary);
   if (sdd != conf.end() && bfs::exists(sdd->second)) {
     const bfs::directory_iterator end;
     for (bfs::directory_iterator it(sdd->second); it != end; ++it) {
@@ -87,7 +88,7 @@ void Netspeak::initialize(const Configurations::Map& config) {
   query_processor_.initialize(conf);
 }
 
-const Properties::Map Netspeak::properties() const {
+Properties Netspeak::properties() const {
   // Should return phrase_index and postlist_index
   // properties as defined in Properties.hpp.
   auto properties = query_processor_.properties();

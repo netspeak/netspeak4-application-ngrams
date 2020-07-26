@@ -28,9 +28,9 @@ service::SearchResponse::Result search(const service::SearchRequest& request) {
 struct netspeak_service_fixture {
   netspeak_service_fixture() {
     BOOST_TEST_MESSAGE("netspeak_service_fixture setup");
-    const Configurations::Map config = {
-      { Configurations::path_to_home, test::INDEX_DIR },
-      { Configurations::cache_capacity, "1000" }
+    const Configuration config = {
+      { Configuration::path_to_home, test::INDEX_DIR },
+      { Configuration::cache_capacity, "1000" }
     };
     try {
       netspeak.initialize(config);

@@ -8,7 +8,7 @@
 
 #include "aitools/invertedindex/Postlist.hpp"
 
-#include "netspeak/Configurations.hpp"
+#include "netspeak/Configuration.hpp"
 #include "netspeak/internal/typedefs.hpp"
 
 namespace netspeak {
@@ -109,7 +109,7 @@ void BuildPostlistIndex(const boost::filesystem::path& phrase_index_dir,
  */
 void BuildRegexVocabulary(const boost::filesystem::path& regex_vocabulary_dir,
                           const boost::filesystem::path& phrase_corpus_dir,
-                          const Configurations::Map& config);
+                          const Configuration& config);
 
 /**
  * Merges n-gram duplicates by adding their frequency values to form a set of

@@ -20,7 +20,7 @@
 #include "aitools/util/check.hpp"
 #include "aitools/util/systemio.hpp"
 
-#include "netspeak/Configurations.hpp"
+#include "netspeak/Configuration.hpp"
 #include "netspeak/Netspeak.hpp"
 #include "netspeak/PhraseCorpus.hpp"
 #include "netspeak/PhraseFileReader.hpp"
@@ -44,7 +44,7 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // -------------------------------------------------------------------------
 
   const bfs::path phrase_corpus_dir =
-      netspeak_dir / Configurations::default_phrase_corpus_dir_name;
+      netspeak_dir / Configuration::default_phrase_corpus_dir_name;
   aitools::check(bfs::create_directory(phrase_corpus_dir),
                  error_message::cannot_create, phrase_corpus_dir);
 
@@ -57,7 +57,7 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // -------------------------------------------------------------------------
 
   const bfs::path phrase_dictionary_dir =
-      netspeak_dir / Configurations::default_phrase_dictionary_dir_name;
+      netspeak_dir / Configuration::default_phrase_dictionary_dir_name;
   aitools::check(bfs::create_directories(phrase_dictionary_dir),
                  error_message::cannot_create, phrase_dictionary_dir);
 
@@ -71,7 +71,7 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // -------------------------------------------------------------------------
 
   const bfs::path phrase_index_dir =
-      netspeak_dir / Configurations::default_phrase_index_dir_name;
+      netspeak_dir / Configuration::default_phrase_index_dir_name;
   aitools::check(bfs::create_directories(phrase_index_dir),
                  error_message::cannot_create, phrase_index_dir);
 
@@ -84,7 +84,7 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // -------------------------------------------------------------------------
 
   const bfs::path postlist_index_dir =
-      netspeak_dir / Configurations::default_postlist_index_dir_name;
+      netspeak_dir / Configuration::default_postlist_index_dir_name;
   aitools::check(bfs::create_directory(postlist_index_dir),
                  error_message::cannot_create, postlist_index_dir);
 
@@ -96,18 +96,18 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // Build component "regex-vocabulary"
   // -------------------------------------------------------------------------
 
-  const Configurations::Map config = {
-    { Configurations::path_to_home, netspeak_dir.string() },
-    { Configurations::path_to_phrase_corpus, phrase_corpus_dir.string() },
-    { Configurations::path_to_phrase_dictionary,
+  const Configuration config = {
+    { Configuration::path_to_home, netspeak_dir.string() },
+    { Configuration::path_to_phrase_corpus, phrase_corpus_dir.string() },
+    { Configuration::path_to_phrase_dictionary,
       phrase_dictionary_dir.string() },
-    { Configurations::path_to_phrase_index, phrase_index_dir.string() },
-    { Configurations::path_to_postlist_index, postlist_index_dir.string() },
-    { Configurations::cache_capacity, "1000" }
+    { Configuration::path_to_phrase_index, phrase_index_dir.string() },
+    { Configuration::path_to_postlist_index, postlist_index_dir.string() },
+    { Configuration::cache_capacity, "1000" },
   };
 
   const bfs::path regex_vocabulary_dir =
-      netspeak_dir / Configurations::default_regex_vocabulary_dir_name;
+      netspeak_dir / Configuration::default_regex_vocabulary_dir_name;
   aitools::check(bfs::create_directory(regex_vocabulary_dir),
                  error_message::cannot_create, regex_vocabulary_dir);
 
@@ -342,7 +342,7 @@ std::vector<std::string> find_missing_words(
 }
 void add_missing(std::vector<WordFreqPair>& word_freq_pairs,
                  const boost::filesystem::path& phrase_corpus_dir,
-                 const Configurations::Map& config) {
+                 const Configuration& config) {
   // read "phrase-corpus/bin/vocab" file to find missing words
   const auto missing = find_missing_words(phrase_corpus_dir, word_freq_pairs);
   if (!missing.empty()) {
@@ -394,7 +394,7 @@ void add_missing(std::vector<WordFreqPair>& word_freq_pairs,
 
 void BuildRegexVocabulary(const boost::filesystem::path& regex_vocabulary_dir,
                           const boost::filesystem::path& phrase_corpus_dir,
-                          const Configurations::Map& config) {
+                          const Configuration& config) {
   auto word_freq_pairs = read_1grams(phrase_corpus_dir);
 
   // Simply going though all 1-grams is not enough because there might be some

@@ -1,7 +1,7 @@
 #ifndef NETSPEAK_RETRIEVAL_STRATEGY_HPP
 #define NETSPEAK_RETRIEVAL_STRATEGY_HPP
 
-#include "netspeak/Configurations.hpp"
+#include "netspeak/Configuration.hpp"
 #include "netspeak/Properties.hpp"
 #include "netspeak/internal/NormQuery.hpp"
 #include "netspeak/internal/SearchOptions.hpp"
@@ -47,7 +47,7 @@ struct stats_type {
  */
 template <typename RetrievalStrategyTag> class RetrievalStrategy {
 public:
-  void initialize(const Configurations::Map& config);
+  void initialize(const Configuration& config);
 
   void initialize_query(
       const SearchOptions& options, const internal::NormQuery& query,
@@ -66,7 +66,7 @@ public:
       const internal::NormQuery& query, size_t max_phrase_frequency,
       size_t max_phrase_count, OutputIterator& output);
 
-  const Properties properties() const;
+  Properties properties() const;
 };
 
 } // namespace netspeak

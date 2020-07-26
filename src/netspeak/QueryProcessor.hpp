@@ -12,7 +12,7 @@
 #include "aitools/util/check.hpp"
 #include "aitools/util/logging.hpp"
 
-#include "netspeak/Configurations.hpp"
+#include "netspeak/Configuration.hpp"
 #include "netspeak/RetrievalStrategy.hpp"
 #include "netspeak/internal/NormQuery.hpp"
 #include "netspeak/internal/RawRefResult.hpp"
@@ -52,18 +52,18 @@ private:
       intersection_set_type;
 
 public:
-  void initialize(const Configurations::Map& config) {
+  void initialize(const Configuration& config) {
     strategy_.initialize(config);
   }
 
-  const Properties::Map properties() const {
+  Properties properties() const {
     // Should return phrase_index and postlist_index
     // properties as defined in NetspeakProperties.hpp.
     return strategy_.properties();
   }
 
   std::shared_ptr<RawRefResult> process(const SearchOptions& options,
-                                          const NormQuery& query) {
+                                        const NormQuery& query) {
     auto query_result = std::make_shared<RawRefResult>();
     process_(options, *query_result, query);
     return query_result;

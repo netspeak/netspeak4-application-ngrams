@@ -89,18 +89,16 @@ public:
   typedef RetrievalStrategy3Tag::unit_metadata unit_metadata;
   typedef index_entry_traits<RetrievalStrategy3Tag> traits;
 
-  void initialize(const Configurations::Map& config) {
+  void initialize(const Configuration& config) {
     auto check_config = [&](const std::string& key) {
-      aitools::check(Configurations::contains(config, key),
-                     "incomplete configuration", key);
+      aitools::check(config.contains(key), "incomplete configuration", key);
     };
-    check_config(Configurations::path_to_phrase_dictionary);
-    check_config(Configurations::path_to_postlist_index);
-    check_config(Configurations::path_to_phrase_index);
+    check_config(Configuration::path_to_phrase_dictionary);
+    check_config(Configuration::path_to_postlist_index);
+    check_config(Configuration::path_to_phrase_index);
 
     // Open ngram dictionary.
-    const bfs::path dir =
-        config.find(Configurations::path_to_phrase_dictionary)->second;
+    const bfs::path dir = config.at(Configuration::path_to_phrase_dictionary);
     phrase_dictionary_.reset(
         PhraseDictionary::Open(dir, aitools::memory_type::min_required));
 
@@ -108,13 +106,13 @@ public:
     aitools::invertedindex::Configuration index_config;
     index_config.set_max_memory_usage(aitools::memory_type::mb1024);
     index_config.set_index_directory(
-        config.find(Configurations::path_to_postlist_index)->second);
+        config.at(Configuration::path_to_postlist_index));
     aitools::log("Open postlist index in", index_config.index_directory());
     postlist_index_.open(index_config);
 
     // Open ngram index.
     index_config.set_index_directory(
-        config.find(Configurations::path_to_phrase_index)->second);
+        config.at(Configuration::path_to_phrase_index));
     aitools::log("Open phrase index in", index_config.index_directory());
     phrase_index_.open(index_config);
   }
@@ -242,10 +240,10 @@ public:
     return stats;
   }
 
-  const Properties::Map properties() const {
+  Properties properties() const {
     // Should insert phrase_index and postlist_index
     // properties as defined in Properties.hpp.
-    Properties::Map properties;
+    Properties properties;
     properties[Properties::phrase_index_value_type] =
         phrase_index_.properties().value_type;
     properties[Properties::phrase_index_key_count] =

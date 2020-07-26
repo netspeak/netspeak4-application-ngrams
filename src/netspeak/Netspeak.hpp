@@ -15,7 +15,7 @@
 
 #include "antlr4/parse.hpp"
 
-#include "netspeak/Configurations.hpp"
+#include "netspeak/Configuration.hpp"
 #include "netspeak/Dictionaries.hpp"
 #include "netspeak/PhraseCorpus.hpp"
 #include "netspeak/PhraseDictionary.hpp"
@@ -43,9 +43,9 @@ public:
   Netspeak() {}
   Netspeak(const Netspeak&) = delete;
 
-  void initialize(const Configurations::Map& config);
+  void initialize(const Configuration& config);
 
-  const Properties::Map properties() const;
+  Properties properties() const;
 
   void search(const service::SearchRequest& request,
               service::SearchResponse& response) throw();
