@@ -34,15 +34,8 @@ void ServeCommand::add_options(
             "The port on which the server will listen.");
 }
 
-Configuration load_config(const std::string& config_file) {
-  Configuration config;
-  config.set_file_name(config_file);
-  std::ifstream ifs(config_file);
-  config.merge_properties(ifs);
-  return config;
-}
 service::UniqueMap::entry load_map_entry(const std::string& config_file) {
-  Configuration config = load_config(config_file);
+  Configuration config(config_file);
 
   service::Corpus corpus;
   corpus.set_key(config.get(Configuration::corpus_key));
@@ -68,8 +61,6 @@ std::string localhost(uint16_t port) {
 }
 
 int ServeCommand::run(boost::program_options::variables_map variables) {
-  bpo::notify(variables);
-
   auto port = variables["port"].as<uint16_t>();
 
   auto config_file = variables["config"].as<std::string>();

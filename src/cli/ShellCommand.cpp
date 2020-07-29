@@ -20,20 +20,21 @@ std::string ShellCommand::desc() {
 
 void ShellCommand::add_options(
     boost::program_options::options_description_easy_init& easy_init) {
-  easy_init("in,i", bpo::value<std::string>()->required(),
-            "Directory containing `netspeak` index");
+  easy_init("in,i", bpo::value<std::string>(),
+            "Directory containing a Netspeak index.");
+  easy_init(
+      "config,c", bpo::value<std::string>(),
+      "A .properties file describing the configuration of a Netspeak index.\n"
+      "\n"
+      "You have to provide either `--in` or `--config` but not both.");
 }
 
 /**
  * Runs an interactive Netspeak with the default retrieval strategy.
  */
-void RunNetspeakShell(const std::string& home_dir) {
+void RunNetspeakShell(const Configuration& config) {
   Netspeak netspeak;
   try {
-    const Configuration config = {
-      { Configuration::path_to_home, home_dir },
-      { Configuration::cache_capacity, "1000" },
-    };
     netspeak.initialize(config);
   } catch (const std::exception& error) {
     return aitools::log(error.what());
@@ -86,9 +87,23 @@ void RunNetspeakShell(const std::string& home_dir) {
 }
 
 int ShellCommand::run(boost::program_options::variables_map variables) {
-  bpo::notify(variables);
+  Configuration config;
 
-  RunNetspeakShell(variables["in"].as<std::string>());
+  if (variables.count("in") != 0 && variables.count("config") != 0) {
+    throw std::runtime_error("You cannot provide both `--in` and `--config`.");
+  } else if (variables.count("in") != 0) {
+    config = {
+      { Configuration::path_to_home, variables["in"].as<std::string>() },
+      { Configuration::cache_capacity, "1000" },
+    };
+  } else if (variables.count("config") != 0) {
+    config = Configuration(variables["config"].as<std::string>());
+  } else {
+    throw std::runtime_error(
+        "You have to provide either `--in` or `--config`.");
+  }
+
+  RunNetspeakShell(config);
   return EXIT_SUCCESS;
 }
 

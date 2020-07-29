@@ -50,8 +50,6 @@ void BuildCommand::add_options(
 // hello world 123
 // -----------------------------------------------------------------------------
 int BuildCommand::run(boost::program_options::variables_map variables) {
-  bpo::notify(variables);
-
   const std::string org_input_dir = variables["in"].as<std::string>();
   const std::string org_output_dir = variables["out"].as<std::string>();
 

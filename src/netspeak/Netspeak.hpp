@@ -74,6 +74,12 @@ private:
       const QueryNormalizer::Options& normalizer_options,
       const SearchOptions& options, std::shared_ptr<Query> query);
 
+  struct search_config {
+    size_t regex_max_matches;
+    std::chrono::nanoseconds regex_max_time;
+  };
+  search_config get_search_config(const Configuration& config) const;
+
 private:
   // TODO: Extract the whole cache logic into its own class
   struct result_cache_item {
@@ -94,6 +100,7 @@ private:
   QueryProcessor<RetrievalStrategy3Tag> query_processor_;
   util::LfuCache<result_cache_item> result_cache_;
   PhraseCorpus phrase_corpus_;
+  search_config search_config_;
 };
 
 } // namespace netspeak

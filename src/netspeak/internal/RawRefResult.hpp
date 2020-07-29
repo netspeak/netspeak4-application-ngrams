@@ -17,7 +17,7 @@ namespace internal {
  *
  * The set and its phrase references don't hold any information about its norm
  * query (e.g. the norm query itself or its length). A result sets can only be
- * used, if the norm query that created it (or a equivalent norm query) is
+ * used, if the norm query that created it (or an equivalent norm query) is
  * known.
  */
 class RawRefResult {

@@ -8,6 +8,7 @@ namespace netspeak {
 class Configuration : public util::Config {
 public:
   Configuration() : util::Config() {}
+  Configuration(const std::string& file_name) : util::Config(file_name) {}
   Configuration(std::initializer_list<util::Config::initializer_list_type> list)
       : util::Config(list) {}
 
@@ -25,6 +26,9 @@ public:
   static const std::string corpus_key;
   static const std::string corpus_name;
   static const std::string corpus_language;
+
+  static const std::string search_regex_max_matches;
+  static const std::string search_regex_max_time;
 
   // TODO: Should the default values really be here or should they rather be in
   // Netspeak.hpp?

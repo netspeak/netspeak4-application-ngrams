@@ -1,5 +1,7 @@
 #include "netspeak/Netspeak.hpp"
 
+#include "boost/lexical_cast.hpp"
+
 #include "netspeak/error.hpp"
 #include "netspeak/util/Vec.hpp"
 
@@ -9,29 +11,64 @@ namespace netspeak {
 namespace bfs = boost::filesystem;
 using namespace internal;
 
+const std::string DEFAULT_REGEX_MAX_MATCHES = "100";
+const std::string DEFAULT_REGEX_MAX_TIME = "20" /* ms */;
 
-void Netspeak::initialize(const Configuration& config) {
-  Configuration conf(config);
-  const auto it = conf.find(Configuration::path_to_home);
-  if (it != conf.end()) {
-    // TODO: What if the paths are already set?
-    conf[Configuration::path_to_phrase_corpus] =
-        it->second + "/" + Configuration::default_phrase_corpus_dir_name;
-    conf[Configuration::path_to_phrase_dictionary] =
-        it->second + "/" + Configuration::default_phrase_dictionary_dir_name;
-    conf[Configuration::path_to_phrase_index] =
-        it->second + "/" + Configuration::default_phrase_index_dir_name;
-    conf[Configuration::path_to_postlist_index] =
-        it->second + "/" + Configuration::default_postlist_index_dir_name;
-    conf[Configuration::path_to_hash_dictionary] =
-        it->second + "/" + Configuration::default_hash_dictionary_dir_name;
-    conf[Configuration::path_to_regex_vocabulary] =
-        it->second + "/" + Configuration::default_regex_vocabulary_dir_name;
+/**
+ * @brief Sets default paths for a normal index based on the (home) directory of
+ * the index.
+ */
+void set_default_paths(Configuration& config) {
+  auto home = config.get(Configuration::path_to_home, "");
+  if (!home.empty()) {
+    if (home[home.size() - 1] != '/') {
+      home.push_back('/');
+    }
+
+    auto set_default = [&](const std::string& key,
+                           const std::string& default_value) {
+      if (!config.contains(key)) {
+        config[key] = home + default_value;
+      }
+    };
+
+    set_default(Configuration::path_to_phrase_corpus,
+                Configuration::default_phrase_corpus_dir_name);
+    set_default(Configuration::path_to_phrase_dictionary,
+                Configuration::default_phrase_dictionary_dir_name);
+    set_default(Configuration::path_to_phrase_index,
+                Configuration::default_phrase_index_dir_name);
+    set_default(Configuration::path_to_postlist_index,
+                Configuration::default_postlist_index_dir_name);
+    set_default(Configuration::path_to_hash_dictionary,
+                Configuration::default_hash_dictionary_dir_name);
+    set_default(Configuration::path_to_regex_vocabulary,
+                Configuration::default_regex_vocabulary_dir_name);
   }
+}
 
-  const auto pc_dir = conf.get(Configuration::path_to_phrase_corpus);
-  const auto pd_dir = conf.get(Configuration::path_to_phrase_dictionary);
-  const auto cache_cap = conf.get(Configuration::cache_capacity);
+Netspeak::search_config Netspeak::get_search_config(
+    const Configuration& config) const {
+  Netspeak::search_config sc = {
+    // regex
+    .regex_max_matches = boost::lexical_cast<size_t>(config.get(
+        Configuration::search_regex_max_matches, DEFAULT_REGEX_MAX_MATCHES)),
+    .regex_max_time =
+        std::chrono::milliseconds(boost::lexical_cast<size_t>(config.get(
+            Configuration::search_regex_max_time, DEFAULT_REGEX_MAX_TIME))),
+  };
+  return sc;
+}
+
+void Netspeak::initialize(const Configuration& readonly_config) {
+  Configuration config(readonly_config);
+  set_default_paths(config);
+
+  search_config_ = get_search_config(config);
+
+  const auto pc_dir = config.get(Configuration::path_to_phrase_corpus);
+  const auto pd_dir = config.get(Configuration::path_to_phrase_dictionary);
+  const auto cache_cap = config.get(Configuration::cache_capacity);
   result_cache_.reserve(std::stoul(cache_cap));
 
   auto dir = bfs::path(pd_dir);
@@ -45,8 +82,8 @@ void Netspeak::initialize(const Configuration& config) {
 
   // The hash dictionary is optional.
   hash_dictionary_ = std::make_shared<Dictionaries::Map>();
-  auto sdd = conf.find(Configuration::path_to_hash_dictionary);
-  if (sdd != conf.end() && bfs::exists(sdd->second)) {
+  auto sdd = config.find(Configuration::path_to_hash_dictionary);
+  if (sdd != config.end() && bfs::exists(sdd->second)) {
     const bfs::directory_iterator end;
     for (bfs::directory_iterator it(sdd->second); it != end; ++it) {
       aitools::log("Open hash dictionary in", *it);
@@ -58,8 +95,8 @@ void Netspeak::initialize(const Configuration& config) {
   }
 
   // The regex vocabulary is optional.
-  sdd = conf.find(Configuration::path_to_regex_vocabulary);
-  if (sdd != conf.end() && bfs::exists(sdd->second)) {
+  sdd = config.find(Configuration::path_to_regex_vocabulary);
+  if (sdd != config.end() && bfs::exists(sdd->second)) {
     const bfs::directory_iterator end;
     for (bfs::directory_iterator it(sdd->second); it != end; ++it) {
       aitools::log("Open regex vocabulary in", *it);
@@ -79,7 +116,7 @@ void Netspeak::initialize(const Configuration& config) {
       .dictionary = hash_dictionary_,
   });
 
-  query_processor_.initialize(conf);
+  query_processor_.initialize(config);
 }
 
 Properties Netspeak::properties() const {
@@ -226,10 +263,14 @@ void Netspeak::search(const service::SearchRequest& request,
 std::pair<QueryNormalizer::Options, SearchOptions> Netspeak::to_options(
     const service::SearchRequest& request) {
   const auto& constraints = request.phrase_constraints();
+
+  // The default min length is 1 because our indexes don't contain the empty
+  // phrase
   uint32_t min_len = std::max(1U, constraints.words_min());
 
-  // TODO: Replace this with a configurable value
-  uint32_t max_len = 5;
+  // the maximum length of a phrase is given by the phrase corpus but may be
+  // lowered by the search request.
+  uint32_t max_len = phrase_corpus_.max_length();
   if (constraints.words_max() != 0 && constraints.words_max() < max_len) {
     max_len = constraints.words_max();
   }
@@ -256,9 +297,8 @@ std::pair<QueryNormalizer::Options, SearchOptions> Netspeak::to_options(
     .min_length = min_len,
     .max_length = max_len,
 
-    // TODO: Replace these with configurable values
-    .max_regex_matches = 100,
-    .max_regex_time = std::chrono::milliseconds(20),
+    .max_regex_matches = search_config_.regex_max_matches,
+    .max_regex_time = search_config_.regex_max_time,
   };
 
   return std::make_pair(n_options, s_options);

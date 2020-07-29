@@ -29,20 +29,10 @@ const std::string PhraseCorpus::bin_dir("bin");
 const std::string PhraseCorpus::vocab_file("vocab");
 const std::string PhraseCorpus::phrase_file("phrases");
 
-PhraseCorpus::PhraseCorpus() {}
+PhraseCorpus::PhraseCorpus():max_length_(0) {}
 
 PhraseCorpus::PhraseCorpus(const bfs::path& phrase_dir) {
   open(phrase_dir);
-}
-
-PhraseCorpus::~PhraseCorpus() {
-  close();
-}
-
-void PhraseCorpus::close() {
-  for (const auto& pair : fd_map) {
-    ::close(pair.second);
-  }
 }
 
 /**
@@ -194,18 +184,23 @@ boost::optional<Phrase::Id::Length> parse_phrase_filename(
 
 void PhraseCorpus::open_phrase_files_(const bfs::path& phrase_dir) {
   bfs::directory_iterator end;
+  Phrase::Id::Length max = 0;
+
   for (bfs::directory_iterator it(phrase_dir); it != end; ++it) {
     const auto& path = it->path();
     const auto filename = path.filename().string();
     const auto phrase_len = parse_phrase_filename(filename);
 
     if (phrase_len) {
-      const FileDescriptor fd = ::open(path.string().c_str(), O_RDONLY);
+      util::FileDescriptor fd(::open(path.string().c_str(), O_RDONLY));
       aitools::check(fd != -1, error_message::cannot_open, path);
 
       fd_map.insert(std::make_pair(*phrase_len, fd));
+      max = std::max(max, *phrase_len);
     }
   }
+
+  max_length_ = max;
 }
 
 } // namespace netspeak

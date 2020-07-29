@@ -57,6 +57,8 @@ BOOST_AUTO_TEST_CASE(test_count_phrases) {
   BOOST_CHECK_EQUAL(INDEX_3GRAM_COUNT, corpus.count_phrases(3));
   BOOST_CHECK_EQUAL(INDEX_4GRAM_COUNT, corpus.count_phrases(4));
   BOOST_CHECK_EQUAL(INDEX_5GRAM_COUNT, corpus.count_phrases(5));
+
+  BOOST_CHECK_EQUAL(5, corpus.max_length());
 }
 
 BOOST_AUTO_TEST_CASE(test_count_vocabulary) {

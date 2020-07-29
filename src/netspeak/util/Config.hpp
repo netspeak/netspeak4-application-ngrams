@@ -26,6 +26,7 @@ public:
   Config(std::initializer_list<initializer_list_type> list)
       : data_(list), file_name_() {}
   Config() : data_(), file_name_() {}
+  Config(const std::string& file_name);
 
   std::map<std::string, std::string>::const_iterator begin() const {
     return data_.begin();

@@ -40,8 +40,6 @@ std::string load_file(std::string path) {
 }
 
 int RegexCommand::run(boost::program_options::variables_map variables) {
-  bpo::notify(variables);
-
   const auto file = variables["in"].as<std::string>();
   const auto string = load_file(file);
 

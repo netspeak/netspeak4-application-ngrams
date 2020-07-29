@@ -116,7 +116,6 @@ bpo::options_description get_option_desc(Command& command) {
 
   auto easy_init = desc.add_options();
   command.add_options(easy_init);
-  easy_init("help,h", "Print this help message.");
 
   return desc;
 }
@@ -174,14 +173,12 @@ int run_command(Command& command, std::vector<std::string> opts) {
   try {
     auto options_desc = get_option_desc(command);
 
+    auto parsed_options =
+        bpo::command_line_parser(opts).options(options_desc).run();
     bpo::variables_map variables;
-    bpo::store(bpo::command_line_parser(opts).options(options_desc).run(),
-               variables);
+    bpo::store(parsed_options, variables);
 
-    if (variables.count("help")) {
-      print_command_help(command);
-      return EXIT_SUCCESS;
-    }
+    bpo::notify(variables);
 
     return command.run(std::move(variables));
   } catch (std::exception& e) {
@@ -199,10 +196,11 @@ int Commands::run(int argc, char* argv[]) {
 
   try {
     bpo::options_description global("");
-    global.add_options()("command", bpo::value<std::string>(),
-                         "command to execute")(
-        "subargs", bpo::value<std::vector<std::string>>(),
-        "Arguments for command");
+    auto global_init = global.add_options();
+    global_init("command", bpo::value<std::string>(), "command to execute");
+    global_init("help,h", "Print this help message.");
+    global_init("subargs", bpo::value<std::vector<std::string>>(),
+                "Arguments for command");
 
     bpo::positional_options_description pos_opt_desc;
     pos_opt_desc.add("command", 1).add("subargs", -1);
@@ -216,11 +214,25 @@ int Commands::run(int argc, char* argv[]) {
     bpo::variables_map variables;
     bpo::store(parsed_options, variables);
 
+    if (variables.count("command") == 0) {
+      if (variables.count("help") != 0) {
+        print_commands_help(commands_);
+        return EXIT_SUCCESS;
+      } else {
+        throw std::runtime_error("Missing command.");
+      }
+    }
     std::string command_name = variables["command"].as<std::string>();
 
     for (const auto& command_ptr : commands_) {
       auto& command = *command_ptr;
       if (command.name() == command_name) {
+        // might print help
+        if (variables.count("help") != 0) {
+          print_command_help(command);
+          return EXIT_SUCCESS;
+        }
+
         // collect all arguments
         std::vector<std::string> opts = bpo::collect_unrecognized(
             parsed_options.options, bpo::include_positional);

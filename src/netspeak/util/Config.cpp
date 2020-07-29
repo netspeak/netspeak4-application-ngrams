@@ -1,11 +1,21 @@
 #include "netspeak/util/Config.hpp"
 
+#include <fstream>
+
 #include "netspeak/util/PropertiesFormat.hpp"
 #include "netspeak/util/traceable_error.hpp"
 
-
 namespace netspeak {
 namespace util {
+
+
+Config::Config(const std::string& file_name) : data_(), file_name_(file_name) {
+  std::ifstream ifs(file_name);
+  if (!ifs.good()) {
+    throw tracable_runtime_error("Could not open " + file_name);
+  }
+  merge_properties(ifs);
+}
 
 
 const std::string& Config::get(const std::string& key,

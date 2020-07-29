@@ -8,6 +8,7 @@ namespace netspeak {
 class Properties : public util::Config {
 public:
   Properties() : util::Config() {}
+  Properties(const std::string& file_name) : util::Config(file_name) {}
   Properties(std::initializer_list<util::Config::initializer_list_type> list)
       : util::Config(list) {}
 

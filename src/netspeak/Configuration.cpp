@@ -7,18 +7,21 @@ namespace netspeak {
 #define PREFIX const std::string Configuration
 
 PREFIX::path_to_home("path.to.home");
-PREFIX::path_to_phrase_index("path.to.phrase.index");
-PREFIX::path_to_phrase_corpus("path.to.phrase.corpus");
-PREFIX::path_to_phrase_dictionary("path.to.phrase.dictionary");
-PREFIX::path_to_postlist_index("path.to.postlist.index");
-PREFIX::path_to_hash_dictionary("path.to.hash.dictionary");
-PREFIX::path_to_regex_vocabulary("path.to.regex.vocabulary");
+PREFIX::path_to_phrase_index("path.to.phrase-index");
+PREFIX::path_to_phrase_corpus("path.to.phrase-corpus");
+PREFIX::path_to_phrase_dictionary("path.to.phrase-dictionary");
+PREFIX::path_to_postlist_index("path.to.postlist-index");
+PREFIX::path_to_hash_dictionary("path.to.hash-dictionary");
+PREFIX::path_to_regex_vocabulary("path.to.regex-vocabulary");
 
 PREFIX::cache_capacity("cache.capacity");
 
-PREFIX::corpus_key("corpus.registry.key"); // TODO: Change. It's only like this for backwards compatibility
+PREFIX::corpus_key("corpus.key");
 PREFIX::corpus_name("corpus.name");
 PREFIX::corpus_language("corpus.language");
+
+PREFIX::search_regex_max_matches("search.regex.max-matches");
+PREFIX::search_regex_max_time("search.regex.max-time");
 
 PREFIX::default_phrase_index_dir_name("phrase-index");
 PREFIX::default_phrase_corpus_dir_name("phrase-corpus");

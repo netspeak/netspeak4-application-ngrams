@@ -11,6 +11,7 @@
 
 #include "netspeak/internal/Phrase.hpp"
 #include "netspeak/internal/typedefs.hpp"
+#include "netspeak/util/FileDescriptor.hpp"
 
 namespace netspeak {
 
@@ -30,16 +31,20 @@ public:
   static const std::string phrase_file;
 
   PhraseCorpus();
-
+  PhraseCorpus(const PhraseCorpus&) = delete;
   PhraseCorpus(const boost::filesystem::path& phrase_dir);
-
-  ~PhraseCorpus();
 
   bool is_open() const;
 
   void open(const boost::filesystem::path& phrase_dir);
 
-  void close();
+  /**
+   * @brief Returns the number of words of the longest phrase in the corpus.
+   * This will return 0 if the corpus is empty.
+   */
+  Phrase::Id::Length max_length() const {
+    return max_length_;
+  };
 
   /**
    * Returns the number of phrases with the given length.
@@ -66,13 +71,14 @@ private:
    */
   std::unordered_map<WordId, std::string> word_map;
 
-  typedef int FileDescriptor;
   /**
    * @brief A map from the length of a phrase to the file descriptor of the
    * binary phrase corpus file that hold all phrase information for that length
    * (n-gram class).
    */
-  std::unordered_map<Phrase::Id::Length, FileDescriptor> fd_map;
+  std::unordered_map<Phrase::Id::Length, util::FileDescriptor> fd_map;
+
+  Phrase::Id::Length max_length_;
 };
 
 } // namespace netspeak
