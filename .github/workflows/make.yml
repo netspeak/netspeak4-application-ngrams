@@ -12,7 +12,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    container: rundevelopment/netspeak-env:0.1
+    container: webis/netspeak-env:0.1
 
     steps:
     - uses: actions/checkout@v2
