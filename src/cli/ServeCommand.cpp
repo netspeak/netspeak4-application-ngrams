@@ -14,6 +14,7 @@
 #include "netspeak/error.hpp"
 #include "netspeak/service/UniqueMap.hpp"
 #include "netspeak/util/PropertiesFormat.hpp"
+#include "netspeak/util/service.hpp"
 
 
 namespace cli {
@@ -44,6 +45,8 @@ service::UniqueMap::entry load_map_entry(const std::string& config_file) {
 
   auto netspeak = std::make_unique<Netspeak>();
   netspeak->initialize(config);
+
+  std::cout << "Loaded index " << corpus << "\n";
 
   return service::UniqueMap::entry{
     .instance = std::move(netspeak),
