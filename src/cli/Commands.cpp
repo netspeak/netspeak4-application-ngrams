@@ -171,18 +171,24 @@ void print_error(Command& command, const std::string& message) {
 
 int run_command(Command& command, std::vector<std::string> opts) {
   try {
-    auto options_desc = get_option_desc(command);
-
-    auto parsed_options =
-        bpo::command_line_parser(opts).options(options_desc).run();
     bpo::variables_map variables;
-    bpo::store(parsed_options, variables);
 
-    bpo::notify(variables);
+    try {
+      auto options_desc = get_option_desc(command);
+
+      auto parsed_options =
+          bpo::command_line_parser(opts).options(options_desc).run();
+      bpo::store(parsed_options, variables);
+
+      bpo::notify(variables);
+    } catch (std::exception& e) {
+      print_error(command, e.what());
+      return EXIT_FAILURE;
+    }
 
     return command.run(std::move(variables));
   } catch (std::exception& e) {
-    print_error(command, e.what());
+    std::cerr << "Error: " << e.what() << "\n";
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
