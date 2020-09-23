@@ -426,11 +426,12 @@ uint32_t DefaultRegexIndex::find_word(const std::string& word) const {
 
 /**
  * @brief A UTF8 encoded regex unit which describes a finite formal language.
- *
  */
 struct utf8_finite_regex_unit {
   std::vector<std::string> alternatives;
   utf8_finite_regex_unit() : alternatives() {}
+  utf8_finite_regex_unit(const utf8_finite_regex_unit&) = delete;
+  utf8_finite_regex_unit(utf8_finite_regex_unit&&) = default;
 };
 
 std::vector<utf8_finite_regex_unit> finite_query_to_utf8(
@@ -461,7 +462,7 @@ std::vector<utf8_finite_regex_unit> finite_query_to_utf8(
       }
     }
 
-    result.push_back(utf8_unit);
+    result.push_back(std::move(utf8_unit));
   }
 
   return result;
