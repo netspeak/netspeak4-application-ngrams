@@ -6,6 +6,7 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
 
+#include <chrono>
 #include <cstdio>
 #include <iomanip>
 
@@ -54,39 +55,100 @@ typedef std::function<void(const service::SearchRequest&,
     Searcher;
 
 void RunShell(Searcher& searcher) {
+  std::cout << "Enter a query (type 'q' to exit).\n";
+
+  const uint32_t max_phrases_request = 200;
+  const uint32_t max_phrases_display = 50;
+
   // Set up a Netspeak request.
   service::SearchRequest request;
-  request.set_max_phrases(100);
+  request.set_max_phrases(max_phrases_request);
 
   while (true) {
     std::string query;
-    std::cout << "\nEnter query (type 'q' to exit): ";
+    std::cout << "\n\033[90m>>>\033[0m ";
     std::getline(std::cin, query);
     if (query == "q") {
       std::cout << "Shutting down. This might take a while." << std::endl;
       break;
     }
-    std::cout << std::endl;
 
     request.set_query(query);
 
     // Search Netspeak. This will never throw an exception.
     service::SearchResponse response;
+    const auto time_start = std::chrono::steady_clock::now();
     searcher(request, response);
+    const auto duration = std::chrono::steady_clock::now() - time_start;
 
     if (response.has_result()) {
       const auto& result = response.result();
 
+      // print some meta data about the response
+      std::cout << "\033[90m";
+      std::cout << result.phrases().size()
+                << " phrase(s) (limit=" << max_phrases_request << ") took "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(
+                       duration)
+                       .count()
+                << "ms";
+      if (!result.unknown_words().empty()) {
+        std::cout << " (" << result.unknown_words().size()
+                  << " unknown word(s):";
+        for (const auto& unknown_word : result.unknown_words()) {
+          std::cout << " \"" << unknown_word << "\"";
+        }
+        std::cout << ")";
+      }
+      std::cout << "\033[0m" << std::endl;
+      std::cout << std::endl;
+
       // print all retrieved phrases
       size_t i = 1;
       std::cout << "Rank: Frequency    Text" << std::endl;
+
+      uint32_t phrase_counter = 0;
       for (const auto& phrase : result.phrases()) {
-        std::cout << std::setw(4) << i++ << ": " << std::setw(12)
-                  << phrase.frequency();
+        if (phrase_counter >= max_phrases_display) {
+          break;
+        }
+        phrase_counter++;
+
+        std::cout << std::right << std::setw(4) << i++ << ": " << std::left
+                  << std::setw(12) << phrase.frequency();
         for (const auto& word : phrase.words()) {
-          std::cout << " " << word.text();
+          std::cout << " ";
+
+          // add some color
+          const auto tag = word.tag();
+          switch (tag) {
+            case service::Phrase::Word::WORD_FOR_QMARK:
+            case service::Phrase::Word::WORD_FOR_STAR:
+            case service::Phrase::Word::WORD_FOR_PLUS:
+            case service::Phrase::Word::WORD_FOR_REGEX:
+              std::cout << "\033[31m";
+              break;
+            case service::Phrase::Word::WORD_IN_DICTSET:
+            case service::Phrase::Word::WORD_IN_OPTIONSET:
+            case service::Phrase::Word::WORD_IN_ORDERSET:
+              std::cout << "\033[34m";
+              break;
+            default:
+              break;
+          }
+
+          // print word
+          std::cout << word.text();
+
+          // reset colors
+          std::cout << "\033[0m";
         }
         std::cout << std::endl;
+      }
+
+      if ((int)phrase_counter != result.phrases().size()) {
+        std::cout << "and " << (result.phrases().size() - phrase_counter)
+                  << " more phrase(s)\n";
       }
     } else {
       const auto& error = response.error();
@@ -145,7 +207,7 @@ void handle_corpus_key(std::string& corpus_key,
                 << " has been selected because it's the only corpus.\n";
       corpus_key = corpus.key();
     } else {
-      std::cout << "The server supports multiple corpora. Please chose one by "
+      std::cout << "The server supports multiple corpora. Please choose one by "
                    "entering its number:\n";
       int i = 0;
       for (const auto& corpus : corpora) {
