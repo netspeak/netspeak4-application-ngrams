@@ -14,6 +14,7 @@
 #include "netspeak/error.hpp"
 #include "netspeak/service/UniqueMap.hpp"
 #include "netspeak/util/PropertiesFormat.hpp"
+#include "netspeak/util/glob.hpp"
 #include "netspeak/util/service.hpp"
 
 
@@ -29,13 +30,24 @@ std::string ServeCommand::desc() {
 
 void ServeCommand::add_options(
     boost::program_options::options_description_easy_init& easy_init) {
-  easy_init("config,c", bpo::value<std::string>()->required(),
-            "The configuration file of the index.");
+  easy_init(
+      "config,c",
+      bpo::value<std::vector<std::string>>()->required()->multitoken(),
+      "The configuration file(s) of the index(es).\n"
+      "\n"
+      "It's possible to give multiple config files like this:\n"
+      "    netspeak4 serve -c /1.properties -c /2.properties\n"
+      "\n"
+      "Glob patterns are also supported. Example:\n"
+      "    netspeak4 serve -c /*.properties\n"
+      "\n"
+      "Note that all indexes have to have unique coprus keys.");
   easy_init("port,p", bpo::value<uint16_t>()->required(),
             "The port on which the server will listen.");
 }
 
 service::UniqueMap::entry load_map_entry(const std::string& config_file) {
+  std::cout << "Loading config " << config_file << "\n";
   Configuration config(config_file);
 
   service::Corpus corpus;
@@ -66,9 +78,15 @@ std::string localhost(uint16_t port) {
 int ServeCommand::run(boost::program_options::variables_map variables) {
   auto port = variables["port"].as<uint16_t>();
 
-  auto config_file = variables["config"].as<std::string>();
-  std::vector<service::UniqueMap::entry> entries;
-  entries.push_back(load_map_entry(config_file));
+  const auto& patterns = variables["config"].as<std::vector<std::string>>();
+  auto entries = std::make_unique<std::vector<service::UniqueMap::entry>>();
+  for (const auto& pattern : patterns) {
+    std::vector<std::string> paths;
+    util::glob(pattern, paths);
+    for (const auto& path : paths) {
+      entries->push_back(load_map_entry(path));
+    }
+  }
   service::UniqueMap service(std::move(entries));
 
   grpc::ServerBuilder builder;

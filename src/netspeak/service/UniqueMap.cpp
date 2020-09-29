@@ -6,7 +6,13 @@
 namespace netspeak {
 namespace service {
 
-UniqueMap::UniqueMap(std::vector<entry> entries) : instances_(), corpora_() {
+UniqueMap::UniqueMap(std::unique_ptr<std::vector<entry>> entries_ptr)
+    : instances_(), corpora_() {
+  if (!entries_ptr) {
+    throw std::logic_error("The pointer of UniqueMap entries is null.");
+  }
+
+  auto& entries = *entries_ptr;
   for (size_t i = 0; i != entries.size(); i++) {
     UniqueMap::entry e = std::move(entries[i]);
 

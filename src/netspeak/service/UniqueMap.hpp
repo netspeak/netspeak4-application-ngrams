@@ -33,7 +33,7 @@ public:
 public:
   UniqueMap() = delete;
   UniqueMap(const UniqueMap&) = delete;
-  UniqueMap(std::vector<entry> entries);
+  UniqueMap(std::unique_ptr<std::vector<entry>> entries_ptr);
   ~UniqueMap() override {}
 
   grpc::Status Search(grpc::ServerContext* context,
