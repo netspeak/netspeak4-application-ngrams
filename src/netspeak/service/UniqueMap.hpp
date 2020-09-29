@@ -50,8 +50,7 @@ public:
 private:
   // These functions exists because we cannot declare the override as `const`.
   // The `const` means that the compiler will not allow us to modify the state
-  // of a UniqueMap object and as an immutable object, it's inherently
-  // thread-safe.
+  // of the object and as an immutable object, it's inherently thread-safe.
 
   grpc::Status Search_(grpc::ServerContext* context,
                        const SearchRequest* request,

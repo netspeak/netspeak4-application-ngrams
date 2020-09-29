@@ -33,21 +33,21 @@ void ShellCommand::add_options(
       "in,i", bpo::value<std::string>(),
       "Directory containing a Netspeak index.\n"
       "\n"
-      "You have to provide exactly one of `--config`, `--in`, or `--port`.");
+      "You have to provide exactly one of `--config`, `--in`, or `--source`.");
   easy_init(
       "config,c", bpo::value<std::string>(),
       "A .properties file describing the configuration of a Netspeak index.\n"
       "\n"
-      "You have to provide exactly one of `--config`, `--in`, or `--port`.");
+      "You have to provide exactly one of `--config`, `--in`, or `--source`.");
   easy_init(
-      "port,p", bpo::value<uint16_t>(),
-      "The port of a local Netspeak server.\n"
+      "source,s", bpo::value<std::string>(),
+      "The address of a Netspeak gRPC server.\n"
       "\n"
-      "You have to provide exactly one of `--config`, `--in`, or `--port`.");
+      "You have to provide exactly one of `--config`, `--in`, or `--source`.");
   easy_init("corpus", bpo::value<std::string>(),
             "The corpus key used for all requests to a Netspeak server.\n"
             "\n"
-            "This can only be used in combination with the `--port` option.");
+            "This can only be used in combination with the `--source` option.");
 }
 
 typedef std::function<void(const service::SearchRequest&,
@@ -241,8 +241,7 @@ void handle_corpus_key(std::string& corpus_key,
     }
   }
 }
-void RunLocalServerShell(uint16_t port, std::string corpus_key) {
-  const std::string address = "localhost:" + std::to_string(port);
+void RunLocalServerShell(const std::string& address, std::string corpus_key) {
   auto channel =
       grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
   auto stub = service::NetspeakService::NewStub(channel);
@@ -273,13 +272,13 @@ int ShellCommand::run(boost::program_options::variables_map variables) {
     input_options++;
   if (variables.count("config") != 0)
     input_options++;
-  if (variables.count("port") != 0)
+  if (variables.count("source") != 0)
     input_options++;
 
   if (input_options != 1) {
     std::stringstream msg;
     msg << "You have to provide exactly one of `--config`, `--in`, or "
-           "`--port`.\n"
+           "`--source`.\n"
         << "You provided " << input_options << " options.";
     throw std::runtime_error(msg.str());
   }
@@ -291,14 +290,14 @@ int ShellCommand::run(boost::program_options::variables_map variables) {
     };
   } else if (variables.count("config") != 0) {
     config = Configuration(variables["config"].as<std::string>());
-  } else /* if (variables.count("port") != 0) */ {
-    auto port = variables["port"].as<uint16_t>();
+  } else /* if (variables.count("source") != 0) */ {
+    const auto& address = variables["source"].as<std::string>();
     std::string corpus_key;
     if (variables.count("corpus") != 0) {
       corpus_key = variables["corpus"].as<std::string>();
     }
 
-    RunLocalServerShell(port, corpus_key);
+    RunLocalServerShell(address, corpus_key);
     return EXIT_SUCCESS;
   }
 
