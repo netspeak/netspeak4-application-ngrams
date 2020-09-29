@@ -3,3 +3,4 @@ Makefile
 .vscode
 antlr4/
 !src/antlr4/
+conf/generated-js

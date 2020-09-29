@@ -62,3 +62,12 @@ else
     echo "Antlr 4.7.1 JAR already present"
 
 fi
+
+
+# Download protoc-gen-grpc-web, a protoc plugin to generate gRPC web code
+if [ ! -f ./protoc-gen-grpc-web ]; then
+
+    wget -O protoc-gen-grpc-web 'https://github.com/grpc/grpc-web/releases/download/1.2.0/protoc-gen-grpc-web-1.2.0-linux-x86_64'
+    chmod +x ./protoc-gen-grpc-web
+
+fi
