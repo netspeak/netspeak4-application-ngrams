@@ -10,6 +10,8 @@
 
 #include "boost/filesystem.hpp"
 
+#include "cli/util.hpp"
+
 #include "netspeak/Netspeak.hpp"
 #include "netspeak/error.hpp"
 #include "netspeak/service/UniqueMap.hpp"
@@ -63,15 +65,6 @@ service::UniqueMap::entry load_map_entry(const std::string& config_file) {
     .instance = std::move(netspeak),
     .corpus = corpus,
   };
-}
-
-/**
- * @brief Returns the address of the localhost with the given port.
- */
-std::string localhost(uint16_t port) {
-  std::string local("localhost:");
-  local.append(std::to_string(port));
-  return local;
 }
 
 int ServeCommand::run(boost::program_options::variables_map variables) {

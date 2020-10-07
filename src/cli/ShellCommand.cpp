@@ -12,6 +12,8 @@
 
 #include "boost/filesystem.hpp"
 
+#include "cli/util.hpp"
+
 #include "netspeak/Configuration.hpp"
 #include "netspeak/Netspeak.hpp"
 #include "netspeak/service/NetspeakService.grpc.pb.h"
@@ -183,18 +185,7 @@ void RunNetspeakShell(const Configuration& config) {
 
 void handle_corpus_key(std::string& corpus_key,
                        netspeak::service::NetspeakService::Stub& stub) {
-  // query all corpora
-  service::CorporaRequest corporaReq;
-  service::CorporaResponse corporaRes;
-
-  grpc::ClientContext context;
-  auto corpora_status = stub.GetCorpora(&context, corporaReq, &corporaRes);
-  if (!corpora_status.ok()) {
-    std::stringstream what;
-    what << "Couldn't get corpora.\n" << corpora_status;
-    throw std::logic_error(what.str());
-  }
-
+  service::CorporaResponse corporaRes = getCorpora(stub);
   const auto& corpora = corporaRes.corpora();
   if (corpus_key.empty()) {
     // select key
