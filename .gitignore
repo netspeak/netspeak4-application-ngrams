@@ -4,3 +4,4 @@ Makefile
 antlr4/
 !src/antlr4/
 conf/generated-js
+conf/generated-java

@@ -71,3 +71,11 @@ if [ ! -f ./protoc-gen-grpc-web ]; then
     chmod +x ./protoc-gen-grpc-web
 
 fi
+
+# Download protoc-gen-grpc-java, a protoc plugin to generate gRPC Java code
+if [ ! -f ./protoc-gen-grpc-java ]; then
+
+    wget -O protoc-gen-grpc-java 'https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.32.2/protoc-gen-grpc-java-1.32.2-linux-x86_64.exe'
+    chmod +x ./protoc-gen-grpc-java
+
+fi
