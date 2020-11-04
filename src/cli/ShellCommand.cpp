@@ -80,7 +80,12 @@ void RunShell(Searcher& searcher) {
     // Search Netspeak. This will never throw an exception.
     service::SearchResponse response;
     const auto time_start = std::chrono::steady_clock::now();
-    searcher(request, response);
+    try {
+      searcher(request, response);
+    } catch (std::exception& e) {
+      std::cerr << "Error during search: " << e.what() << "\n";
+      continue;
+    }
     const auto duration = std::chrono::steady_clock::now() - time_start;
 
     if (response.has_result()) {

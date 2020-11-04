@@ -1,5 +1,6 @@
 #include "netspeak/error.hpp"
 
+#include <sstream>
 #include <string>
 
 namespace netspeak {

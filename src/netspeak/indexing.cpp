@@ -241,7 +241,7 @@ void BuildPostlistIndex(const bfs::path& phrase_index_dir,
     // Postlists shorter than 1000 will not be indexed.
     const auto postlist_index =
         IndexPostlist(*postlist, postlist->size() / 1000);
-    for (const auto entry : postlist_index) {
+    for (const auto& entry : postlist_index) {
       postlist_index_record.set_value(entry);
       indexer.insert(postlist_index_record);
     }

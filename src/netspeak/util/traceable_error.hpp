@@ -1,6 +1,7 @@
 #ifndef NETSPEAK_UTIL_TRACEABLE_ERROR_HPP
 #define NETSPEAK_UTIL_TRACEABLE_ERROR_HPP
 
+#include <sstream>
 #include <stdexcept>
 #include <string>
 

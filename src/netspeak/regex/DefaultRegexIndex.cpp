@@ -189,7 +189,7 @@ std::string create_regex_pattern(const RegexQuery& query) {
   std::u32string pattern;
 
   const auto units = query.get_units();
-  for (const auto unit : units) {
+  for (const auto& unit : units) {
     switch (unit.type) {
       case RegexUnit::Type::QMARK:
         // https://stackoverflow.com/a/13163802/7595472
@@ -341,7 +341,7 @@ RegexQuery DefaultRegexIndex::optimize_query(const RegexQuery& query) const {
   RegexQueryBuilder builder;
 
   const auto units = query.get_units();
-  for (const auto unit : units) {
+  for (const auto& unit : units) {
     const std::u32string& value = unit.value;
 
     switch (unit.type) {
