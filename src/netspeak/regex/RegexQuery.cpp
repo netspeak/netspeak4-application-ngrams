@@ -327,10 +327,7 @@ std::ostream& operator<<(std::ostream& outputStream, const RegexQuery& query) {
   } else {
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
 
-    const auto units = query.get_units();
-
-    for (auto it = units.begin(); it != units.end(); it++) {
-      auto unit = *it;
+    for (const auto& unit : query.get_units()) {
       switch (unit.type) {
         case RegexUnit::Type::QMARK:
           outputStream << "?";

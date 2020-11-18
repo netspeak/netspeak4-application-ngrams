@@ -30,7 +30,7 @@ public:
   bool allow_regex;
 
   QuerySimplifier() = delete;
-  QuerySimplifier(const QueryNormalizer::Options& options)
+  explicit QuerySimplifier(const QueryNormalizer::Options& options)
       : options(options), allow_regex(false) {}
 
   typedef std::shared_ptr<const Query::Unit> UnitPtr;
@@ -551,7 +551,7 @@ struct NormQueryCounter {
 public:
   QueryNormalizer::Options options;
 
-  NormQueryCounter(const QueryNormalizer::Options& options)
+  explicit NormQueryCounter(const QueryNormalizer::Options& options)
       : options(options) {}
 
   /**
@@ -597,7 +597,7 @@ private:
   public:
     UnitResult(uint64_t constant) : _is_constant(true), _constant(constant) {}
     UnitResult(std::function<uint64_t(size_t)> function)
-        : _is_constant(false), _function(function) {}
+        : _is_constant(false), _constant(0), _function(std::move(function)) {}
 
     bool is_constant() const {
       return _is_constant;
@@ -621,11 +621,12 @@ private:
       }
     }
     static std::function<uint64_t(size_t)> safe_add(
-        uint64_t a, std::function<uint64_t(size_t)> b) {
+        uint64_t a, const std::function<uint64_t(size_t)>& b) {
       return [=](size_t input) { return safe_add(a, b(input)); };
     }
     static std::function<uint64_t(size_t)> safe_add(
-        std::function<uint64_t(size_t)> a, std::function<uint64_t(size_t)> b) {
+        const std::function<uint64_t(size_t)>& a,
+        const std::function<uint64_t(size_t)>& b) {
       return [=](size_t input) { return safe_add(a(input), b(input)); };
     }
     static uint64_t safe_mult(uint64_t a, uint64_t b) {
@@ -638,11 +639,12 @@ private:
       }
     }
     static std::function<uint64_t(size_t)> safe_mult(
-        uint64_t a, std::function<uint64_t(size_t)> b) {
+        uint64_t a, const std::function<uint64_t(size_t)>& b) {
       return [=](size_t input) { return safe_mult(a, b(input)); };
     }
     static std::function<uint64_t(size_t)> safe_mult(
-        std::function<uint64_t(size_t)> a, std::function<uint64_t(size_t)> b) {
+        const std::function<uint64_t(size_t)>& a,
+        const std::function<uint64_t(size_t)>& b) {
       return [=](size_t input) { return safe_mult(a(input), b(input)); };
     }
 
@@ -820,7 +822,7 @@ public:
   QueryNormalizer::Options options;
 
   StarQueryConverter() = delete;
-  StarQueryConverter(const QueryNormalizer::Options& options)
+  explicit StarQueryConverter(const QueryNormalizer::Options& options)
       : options(options) {}
 
   std::vector<StarQuery> to_star_queries(const SimpleQuery& query) {
@@ -956,7 +958,7 @@ public:
   QueryNormalizer::Options options;
 
   SimpleQueryNormalizer() = delete;
-  SimpleQueryNormalizer(const QueryNormalizer::Options& options)
+  explicit SimpleQueryNormalizer(const QueryNormalizer::Options& options)
       : options(options) {}
 
   /**
@@ -1092,7 +1094,7 @@ std::vector<SimpleQuery::Unit*> find_regexes(SimpleQuery& query) {
  * @param comparer
  */
 size_t binary_search(size_t min, size_t max,
-                     std::function<int(size_t)> comparer) {
+                     const std::function<int(size_t)>& comparer) {
   while (min < max) {
     size_t m = min + ((max - min) >> 1) + 1;
     int cmp = comparer(m);

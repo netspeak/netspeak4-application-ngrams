@@ -53,7 +53,7 @@ RegexQuery parse_netspeak_regex_query(const std::string &netspeak_query) {
   std::u32string query = conv.from_bytes(netspeak_query);
 
   for (std::u32string::const_iterator it = query.begin(); it != query.end();
-       it++) {
+       ++it) {
     char32_t c = *it;
     switch (c) {
       case Syntax::QMARK:
@@ -72,7 +72,7 @@ RegexQuery parse_netspeak_regex_query(const std::string &netspeak_query) {
         if (*(it + 1) == '.') {
           builder.add(RegexUnit::star());
           while ((*(it + 1)) == '.') {
-            it++;
+            ++it;
           }
         } else {
           builder.add(RegexUnit::word(U"."));
@@ -109,7 +109,7 @@ RegexQuery parse_netspeak_regex_query(const std::string &netspeak_query) {
         if (result) {
           it += result->size() + 1; // result + the end characters
           auto char_set = RegexUnit::char_set(*result);
-          for (int i = result->size() - 1; i >= 0; i--) {
+          for (auto i = result->size() - 1; i >= 0; i--) {
             builder.add(char_set);
           }
         } else {

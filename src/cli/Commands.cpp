@@ -169,7 +169,7 @@ void print_error(Command& command, const std::string& message) {
   print_command_help(command);
 }
 
-int run_command(Command& command, std::vector<std::string> opts) {
+int run_command(Command& command, const std::vector<std::string>& opts) {
   try {
     bpo::variables_map variables;
 

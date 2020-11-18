@@ -188,8 +188,7 @@ void regex_pattern_append_char(std::u32string& pattern, char32_t c) {
 std::string create_regex_pattern(const RegexQuery& query) {
   std::u32string pattern;
 
-  const auto units = query.get_units();
-  for (const auto& unit : units) {
+  for (const auto& unit : query.get_units()) {
     switch (unit.type) {
       case RegexUnit::Type::QMARK:
         // https://stackoverflow.com/a/13163802/7595472
@@ -340,8 +339,7 @@ DefaultRegexIndex::DefaultRegexIndex(std::string vocabulary)
 RegexQuery DefaultRegexIndex::optimize_query(const RegexQuery& query) const {
   RegexQueryBuilder builder;
 
-  const auto units = query.get_units();
-  for (const auto& unit : units) {
+  for (const auto& unit : query.get_units()) {
     const std::u32string& value = unit.value;
 
     switch (unit.type) {
@@ -428,6 +426,7 @@ uint32_t DefaultRegexIndex::find_word(const std::string& word) const {
  * @brief A UTF8 encoded regex unit which describes a finite formal language.
  */
 struct utf8_finite_regex_unit {
+public:
   std::vector<std::string> alternatives;
   utf8_finite_regex_unit() : alternatives() {}
   utf8_finite_regex_unit(const utf8_finite_regex_unit&) = delete;
@@ -471,7 +470,7 @@ std::vector<utf8_finite_regex_unit> finite_query_to_utf8(
 void match_query_hash_lookup_impl(
     const std::vector<utf8_finite_regex_unit>& stack, size_t stack_index,
     std::string& word, std::vector<uint32_t>& matches,
-    std::function<uint32_t(const std::string&)> find_word) {
+    std::function<uint32_t(const std::string&)>& find_word) {
   if (stack_index >= stack.size()) {
     // we reached the end of the stack, so just check the word
     const uint32_t index = find_word(word);
@@ -498,9 +497,9 @@ void DefaultRegexIndex::match_query_hash_lookup(
   const auto stack = finite_query_to_utf8(query);
   std::string temp_word;
   std::vector<uint32_t> indexes;
-  match_query_hash_lookup_impl(
-      stack, 0, temp_word, indexes,
-      [&](const std::string& word) { return find_word(word); });
+  std::function<uint32_t(const std::string&)> find_word_fn =
+      [&](const std::string& word) { return find_word(word); };
+  match_query_hash_lookup_impl(stack, 0, temp_word, indexes, find_word_fn);
 
   // sort indexes
   std::sort(indexes.begin(), indexes.end());

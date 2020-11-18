@@ -13,7 +13,7 @@ typedef Query::Unit Unit;
 
 
 void Unit::add_child(const std::shared_ptr<Unit>& unit) {
-  assert(unit);
+  assert(!!unit);
 
   if (is_terminal()) {
     throw tracable_logic_error("A non-terminal cannot have children.");
