@@ -107,9 +107,10 @@ RegexQuery parse_netspeak_regex_query(const std::string &netspeak_query) {
         // equivalent).
         auto result = read_until_char(it + 1, query.end(), Syntax::BRACE_RIGHT);
         if (result) {
-          it += result->size() + 1; // result + the end characters
-          auto char_set = RegexUnit::char_set(*result);
-          for (auto i = result->size() - 1; i >= 0; i--) {
+          const auto& result_chars = *result;
+          it += result_chars.size() + 1; // result + the end characters
+          auto char_set = RegexUnit::char_set(result_chars);
+          for (auto i = 0; i < result->size(); i++) {
             builder.add(char_set);
           }
         } else {
