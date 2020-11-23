@@ -9,10 +9,10 @@
 #include "paths.hpp"
 
 #include "antlr4-runtime.h"
-#include "antlr4/parse.hpp"
 #include "antlr4/QueryErrorHandler.hpp"
 #include "antlr4/generated/QueryLexer.h"
 #include "antlr4/generated/QueryParser.h"
+#include "antlr4/parse.hpp"
 
 #include "netspeak/Dictionaries.hpp"
 #include "netspeak/error.hpp"
@@ -39,9 +39,8 @@ BOOST_AUTO_TEST_CASE(test_detection) {
   for (auto file = files.begin(); file != files.end(); file++) {
     std::ifstream inputStream(*file, std::ios::in);
 
-    std::string read;
-
     while (inputStream.peek() != -1) {
+      std::string read;
       std::getline(inputStream, read);
 
       size_t pos = read.find("\t");

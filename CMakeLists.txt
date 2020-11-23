@@ -7,13 +7,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "-m64")
 set(CMAKE_EXE_LINKER_FLAGS "-m64")
 
-
-SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
-SET (CMAKE_CXX_FLAGS                "-Wall")
-SET (CMAKE_CXX_FLAGS_DEBUG          "-g")
-SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
-SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+set(CMAKE_CXX_COMPILER             "/usr/bin/clang++")
+set(CMAKE_CXX_FLAGS                "-Wall")
+set(CMAKE_CXX_FLAGS_DEBUG          "-g")
+set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 
 include_directories(
@@ -23,8 +22,7 @@ include_directories(
     "/usr/include/antlr4-runtime"
 )
 
-add_executable(netspeak4 src/CommandLineTool.cpp)
-target_sources(netspeak4 PRIVATE
+set(NETSPEAK_SOURCES
 "src/antlr4/parse"
 "src/antlr4/QueryErrorHandler"
 
@@ -93,8 +91,7 @@ target_sources(netspeak4 PRIVATE
 "src/netspeak/util/traceable_error"
 "src/netspeak/util/Vec"
 )
-
-target_link_libraries(netspeak4
+set(NETSPEAK_LINK_LIBS
 dl
 z
 rt
@@ -139,3 +136,29 @@ icuuc
 -l:libaddress_sorting.a
 -l:libupb.a
 )
+
+set(NETSPEAK_TEST_SOURCES "${NETSPEAK_SOURCES}"
+"test/netspeak/paths"
+"test/netspeak/test_ChainCutter"
+"test/netspeak/test_LfuCache"
+"test/netspeak/test_Netspeak"
+"test/netspeak/test_normalization"
+"test/netspeak/test_parse"
+"test/netspeak/test_phrase"
+"test/netspeak/test_PhraseCorpus"
+"test/netspeak/test_PropertiesFormat"
+"test/netspeak/test_QueryParser"
+"test/netspeak/test_regex"
+)
+set(NETSPEAK_TEST_LINK_LIBS "${NETSPEAK_LINK_LIBS}"
+#boost_unit_test_framework
+)
+
+
+add_executable(netspeak4 src/CommandLineTool.cpp)
+target_sources(netspeak4 PRIVATE "${NETSPEAK_SOURCES}")
+target_link_libraries(netspeak4 "${NETSPEAK_LINK_LIBS}")
+
+add_executable(netspeak4-test test/netspeak/runner.cpp)
+target_sources(netspeak4-test PRIVATE "${NETSPEAK_TEST_SOURCES}")
+target_link_libraries(netspeak4-test "${NETSPEAK_TEST_LINK_LIBS}")

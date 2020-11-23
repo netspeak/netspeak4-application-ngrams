@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_SUITE(netspeak_normalization)
 std::shared_ptr<regex::DefaultRegexIndex> _cached_regex_index;
 std::shared_ptr<regex::DefaultRegexIndex> get_regex_index() {
   if (!_cached_regex_index) {
-    auto regex_words = test::load_file("../../test/data/test_Regex.txt");
+    auto regex_words = test::load_file(test::TEST_REGEX_DATA);
     _cached_regex_index =
         std::make_shared<regex::DefaultRegexIndex>(regex_words);
   }
