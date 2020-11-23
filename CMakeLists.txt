@@ -15,13 +15,6 @@ SET (CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 SET (CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
 SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
-
-#set(CMAKE_CXX_CPPCHECK "cppcheck")
-#list(APPEND CMAKE_CXX_CPPCHECK
-#            --enable=all -isrc/antlr4/generated/** -i/usr/include/**)
-
-
 
 include_directories(
     "${PROJECT_BINARY_DIR}/src"
