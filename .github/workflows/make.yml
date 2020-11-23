@@ -20,6 +20,6 @@ jobs:
     - name: Install dependencies
       run: bash ./build/install-dependencies.sh
     - name: Build
-      run: qmake && make
+      run: cmake && make
     - name: Run tests
       run: ./build/run-tests.sh
