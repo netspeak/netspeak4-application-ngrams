@@ -33,20 +33,21 @@ If you want to make changes to these projects and see how the affect Netspeak, r
 
 ### Building
 
-To build this project, first generate the `Makefile` using `qmake`, and then run the `make` command:
+To build this project, first generate the `Makefile` using CMake. This project gets its own local CMake version, so you have to run the following command once:
 
 ```bash
-qmake
+sudo bash build/cmake.sh
+```
+
+Use the `make` command to compile the `netspeak4` and `netspeak4-test` executables.
+
+```bash
 make
 ```
 
-(After running `qmake` once, you typically don't have to run it again.)
-
-The Netspeak 4 executable will be `./build/release/netspeak4`. `libnetspeak4.so` is located in the same directory.
-
 ### Running tests
 
-First (re)build this project and then run the `./build/run-tests.sh` script:
+First build this project and then run the `./build/run-tests.sh` script:
 
 ```bash
 bash ./build/run-tests.sh
@@ -56,21 +57,16 @@ bash ./build/run-tests.sh
 
 ### Writing code
 
-To write code, open the project in your IDE of choice (e.g. VSCode with the C++ plugin) and start writing! <br>
-(Some IDE's might not support `qmake`, so be sure to run the command at least once yourself.)
+To write code, open the project in your IDE of choice (e.g. VSCode with the C++ plugin) and start typing!
 
-We use `qmake` to generate the `Makefile` from the `.pri` and `.pro` files. Simply run the `qmake` command for this. Some IDEs might not support `qmake`, so be sure to run `qmake` yourself at least once.
-
-If you add new files, be sure to register them in the appropriate `.pri` file (see `./build/targets/`).
-
-If you changed any header files, your build might be outdated even after running `make`. If that's the case, run `make clean` before `make`.
+Keep in mind that new files have to registered in `CMakeLists.txt`.
 
 We use `clang-format` to format our code. If your IDE doesn't support this, you can use the `./build/format-all.sh` script to reformat all source files.
 
 
 ## Using the Netspeak4 CLI
 
-After compiling, you can run `./build/release/netspeak4` which will start a small command line interface for Netspeak.
+After compiling, you can run `./netspeak4` which will start a small command line interface for Netspeak.
 
 #### `build`
 
