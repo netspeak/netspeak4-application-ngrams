@@ -97,11 +97,13 @@ target_sources(netspeak4 PRIVATE
 target_link_libraries(netspeak4
 dl
 z
-cmph
 rt
 pthread
 icui18n
 icuuc
+
+# cmph (C Minimal Perfect Hashing)
+-l:libcmph.a
 
 # boost
 -l:libboost_filesystem.a
