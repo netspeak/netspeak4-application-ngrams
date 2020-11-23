@@ -150,9 +150,7 @@ set(NETSPEAK_TEST_SOURCES "${NETSPEAK_SOURCES}"
 "test/netspeak/test_QueryParser"
 "test/netspeak/test_regex"
 )
-set(NETSPEAK_TEST_LINK_LIBS "${NETSPEAK_LINK_LIBS}"
-#boost_unit_test_framework
-)
+set(NETSPEAK_TEST_LINK_LIBS "${NETSPEAK_LINK_LIBS}")
 
 
 add_executable(netspeak4 src/CommandLineTool.cpp)
