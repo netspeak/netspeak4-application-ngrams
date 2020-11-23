@@ -19,7 +19,7 @@ jobs:
 
     - name: Install dependencies
       run: bash ./build/install-dependencies.sh
-    - run: cmake .
+    - run: ./build/cmake.sh
     - name: Build
       run: make
     - name: Run tests
