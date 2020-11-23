@@ -14,7 +14,6 @@ cd "$(dirname "$0")"
 mkdir -p ./dependencies
 cd ./dependencies
 
-
 # Install a recent CMake version
 if [ ! -d ./cmake-3.17.0 ]; then
 
@@ -36,5 +35,9 @@ if [ ! -d ./cmake-3.17.0 ]; then
     cd ..
 fi
 
+cd ..
+
+
 # Configure CMake
-./cmake-3.17.0/bin/cmake ./../..
+cd ..
+./build/dependencies/cmake-3.17.0/bin/cmake .
