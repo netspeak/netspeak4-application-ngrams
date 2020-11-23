@@ -104,20 +104,21 @@ icui18n
 icuuc
 
 # boost
-boost_filesystem
-boost_system
-boost_program_options
-boost_regex
-boost_stacktrace_basic
-boost_stacktrace_backtrace
-boost_stacktrace_addr2line
+-l:libboost_filesystem.a
+-l:libboost_system.a
+-l:libboost_program_options.a
+-l:libboost_regex.a
+-l:libboost_stacktrace_basic.a
+-l:libboost_stacktrace_backtrace.a
+-l:libboost_stacktrace_addr2line.a
 
-# maybe?
--L/usr/lib/
-
-# STATIC
+# antlr4
 -l:libantlr4-runtime.a
+
+# protobuf
 -l:libprotobuf.a
+
+# grpc
 -l:libgrpc++.a
 -l:libgrpc_unsecure.a
 -l:libcares.a
