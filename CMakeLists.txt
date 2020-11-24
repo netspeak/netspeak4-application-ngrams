@@ -96,8 +96,6 @@ dl
 z
 rt
 pthread
-icui18n
-icuuc
 
 # cmph (C Minimal Perfect Hashing)
 -l:libcmph.a
