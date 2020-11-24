@@ -11,7 +11,7 @@ fi
 cd "$(dirname "$0")"
 
 apt-get update
-apt-get install make pkg-config clang build-essential libboost-filesystem-dev libboost-system-dev libboost-test-dev libboost-program-options-dev libboost-stacktrace-dev libcmph-dev libaio-dev libboost-regex-dev -y
+apt-get install make clang build-essential libboost-filesystem-dev libboost-system-dev libboost-test-dev libboost-program-options-dev libboost-stacktrace-dev libcmph-dev libaio-dev libboost-regex-dev -y
 
 
 bash ./env/install-antlr4.sh
