@@ -29,7 +29,7 @@ const std::string PhraseCorpus::bin_dir("bin");
 const std::string PhraseCorpus::vocab_file("vocab");
 const std::string PhraseCorpus::phrase_file("phrases");
 
-PhraseCorpus::PhraseCorpus():max_length_(0) {}
+PhraseCorpus::PhraseCorpus() : max_length_(0) {}
 
 PhraseCorpus::PhraseCorpus(const bfs::path& phrase_dir) {
   open(phrase_dir);

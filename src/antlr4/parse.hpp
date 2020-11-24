@@ -6,10 +6,10 @@
 #include "netspeak/internal/Query.hpp"
 
 
-namespace antlr4
-{
+namespace antlr4 {
 
-std::shared_ptr<netspeak::internal::Query> parse_query(const std::string& query);
+std::shared_ptr<netspeak::internal::Query> parse_query(
+    const std::string& query);
 
 } // namespace antlr4
 

@@ -30,7 +30,7 @@ struct netspeak_service_fixture {
     BOOST_TEST_MESSAGE("netspeak_service_fixture setup");
     const Configuration config = {
       { Configuration::path_to_home, test::INDEX_DIR },
-      { Configuration::cache_capacity, "1000" }
+      { Configuration::cache_capacity, "1000" },
     };
     try {
       netspeak.initialize(config);
