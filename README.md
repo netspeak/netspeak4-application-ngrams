@@ -36,7 +36,7 @@ If you want to make changes to these projects and see how the affect Netspeak, r
 To build this project, first generate the `Makefile` using CMake. This project gets its own local CMake version, so you have to run the following command once:
 
 ```bash
-sudo bash build/cmake.sh
+bash build/cmake.sh
 ```
 
 Use the `make` command to compile the `netspeak4` and `netspeak4-test` executables.
