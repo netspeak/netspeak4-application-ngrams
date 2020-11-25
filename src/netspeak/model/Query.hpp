@@ -8,11 +8,11 @@
 
 #include "boost/optional.hpp"
 
-#include "netspeak/internal/LengthRange.hpp"
+#include "netspeak/model/LengthRange.hpp"
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 class QueryUnit__ {
 public:
@@ -139,7 +139,7 @@ std::ostream& operator<<(std::ostream& out, const Query::Unit& unit);
 std::ostream& operator<<(std::ostream& out, const Query& query);
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 

@@ -6,7 +6,7 @@
 #include "antlr4/parse.hpp"
 
 #include "netspeak/error.hpp"
-#include "netspeak/internal/Query.hpp"
+#include "netspeak/model/Query.hpp"
 
 
 namespace netspeak {

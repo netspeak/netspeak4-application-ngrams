@@ -1,8 +1,8 @@
-#include "netspeak/internal/RawResult.hpp"
+#include "netspeak/model/RawResult.hpp"
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 void RawResult::add_item(const NormQuery& query,
@@ -29,5 +29,5 @@ void RawResult::add_item(const NormQuery& query,
 }
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak

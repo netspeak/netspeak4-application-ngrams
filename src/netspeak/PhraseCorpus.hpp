@@ -9,13 +9,13 @@
 
 #include "aitools/invertedindex/ByteBuffer.hpp"
 
-#include "netspeak/internal/Phrase.hpp"
-#include "netspeak/internal/typedefs.hpp"
+#include "netspeak/model/Phrase.hpp"
+#include "netspeak/model/typedefs.hpp"
 #include "netspeak/util/FileDescriptor.hpp"
 
 namespace netspeak {
 
-using namespace internal;
+using namespace model;
 
 /**
  * A corpus that, given the id of a phrase, retrieves the text (= list of words)

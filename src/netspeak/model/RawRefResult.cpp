@@ -1,4 +1,4 @@
-#include "netspeak/internal/RawRefResult.hpp"
+#include "netspeak/model/RawRefResult.hpp"
 
 #include <algorithm>
 #include <memory>
@@ -7,7 +7,7 @@
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 bool RawRefResult::disjoint_with(const RawRefResult& other) const {
@@ -51,5 +51,5 @@ std::shared_ptr<RawRefResult> RawRefResult::merge(
 }
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak

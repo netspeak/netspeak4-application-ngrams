@@ -4,15 +4,15 @@
 #include <istream>
 #include <ostream>
 
-#include "netspeak/internal/Phrase.hpp"
-#include "netspeak/internal/Words.hpp"
+#include "netspeak/model/Phrase.hpp"
+#include "netspeak/model/Words.hpp"
 
 namespace netspeak {
 
 struct PhraseFileParserItem {
-  internal::Phrase::Id::Local id;
-  internal::Phrase::Frequency freq;
-  internal::Words words;
+  model::Phrase::Id::Local id;
+  model::Phrase::Frequency freq;
+  model::Words words;
 };
 
 /**
@@ -27,7 +27,7 @@ template <bool stream_provides_phrase_id> class PhraseFileParser {
 public:
   PhraseFileParser(std::istream& is) : is_(is), id_offset_(0) {}
 
-  PhraseFileParser(std::istream& is, internal::Phrase::Id::Local id_offset)
+  PhraseFileParser(std::istream& is, model::Phrase::Id::Local id_offset)
       : is_(is), id_offset_(id_offset) {}
 
   virtual ~PhraseFileParser() {}
@@ -96,7 +96,7 @@ public:
 
 private:
   std::istream& is_;
-  internal::Phrase::Id::Local id_offset_;
+  model::Phrase::Id::Local id_offset_;
 };
 
 } // namespace netspeak

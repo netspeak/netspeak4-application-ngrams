@@ -23,14 +23,14 @@
 #include "netspeak/QueryNormalizer.hpp"
 #include "netspeak/QueryProcessor.hpp"
 #include "netspeak/RetrievalStrategy3.hpp"
-#include "netspeak/internal/NormQuery.hpp"
-#include "netspeak/internal/Phrase.hpp"
-#include "netspeak/internal/Query.hpp"
-#include "netspeak/internal/RawPhraseResult.hpp"
-#include "netspeak/internal/RawRefResult.hpp"
-#include "netspeak/internal/RawResult.hpp"
-#include "netspeak/internal/SearchOptions.hpp"
-#include "netspeak/internal/SearchResult.hpp"
+#include "netspeak/model/NormQuery.hpp"
+#include "netspeak/model/Phrase.hpp"
+#include "netspeak/model/Query.hpp"
+#include "netspeak/model/RawPhraseResult.hpp"
+#include "netspeak/model/RawRefResult.hpp"
+#include "netspeak/model/RawResult.hpp"
+#include "netspeak/model/SearchOptions.hpp"
+#include "netspeak/model/SearchResult.hpp"
 #include "netspeak/regex/DefaultRegexIndex.hpp"
 #include "netspeak/service/NetspeakService.pb.h"
 #include "netspeak/util/LfuCache.hpp"
@@ -52,12 +52,12 @@ public:
 
 
 private:
-  typedef internal::Query Query;
-  typedef internal::NormQuery NormQuery;
-  typedef internal::RawPhraseResult RawPhraseResult;
-  typedef internal::RawRefResult RawRefResult;
-  typedef internal::RawResult RawResult;
-  typedef internal::SearchOptions SearchOptions;
+  typedef model::Query Query;
+  typedef model::NormQuery NormQuery;
+  typedef model::RawPhraseResult RawPhraseResult;
+  typedef model::RawRefResult RawRefResult;
+  typedef model::RawResult RawResult;
+  typedef model::SearchOptions SearchOptions;
 
   std::pair<QueryNormalizer::Options, SearchOptions> to_options(
       const service::SearchRequest& request);

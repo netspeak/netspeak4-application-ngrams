@@ -1,8 +1,8 @@
-#include "netspeak/internal/LengthRange.hpp"
+#include "netspeak/model/LengthRange.hpp"
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 LengthRange& operator&=(LengthRange& lhs, const LengthRange& rhs) {
@@ -68,5 +68,5 @@ std::ostream& operator<<(std::ostream& out, const LengthRange& range) {
 }
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak

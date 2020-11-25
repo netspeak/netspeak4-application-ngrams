@@ -4,12 +4,12 @@
 #include <memory>
 #include <vector>
 
-#include "netspeak/internal/NormQuery.hpp"
-#include "netspeak/internal/Phrase.hpp"
+#include "netspeak/model/NormQuery.hpp"
+#include "netspeak/model/Phrase.hpp"
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 class SearchResult {
@@ -66,7 +66,7 @@ public:
 };
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 

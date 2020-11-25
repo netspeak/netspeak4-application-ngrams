@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "netspeak/Dictionaries.hpp"
-#include "netspeak/internal/NormQuery.hpp"
-#include "netspeak/internal/Query.hpp"
+#include "netspeak/model/NormQuery.hpp"
+#include "netspeak/model/Query.hpp"
 #include "netspeak/regex/RegexIndex.hpp"
 
 
@@ -69,9 +69,9 @@ public:
     std::chrono::nanoseconds max_regex_time;
   };
 
-  void normalize(std::shared_ptr<const internal::Query> query,
+  void normalize(std::shared_ptr<const model::Query> query,
                  const Options& options,
-                 std::vector<internal::NormQuery>& norm_queries);
+                 std::vector<model::NormQuery>& norm_queries);
 };
 
 } // namespace netspeak

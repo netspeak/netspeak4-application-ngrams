@@ -1,11 +1,11 @@
-# `netspeak.internal`
+# `netspeak::model`
 
 This namespace defines basic internal types that are used everywhere. All types are Netspeak specific and used across classes. These types are how our different classes communicate.
 
 
 ## Queries
 
-The internal namespace defines 3 types of queries.
+The namespace defines 3 types of queries.
 
 Note: For all 3 types, you directly print a whole query, one unit, or just a tag to an output stream via the `<<` operator. The string representation is guaranteed to be deterministic and unique (no two different things will have the same string representation). These print operators are mostly intended for debugging and testing purposes.
 

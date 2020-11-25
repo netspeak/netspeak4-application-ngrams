@@ -10,13 +10,13 @@
 #include "netspeak/Dictionaries.hpp"
 #include "netspeak/QueryNormalizer.hpp"
 #include "netspeak/error.hpp"
-#include "netspeak/internal/NormQuery.hpp"
-#include "netspeak/internal/Query.hpp"
+#include "netspeak/model/NormQuery.hpp"
+#include "netspeak/model/Query.hpp"
 #include "netspeak/regex/DefaultRegexIndex.hpp"
 
 
 using namespace netspeak;
-using namespace netspeak::internal;
+using namespace netspeak::model;
 
 BOOST_AUTO_TEST_SUITE(netspeak_normalization)
 

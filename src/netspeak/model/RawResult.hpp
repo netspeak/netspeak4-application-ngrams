@@ -6,13 +6,13 @@
 #include <string>
 #include <vector>
 
-#include "netspeak/internal/NormQuery.hpp"
-#include "netspeak/internal/RawPhraseResult.hpp"
-#include "netspeak/internal/RawRefResult.hpp"
+#include "netspeak/model/NormQuery.hpp"
+#include "netspeak/model/RawPhraseResult.hpp"
+#include "netspeak/model/RawRefResult.hpp"
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 /**
@@ -67,7 +67,7 @@ public:
 };
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 

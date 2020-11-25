@@ -25,14 +25,14 @@
 #include "netspeak/PhraseCorpus.hpp"
 #include "netspeak/PhraseFileReader.hpp"
 #include "netspeak/error.hpp"
-#include "netspeak/internal/Phrase.hpp"
+#include "netspeak/model/Phrase.hpp"
 #include "netspeak/service/NetspeakService.pb.h"
 
 namespace netspeak {
 
 namespace ai = aitools::invertedindex;
 namespace bfs = boost::filesystem;
-using namespace internal;
+using namespace model;
 
 void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   aitools::check(bfs::exists(phrase_dir), error_message::does_not_exist,

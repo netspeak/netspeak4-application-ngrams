@@ -3,12 +3,12 @@
 
 #include <memory>
 
-#include "netspeak/internal/Query.hpp"
+#include "netspeak/model/Query.hpp"
 
 
 namespace antlr4 {
 
-std::shared_ptr<netspeak::internal::Query> parse_query(
+std::shared_ptr<netspeak::model::Query> parse_query(
     const std::string& query);
 
 } // namespace antlr4

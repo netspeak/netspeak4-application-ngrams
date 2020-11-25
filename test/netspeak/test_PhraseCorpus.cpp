@@ -4,12 +4,12 @@
 #include "paths.hpp"
 
 #include "netspeak/PhraseCorpus.hpp"
-#include "netspeak/internal/Phrase.hpp"
+#include "netspeak/model/Phrase.hpp"
 
 
 namespace netspeak {
 
-using namespace netspeak::internal;
+using namespace netspeak::model;
 typedef Phrase::Id Id;
 
 BOOST_AUTO_TEST_SUITE(test_PhraseCorpus)

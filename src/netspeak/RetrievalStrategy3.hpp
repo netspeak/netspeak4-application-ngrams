@@ -10,13 +10,13 @@
 
 #include "netspeak/PhraseDictionary.hpp"
 #include "netspeak/RetrievalStrategy.hpp"
-#include "netspeak/internal/NormQuery.hpp"
-#include "netspeak/internal/SearchOptions.hpp"
+#include "netspeak/model/NormQuery.hpp"
+#include "netspeak/model/SearchOptions.hpp"
 
 namespace netspeak {
 
 namespace bfs = boost::filesystem;
-using namespace internal;
+using namespace model;
 
 struct RetrievalStrategy3Tag {
   /**

@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 typedef std::string Word;
 
@@ -52,7 +52,7 @@ public:
 std::ostream& operator<<(std::ostream& out, const Words& phrase);
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 

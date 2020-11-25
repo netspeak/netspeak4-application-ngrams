@@ -1,4 +1,4 @@
-#include "netspeak/internal/Query.hpp"
+#include "netspeak/model/Query.hpp"
 
 #include <cassert>
 #include <ostream>
@@ -7,7 +7,7 @@
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 typedef Query::Unit Unit;
 
@@ -163,5 +163,5 @@ std::ostream& operator<<(std::ostream& out, const Query& query) {
 }
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak

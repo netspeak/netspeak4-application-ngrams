@@ -1,4 +1,4 @@
-#include "netspeak/internal/NormQuery.hpp"
+#include "netspeak/model/NormQuery.hpp"
 
 #include <ostream>
 
@@ -8,7 +8,7 @@
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 typedef NormQuery::Unit Unit;
@@ -124,5 +124,5 @@ std::ostream& operator<<(std::ostream& out, const NormQuery& query) {
   return out;
 }
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak

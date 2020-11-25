@@ -6,7 +6,7 @@
 #include "aitools/value/pair.hpp"
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 // The local (= within a specific n-gram class) id of a phrase.
@@ -30,7 +30,7 @@ typedef aitools::value::pair<uint32_t, PhraseIndexPhraseFreq>
     PostlistIndexValue;
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 #endif

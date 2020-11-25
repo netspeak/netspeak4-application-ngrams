@@ -4,7 +4,7 @@
 #include <ostream>
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 /**
@@ -70,7 +70,7 @@ LengthRange operator|(const LengthRange& lhs, const LengthRange& rhs);
 std::ostream& operator<<(std::ostream& out, const LengthRange& range);
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 

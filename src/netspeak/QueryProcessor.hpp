@@ -14,13 +14,13 @@
 
 #include "netspeak/Configuration.hpp"
 #include "netspeak/RetrievalStrategy.hpp"
-#include "netspeak/internal/NormQuery.hpp"
-#include "netspeak/internal/RawRefResult.hpp"
-#include "netspeak/internal/SearchOptions.hpp"
+#include "netspeak/model/NormQuery.hpp"
+#include "netspeak/model/RawRefResult.hpp"
+#include "netspeak/model/SearchOptions.hpp"
 
 namespace netspeak {
 
-using namespace internal;
+using namespace model;
 
 template <typename RetrievalStrategyTag> class QueryProcessor {
 private:

@@ -8,7 +8,7 @@
 #include "boost/algorithm/string.hpp"
 
 #include "netspeak/error.hpp"
-#include "netspeak/internal/SimpleQuery.hpp"
+#include "netspeak/model/SimpleQuery.hpp"
 #include "netspeak/regex/parsers.hpp"
 #include "netspeak/util/ChainCutter.hpp"
 #include "netspeak/util/Math.hpp"
@@ -17,7 +17,7 @@
 
 namespace netspeak {
 
-using namespace internal;
+using namespace model;
 
 
 /**

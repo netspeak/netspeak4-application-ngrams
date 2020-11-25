@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-#include "netspeak/internal/Phrase.hpp"
+#include "netspeak/model/Phrase.hpp"
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 /**
@@ -51,7 +51,7 @@ public:
 };
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 

@@ -22,7 +22,7 @@
 namespace netspeak {
 
 namespace bfs = boost::filesystem;
-using namespace internal;
+using namespace model;
 
 const std::string PhraseCorpus::txt_dir("txt");
 const std::string PhraseCorpus::bin_dir("bin");

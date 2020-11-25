@@ -5,12 +5,12 @@
 #include <string>
 #include <vector>
 
-#include "netspeak/internal/Words.hpp"
-#include "netspeak/internal/typedefs.hpp"
+#include "netspeak/model/Words.hpp"
+#include "netspeak/model/typedefs.hpp"
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 /**
  * A data container for the global id of phrase.
@@ -139,7 +139,7 @@ std::ostream& operator<<(std::ostream& out, const Phrase::Id& id);
 std::ostream& operator<<(std::ostream& out, const Phrase& phrase);
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 

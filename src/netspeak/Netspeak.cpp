@@ -9,7 +9,7 @@
 namespace netspeak {
 
 namespace bfs = boost::filesystem;
-using namespace internal;
+using namespace model;
 
 const std::string DEFAULT_REGEX_MAX_MATCHES = "100";
 const std::string DEFAULT_REGEX_MAX_TIME = "20" /* ms */;

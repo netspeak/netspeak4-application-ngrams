@@ -7,7 +7,7 @@
 #include "aitools/value/pair.hpp"
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 struct QuerySyntax {
   static const char HASH = '#';
@@ -28,7 +28,7 @@ struct QuerySyntax {
 };
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 #endif

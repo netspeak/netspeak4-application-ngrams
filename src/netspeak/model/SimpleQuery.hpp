@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
-#include "netspeak/internal/LengthRange.hpp"
-#include "netspeak/internal/NormQuery.hpp"
-#include "netspeak/internal/Query.hpp"
+#include "netspeak/model/LengthRange.hpp"
+#include "netspeak/model/NormQuery.hpp"
+#include "netspeak/model/Query.hpp"
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 class SimpleQueryUnit__ {
 public:
@@ -131,7 +131,7 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery::Unit& unit);
 std::ostream& operator<<(std::ostream& out, const SimpleQuery& query);
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 

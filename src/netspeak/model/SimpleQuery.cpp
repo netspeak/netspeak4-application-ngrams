@@ -1,4 +1,4 @@
-#include "netspeak/internal/SimpleQuery.hpp"
+#include "netspeak/model/SimpleQuery.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -9,7 +9,7 @@
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 typedef SimpleQuery::Unit Unit;
 
@@ -284,5 +284,5 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery& query) {
 }
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak

@@ -5,7 +5,7 @@
 
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 
 struct SearchOptions {
@@ -32,7 +32,7 @@ public:
 };
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 

@@ -12,7 +12,7 @@
 #include "netspeak/error.hpp"
 
 namespace antlr4 {
-using namespace netspeak::internal;
+using namespace netspeak::model;
 
 typedef Query::Unit Unit;
 typedef Query::Unit::Tag Tag;

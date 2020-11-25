@@ -6,13 +6,13 @@
 
 #include <boost/optional.hpp>
 
-#include "netspeak/internal/QuerySyntax.hpp"
+#include "netspeak/model/QuerySyntax.hpp"
 
 
 namespace netspeak {
 namespace regex {
 
-typedef internal::QuerySyntax Syntax;
+typedef model::QuerySyntax Syntax;
 
 
 /**

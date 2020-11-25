@@ -3,8 +3,8 @@
 
 #include "netspeak/Configuration.hpp"
 #include "netspeak/Properties.hpp"
-#include "netspeak/internal/NormQuery.hpp"
-#include "netspeak/internal/SearchOptions.hpp"
+#include "netspeak/model/NormQuery.hpp"
+#include "netspeak/model/SearchOptions.hpp"
 
 namespace netspeak {
 
@@ -50,20 +50,20 @@ public:
   void initialize(const Configuration& config);
 
   void initialize_query(
-      const SearchOptions& options, const internal::NormQuery& query,
+      const SearchOptions& options, const model::NormQuery& query,
       std::vector<typename RetrievalStrategyTag::unit_metadata>& metadata);
 
   template <typename OutputIterator>
   const stats_type initialize_result_set(
       const typename RetrievalStrategyTag::unit_metadata& unit_meta,
-      const internal::NormQuery& query, uint64_t max_phrase_frequency,
+      const model::NormQuery& query, uint64_t max_phrase_frequency,
       uint64_t max_phrase_count, OutputIterator output);
 
   template <typename IntersectionSet, typename OutputIterator>
   const stats_type intersect_result_set(
       const IntersectionSet& input,
       const typename RetrievalStrategyTag::unit_metadata& unit_meta,
-      const internal::NormQuery& query, size_t max_phrase_frequency,
+      const model::NormQuery& query, size_t max_phrase_frequency,
       size_t max_phrase_count, OutputIterator& output);
 
   Properties properties() const;

@@ -5,10 +5,10 @@
 #include <string>
 #include <vector>
 
-#include "netspeak/internal/Query.hpp"
+#include "netspeak/model/Query.hpp"
 
 namespace netspeak {
-namespace internal {
+namespace model {
 
 // Implementation note:
 //
@@ -125,7 +125,7 @@ std::ostream& operator<<(std::ostream& out, const NormQuery::Unit& unit);
 std::ostream& operator<<(std::ostream& out, const NormQuery& query);
 
 
-} // namespace internal
+} // namespace model
 } // namespace netspeak
 
 
