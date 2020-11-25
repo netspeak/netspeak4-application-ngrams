@@ -26,7 +26,9 @@ function ensure_git {
 }
 
 mkdir -p ./dependencies
+chmod a+rw -R ./dependencies
 cd ./dependencies
+
 
 # checkout aitools dependencies
 if [ ! -d ./aitools3-aq-bighashmap-cpp ]; then
@@ -53,6 +55,7 @@ if [ ! -f ./antlr4/antlr-4.7.1-complete.jar ]; then
 
     apt-get install unzip wget -y
     wget -O antlr-4.7.1-complete.jar 'http://www.antlr.org/download/antlr-4.7.1-complete.jar'
+    chmod a+rw ./antlr-4.7.1-complete.jar
 
     cd ..
 
@@ -67,7 +70,7 @@ fi
 if [ ! -f ./protoc-gen-grpc-web ]; then
 
     wget -O protoc-gen-grpc-web 'https://github.com/grpc/grpc-web/releases/download/1.2.0/protoc-gen-grpc-web-1.2.0-linux-x86_64'
-    chmod +x ./protoc-gen-grpc-web
+    chmod a+rwx ./protoc-gen-grpc-web
 
 fi
 
@@ -75,6 +78,6 @@ fi
 if [ ! -f ./protoc-gen-grpc-java ]; then
 
     wget -O protoc-gen-grpc-java 'https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java/1.32.2/protoc-gen-grpc-java-1.32.2-linux-x86_64.exe'
-    chmod +x ./protoc-gen-grpc-java
+    chmod a+rwx ./protoc-gen-grpc-java
 
 fi
