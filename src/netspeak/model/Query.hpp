@@ -1,5 +1,5 @@
-#ifndef NETSPEAK_INTERNAL_QUERY_HPP
-#define NETSPEAK_INTERNAL_QUERY_HPP
+#ifndef NETSPEAK_MODEL_QUERY_HPP
+#define NETSPEAK_MODEL_QUERY_HPP
 
 #include <memory>
 #include <stdexcept>

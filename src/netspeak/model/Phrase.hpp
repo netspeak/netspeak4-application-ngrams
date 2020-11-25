@@ -1,5 +1,5 @@
-#ifndef NETSPEAK_INTERNAL_PHRASE_HPP
-#define NETSPEAK_INTERNAL_PHRASE_HPP
+#ifndef NETSPEAK_MODEL_PHRASE_HPP
+#define NETSPEAK_MODEL_PHRASE_HPP
 
 #include <ostream>
 #include <string>
