@@ -72,12 +72,12 @@ void Netspeak::initialize(const Configuration& readonly_config) {
   result_cache_.reserve(std::stoul(cache_cap));
 
   auto dir = bfs::path(pd_dir);
-  aitools::log("Open phrase dictionary in", dir);
+  util::log("Open phrase dictionary in", dir);
   phrase_dictionary_.reset(
-      PhraseDictionary::Open(dir, aitools::memory_type::min_required));
+      PhraseDictionary::Open(dir, util::memory_type::min_required));
 
   dir = bfs::path(pc_dir) / "bin";
-  aitools::log("Open phrase corpus in", dir);
+  util::log("Open phrase corpus in", dir);
   phrase_corpus_.open(dir);
 
   // The hash dictionary is optional.
@@ -86,7 +86,7 @@ void Netspeak::initialize(const Configuration& readonly_config) {
   if (sdd != config.end() && bfs::exists(sdd->second)) {
     const bfs::directory_iterator end;
     for (bfs::directory_iterator it(sdd->second); it != end; ++it) {
-      aitools::log("Open hash dictionary in", *it);
+      util::log("Open hash dictionary in", *it);
       const auto dict = Dictionaries::read_from_file(*it);
       for (const auto& pair : dict) {
         hash_dictionary_->insert(pair);
@@ -99,9 +99,9 @@ void Netspeak::initialize(const Configuration& readonly_config) {
   if (sdd != config.end() && bfs::exists(sdd->second)) {
     const bfs::directory_iterator end;
     for (bfs::directory_iterator it(sdd->second); it != end; ++it) {
-      aitools::log("Open regex vocabulary in", *it);
+      util::log("Open regex vocabulary in", *it);
       bfs::ifstream ifs(*it);
-      aitools::check(ifs.is_open(), error_message::cannot_open, *it);
+      util::check(ifs.is_open(), error_message::cannot_open, *it);
       std::string regexwords((std::istreambuf_iterator<char>(ifs)),
                              (std::istreambuf_iterator<char>()));
       ifs.close();
@@ -153,13 +153,13 @@ Properties Netspeak::properties() const {
   properties[Properties::phrase_dictionary_size] =
       std::to_string(phrase_dictionary_->size());
   properties[Properties::phrase_dictionary_value_type] =
-      aitools::value::value_traits<PhraseDictionary::Value>::type_name();
+      value::value_traits<PhraseDictionary::Value>::type_name();
 
   // hash dictionary properties
   properties[Properties::hash_dictionary_size] =
       std::to_string(hash_dictionary_->size());
   properties[Properties::hash_dictionary_value_type] =
-      aitools::value::value_traits<Dictionaries::Map::mapped_type>::type_name();
+      value::value_traits<Dictionaries::Map::mapped_type>::type_name();
 
   // regex vocabulary properties
   // BEWARE: The index is optional!

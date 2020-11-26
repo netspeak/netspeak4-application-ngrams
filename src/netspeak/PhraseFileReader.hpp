@@ -1,7 +1,7 @@
 #ifndef NETSPEAK_PHRASE_FILE_READER_HPP
 #define NETSPEAK_PHRASE_FILE_READER_HPP
 
-#include "aitools/invertedindex/RecordReader.hpp"
+#include "netspeak/invertedindex/RecordReader.hpp"
 
 #include "netspeak/PhraseFileParser.hpp"
 #include "netspeak/model/typedefs.hpp"
@@ -18,9 +18,9 @@ namespace netspeak {
  */
 template <bool stream_provides_phrase_id>
 class PhraseFileReader
-    : public aitools::invertedindex::RecordReader<model::PhraseIndexValue> {
+    : public invertedindex::RecordReader<model::PhraseIndexValue> {
 public:
-  typedef aitools::invertedindex::RecordReader<model::PhraseIndexValue>
+  typedef invertedindex::RecordReader<model::PhraseIndexValue>
       base_type;
   typedef typename base_type::record_type record_type;
 
@@ -46,9 +46,9 @@ public:
       wordpos_ = 0;
     }
     // <key> = <phrase-length>:<word-position>_<single-word>
-    record.key().assign(aitools::to_string(item_.words.size()));
+    record.key().assign(util::to_string(item_.words.size()));
     record.key().push_back(':');
-    record.key().append(aitools::to_string(wordpos_));
+    record.key().append(util::to_string(wordpos_));
     record.key().push_back('_');
     record.key().append(item_.words[wordpos_]);
     // <value> = (<phrase-frequency>, <phrase-id>)

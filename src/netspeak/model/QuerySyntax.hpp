@@ -4,7 +4,7 @@
 #include <string>
 #include <ostream>
 
-#include "aitools/value/pair.hpp"
+#include "netspeak/value/pair.hpp"
 
 namespace netspeak {
 namespace model {

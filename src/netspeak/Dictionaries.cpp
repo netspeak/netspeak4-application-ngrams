@@ -6,7 +6,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "aitools/util/check.hpp"
+#include "netspeak/util/check.hpp"
 
 #include "netspeak/error.hpp"
 
@@ -15,7 +15,7 @@ namespace netspeak {
 const Dictionaries::Map Dictionaries::read_from_file(
     const boost::filesystem::path& csv) {
   boost::filesystem::ifstream ifs(csv);
-  aitools::check(ifs.is_open(), error_message::cannot_open, csv);
+  util::check(ifs.is_open(), error_message::cannot_open, csv);
   Map dict;
   std::string line;
   std::vector<std::string> tokens;

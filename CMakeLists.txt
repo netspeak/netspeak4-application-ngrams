@@ -17,8 +17,6 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 include_directories(
     "${PROJECT_BINARY_DIR}/src"
-    "${PROJECT_BINARY_DIR}/build/dependencies/aitools3-aq-bighashmap-cpp/src"
-    "${PROJECT_BINARY_DIR}/build/dependencies/aitools3-aq-invertedindex3-cpp/src"
     "/usr/include/antlr4-runtime"
 )
 
@@ -33,8 +31,9 @@ set(NETSPEAK_SOURCES
 "src/antlr4/generated/QueryParser"
 "src/antlr4/generated/QueryVisitor"
 
-"src/cli/Commands"
 "src/cli/BuildCommand"
+"src/cli/Command"
+"src/cli/Commands"
 "src/cli/ProxyCommand"
 "src/cli/RegexCommand"
 "src/cli/ServeCommand"
@@ -55,6 +54,36 @@ set(NETSPEAK_SOURCES
 "src/netspeak/QueryProcessor"
 "src/netspeak/RetrievalStrategy"
 "src/netspeak/RetrievalStrategy3"
+
+"src/netspeak/bighashmap/BigHashMap"
+"src/netspeak/bighashmap/Builder"
+"src/netspeak/bighashmap/CmphMap"
+"src/netspeak/bighashmap/ExternalMap"
+"src/netspeak/bighashmap/InternalMap"
+
+"src/netspeak/invertedindex/ByteBuffer"
+"src/netspeak/invertedindex/Configuration"
+"src/netspeak/invertedindex/Indexer"
+"src/netspeak/invertedindex/IndexStrategy"
+"src/netspeak/invertedindex/InvertedFileReader"
+"src/netspeak/invertedindex/InvertedFileWriter"
+"src/netspeak/invertedindex/Iterator"
+"src/netspeak/invertedindex/ManagedIndexer"
+"src/netspeak/invertedindex/Postlist"
+"src/netspeak/invertedindex/PostlistBuilder"
+"src/netspeak/invertedindex/PostlistReader"
+"src/netspeak/invertedindex/PostlistSorter"
+"src/netspeak/invertedindex/Properties"
+"src/netspeak/invertedindex/RawIndexer"
+"src/netspeak/invertedindex/RawPostlist"
+"src/netspeak/invertedindex/RawSearcher"
+"src/netspeak/invertedindex/Record"
+"src/netspeak/invertedindex/RecordReader"
+"src/netspeak/invertedindex/Searcher"
+"src/netspeak/invertedindex/SortedInput"
+"src/netspeak/invertedindex/StorageReader"
+"src/netspeak/invertedindex/StorageWriter"
+"src/netspeak/invertedindex/UnsortedInput"
 
 "src/netspeak/model/LengthRange"
 "src/netspeak/model/NormQuery"
@@ -81,15 +110,37 @@ set(NETSPEAK_SOURCES
 "src/netspeak/service/UniqueMap"
 
 "src/netspeak/util/ChainCutter"
+"src/netspeak/util/check"
+"src/netspeak/util/checksum"
 "src/netspeak/util/Config"
+"src/netspeak/util/conversion"
+"src/netspeak/util/exception"
 "src/netspeak/util/FileDescriptor"
 "src/netspeak/util/glob"
 "src/netspeak/util/LfuCache"
+"src/netspeak/util/logging"
 "src/netspeak/util/Math"
+"src/netspeak/util/memory"
 "src/netspeak/util/PropertiesFormat"
 "src/netspeak/util/service"
+"src/netspeak/util/systemio"
 "src/netspeak/util/traceable_error"
 "src/netspeak/util/Vec"
+
+"src/netspeak/value/big_string"
+"src/netspeak/value/big_string_traits"
+"src/netspeak/value/pair"
+"src/netspeak/value/pair_traits"
+"src/netspeak/value/quadruple"
+"src/netspeak/value/quadruple_traits"
+"src/netspeak/value/quintuple"
+"src/netspeak/value/quintuple_traits"
+"src/netspeak/value/sextuple"
+"src/netspeak/value/sextuple_traits"
+"src/netspeak/value/string_traits"
+"src/netspeak/value/triple"
+"src/netspeak/value/triple_traits"
+"src/netspeak/value/value_traits"
 )
 set(NETSPEAK_LINK_LIBS
 dl
@@ -136,6 +187,7 @@ pthread
 )
 
 set(NETSPEAK_TEST_SOURCES "${NETSPEAK_SOURCES}"
+"test/netspeak/ManagedDirectory"
 "test/netspeak/paths"
 "test/netspeak/test_ChainCutter"
 "test/netspeak/test_LfuCache"
@@ -147,6 +199,17 @@ set(NETSPEAK_TEST_SOURCES "${NETSPEAK_SOURCES}"
 "test/netspeak/test_PropertiesFormat"
 "test/netspeak/test_QueryParser"
 "test/netspeak/test_regex"
+
+"test/netspeak/bighashmap/test_big_hash_map"
+"test/netspeak/bighashmap/test_value_traits"
+
+"test/netspeak/invertedindex/test_Indexer"
+"test/netspeak/invertedindex/test_InvertedFileReader"
+"test/netspeak/invertedindex/test_ManagedIndexer"
+"test/netspeak/invertedindex/test_Postlist"
+"test/netspeak/invertedindex/test_PostlistReader"
+"test/netspeak/invertedindex/test_PostlistSorter"
+"test/netspeak/invertedindex/test_Record"
 )
 set(NETSPEAK_TEST_LINK_LIBS "${NETSPEAK_LINK_LIBS}")
 

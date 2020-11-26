@@ -9,8 +9,8 @@
 #include <unordered_set>
 #include <vector>
 
-#include "aitools/util/check.hpp"
-#include "aitools/util/logging.hpp"
+#include "netspeak/util/check.hpp"
+#include "netspeak/util/logging.hpp"
 
 #include "netspeak/Configuration.hpp"
 #include "netspeak/RetrievalStrategy.hpp"

@@ -177,7 +177,7 @@ void RunNetspeakShell(const Configuration& config) {
   try {
     netspeak.initialize(config);
   } catch (const std::exception& error) {
-    aitools::log(error.what());
+    netspeak::util::log(error.what());
     return;
   }
 

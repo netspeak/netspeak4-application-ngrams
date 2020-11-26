@@ -7,7 +7,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "aitools/invertedindex/ByteBuffer.hpp"
+#include "netspeak/invertedindex/ByteBuffer.hpp"
 
 #include "netspeak/model/Phrase.hpp"
 #include "netspeak/model/typedefs.hpp"

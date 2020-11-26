@@ -1,5 +1,6 @@
 *.pro.user
 .vscode
+.tmp
 
 antlr4/
 !src/antlr4/

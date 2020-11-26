@@ -8,10 +8,10 @@
 
 #include <boost/filesystem.hpp>
 
-#include "aitools/util/check.hpp"
-#include "aitools/util/logging.hpp"
-#include "aitools/value/string_traits.hpp"
-#include "aitools/value/value_traits.hpp"
+#include "netspeak/util/check.hpp"
+#include "netspeak/util/logging.hpp"
+#include "netspeak/value/string_traits.hpp"
+#include "netspeak/value/value_traits.hpp"
 
 #include "antlr4/parse.hpp"
 

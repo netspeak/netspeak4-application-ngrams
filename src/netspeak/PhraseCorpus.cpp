@@ -12,9 +12,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 
-#include "aitools/invertedindex/ByteBuffer.hpp"
-#include "aitools/util/check.hpp"
-#include "aitools/value/value_traits.hpp"
+#include "netspeak/invertedindex/ByteBuffer.hpp"
+#include "netspeak/util/check.hpp"
+#include "netspeak/value/value_traits.hpp"
 
 #include "netspeak/error.hpp"
 
@@ -108,7 +108,7 @@ std::vector<Phrase> PhraseCorpus::read_phrases(
     const auto id = phrase_ids[i];
     const auto size = entry_size(id.length());
     const auto fd_it = fd_map.find(id.length());
-    aitools::check(fd_it != fd_map.end(), __func__);
+    util::check(fd_it != fd_map.end(), __func__);
 
     aio_read_objs[i].aio_buf = &(buffer[buffer_pos]);
     aio_read_objs[i].aio_nbytes = size;
@@ -120,7 +120,7 @@ std::vector<Phrase> PhraseCorpus::read_phrases(
     buffer_pos += size;
   }
 
-  aitools::check(
+  util::check(
       ::lio_listio(LIO_WAIT, aio_read_ptrs.data(), count, NULL) != -1, __func__,
       "lio_listio failed");
 
@@ -129,7 +129,7 @@ std::vector<Phrase> PhraseCorpus::read_phrases(
 
   for (size_t i = 0; i < count; ++i) {
     const auto aio_ptr = aio_read_ptrs[i];
-    aitools::check(
+    util::check(
         ::aio_return(aio_ptr) == static_cast<ssize_t>(aio_ptr->aio_nbytes),
         __func__, "aio_read64 failed");
 
@@ -138,7 +138,7 @@ std::vector<Phrase> PhraseCorpus::read_phrases(
   return phrases;
 }
 
-using namespace aitools::value;
+using namespace value;
 
 Phrase PhraseCorpus::decode_(const char* buffer, Phrase::Id id) const {
   Phrase::Frequency freq;
@@ -158,7 +158,7 @@ Phrase PhraseCorpus::decode_(const char* buffer, Phrase::Id id) const {
 
 void PhraseCorpus::init_vocabulary_(const bfs::path& vocab_file) {
   bfs::ifstream ifs(vocab_file);
-  aitools::check(ifs.is_open(), error_message::cannot_open, vocab_file);
+  util::check(ifs.is_open(), error_message::cannot_open, vocab_file);
 
   std::string word;
   WordId word_id;
@@ -193,7 +193,7 @@ void PhraseCorpus::open_phrase_files_(const bfs::path& phrase_dir) {
 
     if (phrase_len) {
       util::FileDescriptor fd(::open(path.string().c_str(), O_RDONLY));
-      aitools::check(fd != -1, error_message::cannot_open, path);
+      util::check(fd != -1, error_message::cannot_open, path);
 
       fd_map.insert(std::make_pair(*phrase_len, fd));
       max = std::max(max, *phrase_len);

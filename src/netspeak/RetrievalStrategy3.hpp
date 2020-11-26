@@ -4,14 +4,13 @@
 #include <memory>
 #include <string>
 
-#include "aitools/invertedindex/Configuration.hpp"
-#include "aitools/invertedindex/Searcher.hpp"
-#include "aitools/value/pair.hpp"
-
 #include "netspeak/PhraseDictionary.hpp"
 #include "netspeak/RetrievalStrategy.hpp"
+#include "netspeak/invertedindex/Configuration.hpp"
+#include "netspeak/invertedindex/Searcher.hpp"
 #include "netspeak/model/NormQuery.hpp"
 #include "netspeak/model/SearchOptions.hpp"
+#include "netspeak/value/pair.hpp"
 
 namespace netspeak {
 
@@ -23,7 +22,7 @@ struct RetrievalStrategy3Tag {
    * The entry type of the phrase index, which encodes the following values:
    * entry = ( n-gram-frequency, n-gram-id )
    */
-  typedef aitools::pair<uint32_t, uint32_t> index_entry_type;
+  typedef value::pair<uint32_t, uint32_t> index_entry_type;
   struct unit_metadata {
     size_t position;
     uint64_t frequency;
@@ -91,7 +90,7 @@ public:
 
   void initialize(const Configuration& config) {
     auto check_config = [&](const std::string& key) {
-      aitools::check(config.contains(key), "incomplete configuration", key);
+      util::check(config.contains(key), "incomplete configuration", key);
     };
     check_config(Configuration::path_to_phrase_dictionary);
     check_config(Configuration::path_to_postlist_index);
@@ -100,20 +99,20 @@ public:
     // Open ngram dictionary.
     const bfs::path dir = config.at(Configuration::path_to_phrase_dictionary);
     phrase_dictionary_.reset(
-        PhraseDictionary::Open(dir, aitools::memory_type::min_required));
+        PhraseDictionary::Open(dir, util::memory_type::min_required));
 
     // Open postlist index.
-    aitools::invertedindex::Configuration index_config;
-    index_config.set_max_memory_usage(aitools::memory_type::mb1024);
+    invertedindex::Configuration index_config;
+    index_config.set_max_memory_usage(util::memory_type::mb1024);
     index_config.set_index_directory(
         config.at(Configuration::path_to_postlist_index));
-    aitools::log("Open postlist index in", index_config.index_directory());
+    util::log("Open postlist index in", index_config.index_directory());
     postlist_index_.open(index_config);
 
     // Open ngram index.
     index_config.set_index_directory(
         config.at(Configuration::path_to_phrase_index));
-    aitools::log("Open phrase index in", index_config.index_directory());
+    util::log("Open phrase index in", index_config.index_directory());
     phrase_index_.open(index_config);
   }
 
@@ -155,9 +154,8 @@ public:
         std::min(max_phrase_frequency, compute_jumpin_frequency_(query));
 
     stats_type stats;
-    std::shared_ptr<aitools::invertedindex::Postlist<index_entry_type> >
-        postlist(
-            search_(make_key(query, meta), max_phrase_frequency, meta.pruning));
+    std::shared_ptr<invertedindex::Postlist<index_entry_type> > postlist(
+        search_(make_key(query, meta), max_phrase_frequency, meta.pruning));
     if (!postlist) {
       stats.unknown_word = *(query.units()[meta.position].text());
       return stats;
@@ -200,9 +198,8 @@ public:
                                         size_t max_phrase_count,
                                         OutputIterator output) {
     stats_type stats;
-    std::shared_ptr<aitools::invertedindex::Postlist<index_entry_type> >
-        postlist =
-            search_(make_key(query, meta), max_phrase_frequency, meta.pruning);
+    std::shared_ptr<invertedindex::Postlist<index_entry_type> > postlist =
+        search_(make_key(query, meta), max_phrase_frequency, meta.pruning);
     if (!postlist) {
       stats.unknown_word = *(query.units()[meta.position].text());
       return stats;
@@ -247,24 +244,24 @@ public:
     properties[Properties::phrase_index_value_type] =
         phrase_index_.properties().value_type;
     properties[Properties::phrase_index_key_count] =
-        aitools::to_string(phrase_index_.properties().key_count);
+        util::to_string(phrase_index_.properties().key_count);
     properties[Properties::phrase_index_value_sorting] =
-        aitools::to_string(phrase_index_.properties().value_sorting);
+        util::to_string(phrase_index_.properties().value_sorting);
     properties[Properties::phrase_index_value_count] =
-        aitools::to_string(phrase_index_.properties().value_count);
+        util::to_string(phrase_index_.properties().value_count);
     properties[Properties::phrase_index_total_size] =
-        aitools::to_string(phrase_index_.properties().total_size);
+        util::to_string(phrase_index_.properties().total_size);
 
     properties[Properties::postlist_index_value_type] =
         postlist_index_.properties().value_type;
     properties[Properties::postlist_index_key_count] =
-        aitools::to_string(postlist_index_.properties().key_count);
+        util::to_string(postlist_index_.properties().key_count);
     properties[Properties::postlist_index_value_sorting] =
-        aitools::to_string(postlist_index_.properties().value_sorting);
+        util::to_string(postlist_index_.properties().value_sorting);
     properties[Properties::postlist_index_value_count] =
-        aitools::to_string(postlist_index_.properties().value_count);
+        util::to_string(postlist_index_.properties().value_count);
     properties[Properties::postlist_index_total_size] =
-        aitools::to_string(postlist_index_.properties().total_size);
+        util::to_string(postlist_index_.properties().total_size);
     return properties;
   }
 
@@ -336,14 +333,13 @@ private:
     return min_frequency;
   }
 
-  std::shared_ptr<aitools::invertedindex::Postlist<index_entry_type> > search_(
+  std::shared_ptr<invertedindex::Postlist<index_entry_type> > search_(
       const std::string& key, size_t max_freq, uint32_t pruning) {
     // Get index_begin from max_freq (jumpin frequency).
     size_t idx_begin = 0;
     postlist_index_value_type prev_index_value;
     postlist_index_value_type cur_index_value;
-    std::unique_ptr<
-        aitools::invertedindex::Postlist<postlist_index_value_type> >
+    std::unique_ptr<invertedindex::Postlist<postlist_index_value_type> >
         meta_postlist(postlist_index_.search_postlist(key));
     if (meta_postlist) {
       while (meta_postlist->next(cur_index_value)) {
@@ -362,15 +358,15 @@ private:
     }
 
     // Read postlist from ngram index.
-    return std::shared_ptr<aitools::invertedindex::Postlist<index_entry_type> >(
+    return std::shared_ptr<invertedindex::Postlist<index_entry_type> >(
         phrase_index_.search_postlist(key, idx_begin, pruning));
   }
 
-  typedef aitools::value::pair<uint32_t, uint32_t> postlist_index_value_type;
+  typedef value::pair<uint32_t, uint32_t> postlist_index_value_type;
 
   std::unique_ptr<PhraseDictionary> phrase_dictionary_;
-  aitools::invertedindex::Searcher<postlist_index_value_type> postlist_index_;
-  aitools::invertedindex::Searcher<index_entry_type> phrase_index_;
+  invertedindex::Searcher<postlist_index_value_type> postlist_index_;
+  invertedindex::Searcher<index_entry_type> phrase_index_;
 };
 
 } // namespace netspeak

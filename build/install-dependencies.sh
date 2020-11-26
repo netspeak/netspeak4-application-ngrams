@@ -18,31 +18,9 @@ bash ./env/install-antlr4.sh
 bash ./env/install-grpc.sh
 
 
-function ensure_git {
-    if ! [ -x "$(command -v git)" ]; then
-        echo "Installing git..."
-        apt-get install git -y
-    fi
-}
-
 mkdir -p ./dependencies
 chmod a+rw -R ./dependencies
 cd ./dependencies
-
-
-# checkout aitools dependencies
-if [ ! -d ./aitools3-aq-bighashmap-cpp ]; then
-    ensure_git
-    git clone https://gitlab+deploy-token-8:52JyyPqQEkGg13es2qtb@git.webis.de/aitools/aitools3-aq-bighashmap-cpp.git
-else
-    echo "aitools3-aq-bighashmap-cpp already present."
-fi
-if [ ! -d ./aitools3-aq-invertedindex3-cpp ]; then
-    ensure_git
-    git clone https://gitlab+deploy-token-9:hxvTpSBa-WHExN5RZzey@git.webis.de/aitools/aitools3-aq-invertedindex3-cpp.git
-else
-    echo "aitools3-aq-invertedindex3-cpp already present."
-fi
 
 
 # Download the JAR necessary to copmile .g4 files

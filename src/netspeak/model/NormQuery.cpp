@@ -2,7 +2,7 @@
 
 #include <ostream>
 
-#include "aitools/util/exception.hpp"
+#include "netspeak/util/exception.hpp"
 
 #include "netspeak/error.hpp"
 
