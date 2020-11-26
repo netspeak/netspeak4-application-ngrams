@@ -1,9 +1,9 @@
 #ifndef PATHS
 #define PATHS
 
-#include <netspeak/util/check.hpp>
 #include <fstream>
 #include <netspeak/error.hpp>
+#include <netspeak/util/check.hpp>
 #include <string>
 
 namespace test {
@@ -21,7 +21,8 @@ const std::string TEST_REGEX_DATA = "test/data/test_Regex.txt";
 
 inline std::string load_file(std::string path) {
   std::ifstream ifs(path);
-  netspeak::util::check(ifs.is_open(), netspeak::error_message::cannot_open, path);
+  netspeak::util::check(ifs.is_open(), netspeak::error_message::cannot_open,
+                        path);
   std::string content((std::istreambuf_iterator<char>(ifs)),
                       (std::istreambuf_iterator<char>()));
   ifs.close();

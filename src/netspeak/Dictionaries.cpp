@@ -6,9 +6,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "netspeak/util/check.hpp"
-
 #include "netspeak/error.hpp"
+#include "netspeak/util/check.hpp"
 
 namespace netspeak {
 

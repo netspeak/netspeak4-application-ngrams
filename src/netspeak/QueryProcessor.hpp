@@ -9,14 +9,13 @@
 #include <unordered_set>
 #include <vector>
 
-#include "netspeak/util/check.hpp"
-#include "netspeak/util/logging.hpp"
-
 #include "netspeak/Configuration.hpp"
 #include "netspeak/RetrievalStrategy.hpp"
 #include "netspeak/model/NormQuery.hpp"
 #include "netspeak/model/RawRefResult.hpp"
 #include "netspeak/model/SearchOptions.hpp"
+#include "netspeak/util/check.hpp"
+#include "netspeak/util/logging.hpp"
 
 namespace netspeak {
 

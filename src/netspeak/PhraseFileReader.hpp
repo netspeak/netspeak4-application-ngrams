@@ -1,9 +1,8 @@
 #ifndef NETSPEAK_PHRASE_FILE_READER_HPP
 #define NETSPEAK_PHRASE_FILE_READER_HPP
 
-#include "netspeak/invertedindex/RecordReader.hpp"
-
 #include "netspeak/PhraseFileParser.hpp"
+#include "netspeak/invertedindex/RecordReader.hpp"
 #include "netspeak/model/typedefs.hpp"
 
 namespace netspeak {
@@ -20,14 +19,12 @@ template <bool stream_provides_phrase_id>
 class PhraseFileReader
     : public invertedindex::RecordReader<model::PhraseIndexValue> {
 public:
-  typedef invertedindex::RecordReader<model::PhraseIndexValue>
-      base_type;
+  typedef invertedindex::RecordReader<model::PhraseIndexValue> base_type;
   typedef typename base_type::record_type record_type;
 
   PhraseFileReader(std::istream& is) : base_type(), wordpos_(), parser_(is) {}
 
-  PhraseFileReader(std::istream& is,
-                   model::PhraseIndexValue::e2_type id_offset)
+  PhraseFileReader(std::istream& is, model::PhraseIndexValue::e2_type id_offset)
       : base_type(), wordpos_(), parser_(is, id_offset) {}
 
   virtual ~PhraseFileReader() {}

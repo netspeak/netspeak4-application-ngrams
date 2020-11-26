@@ -12,11 +12,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
 
+#include "netspeak/error.hpp"
 #include "netspeak/invertedindex/ByteBuffer.hpp"
 #include "netspeak/util/check.hpp"
 #include "netspeak/value/value_traits.hpp"
-
-#include "netspeak/error.hpp"
 
 
 namespace netspeak {
@@ -120,9 +119,8 @@ std::vector<Phrase> PhraseCorpus::read_phrases(
     buffer_pos += size;
   }
 
-  util::check(
-      ::lio_listio(LIO_WAIT, aio_read_ptrs.data(), count, NULL) != -1, __func__,
-      "lio_listio failed");
+  util::check(::lio_listio(LIO_WAIT, aio_read_ptrs.data(), count, NULL) != -1,
+              __func__, "lio_listio failed");
 
   std::vector<Phrase> phrases;
   phrases.reserve(count);

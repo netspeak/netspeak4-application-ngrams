@@ -8,11 +8,6 @@
 
 #include <boost/filesystem.hpp>
 
-#include "netspeak/util/check.hpp"
-#include "netspeak/util/logging.hpp"
-#include "netspeak/value/string_traits.hpp"
-#include "netspeak/value/value_traits.hpp"
-
 #include "antlr4/parse.hpp"
 
 #include "netspeak/Configuration.hpp"
@@ -34,6 +29,10 @@
 #include "netspeak/regex/DefaultRegexIndex.hpp"
 #include "netspeak/service/NetspeakService.pb.h"
 #include "netspeak/util/LfuCache.hpp"
+#include "netspeak/util/check.hpp"
+#include "netspeak/util/logging.hpp"
+#include "netspeak/value/string_traits.hpp"
+#include "netspeak/value/value_traits.hpp"
 
 
 namespace netspeak {

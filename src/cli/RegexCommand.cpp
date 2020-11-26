@@ -6,11 +6,10 @@
 
 #include "boost/filesystem.hpp"
 
-#include "netspeak/util/check.hpp"
-
 #include "netspeak/error.hpp"
 #include "netspeak/regex/DefaultRegexIndex.hpp"
 #include "netspeak/regex/parsers.hpp"
+#include "netspeak/util/check.hpp"
 
 namespace cli {
 
@@ -32,7 +31,8 @@ void RegexCommand::add_options(
 
 std::string load_file(std::string path) {
   std::ifstream ifs(path);
-  netspeak::util::check(ifs.is_open(), netspeak::error_message::cannot_open, path);
+  netspeak::util::check(ifs.is_open(), netspeak::error_message::cannot_open,
+                        path);
   std::string content((std::istreambuf_iterator<char>(ifs)),
                       (std::istreambuf_iterator<char>()));
   ifs.close();
