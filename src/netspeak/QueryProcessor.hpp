@@ -21,7 +21,8 @@ namespace netspeak {
 
 using namespace model;
 
-template <typename RetrievalStrategyTag> class QueryProcessor {
+template <typename RetrievalStrategyTag>
+class QueryProcessor {
 private:
   typedef RetrievalStrategy<RetrievalStrategyTag> retrieval_strategy;
   typedef typename retrieval_strategy::index_entry_type index_entry_type;

@@ -31,23 +31,53 @@ public:
 
   ~quintuple() {}
 
-  e1_type& e1() { return e1_; }
-  e2_type& e2() { return e2_; }
-  e3_type& e3() { return e3_; }
-  e4_type& e4() { return e4_; }
-  e5_type& e5() { return e5_; }
+  e1_type& e1() {
+    return e1_;
+  }
+  e2_type& e2() {
+    return e2_;
+  }
+  e3_type& e3() {
+    return e3_;
+  }
+  e4_type& e4() {
+    return e4_;
+  }
+  e5_type& e5() {
+    return e5_;
+  }
 
-  const e1_type& e1() const { return e1_; }
-  const e2_type& e2() const { return e2_; }
-  const e3_type& e3() const { return e3_; }
-  const e4_type& e4() const { return e4_; }
-  const e5_type& e5() const { return e5_; }
+  const e1_type& e1() const {
+    return e1_;
+  }
+  const e2_type& e2() const {
+    return e2_;
+  }
+  const e3_type& e3() const {
+    return e3_;
+  }
+  const e4_type& e4() const {
+    return e4_;
+  }
+  const e5_type& e5() const {
+    return e5_;
+  }
 
-  void set_e1(const e1_type& e1) { e1_ = e1; }
-  void set_e2(const e2_type& e2) { e2_ = e2; }
-  void set_e3(const e3_type& e3) { e3_ = e3; }
-  void set_e4(const e4_type& e4) { e4_ = e4; }
-  void set_e5(const e5_type& e5) { e5_ = e5; }
+  void set_e1(const e1_type& e1) {
+    e1_ = e1;
+  }
+  void set_e2(const e2_type& e2) {
+    e2_ = e2;
+  }
+  void set_e3(const e3_type& e3) {
+    e3_ = e3;
+  }
+  void set_e4(const e4_type& e4) {
+    e4_ = e4;
+  }
+  void set_e5(const e5_type& e5) {
+    e5_ = e5;
+  }
 
   void set(const e1_type& e1, const e2_type& e2, const e3_type& e3,
            const e4_type& e4, const e5_type& e5) {

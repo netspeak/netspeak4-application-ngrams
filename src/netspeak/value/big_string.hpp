@@ -9,7 +9,6 @@ namespace netspeak {
 namespace value {
 
 struct big_string {
-
   big_string() = default;
 
   big_string(const char* other) : str(other) {}

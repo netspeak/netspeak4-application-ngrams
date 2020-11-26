@@ -7,8 +7,8 @@
 #include <boost/utility.hpp>
 
 #include "netspeak/bighashmap/Builder.hpp"
-#include "netspeak/invertedindex/Record.hpp"
 #include "netspeak/invertedindex/Postlist.hpp"
+#include "netspeak/invertedindex/Record.hpp"
 #include "netspeak/util/conversion.hpp"
 
 namespace netspeak {
@@ -16,7 +16,8 @@ namespace invertedindex {
 
 namespace bfs = boost::filesystem;
 
-template <typename T> class StorageWriter : public boost::noncopyable {
+template <typename T>
+class StorageWriter : public boost::noncopyable {
 public:
   /**
    * The header table's value type.
@@ -43,7 +44,9 @@ public:
     //    }
   }
 
-  ~StorageWriter() { close(); }
+  ~StorageWriter() {
+    close();
+  }
 
   void close() {
     if (data_wfs_ == NULL)
@@ -99,11 +102,14 @@ private:
   FILE* data_wfs_;
 };
 
-template <typename T> const std::string StorageWriter<T>::k_data_dir("data");
+template <typename T>
+const std::string StorageWriter<T>::k_data_dir("data");
 
-template <typename T> const std::string StorageWriter<T>::k_data_file("data.");
+template <typename T>
+const std::string StorageWriter<T>::k_data_file("data.");
 
-template <typename T> const std::string StorageWriter<T>::k_table_dir("table");
+template <typename T>
+const std::string StorageWriter<T>::k_table_dir("table");
 
 template <typename T>
 const std::string StorageWriter<T>::k_table_file("table.txt");

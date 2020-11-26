@@ -32,7 +32,8 @@ struct format_properties_error : public tracable_runtime_error {
   virtual ~format_properties_error() throw() override {}
 };
 
-template <typename T> void read_properties(std::istream& in, T inserter) {
+template <typename T>
+void read_properties(std::istream& in, T inserter) {
   while (__properties_format_impl::has_next_key(in)) {
     std::string key = __properties_format_impl::read_key(in);
     __properties_format_impl::consume_delimiter(in);
@@ -42,7 +43,8 @@ template <typename T> void read_properties(std::istream& in, T inserter) {
   }
 }
 
-template <typename T> void write_properties(std::ostream& out, T begin, T end) {
+template <typename T>
+void write_properties(std::ostream& out, T begin, T end) {
   for (; begin != end; begin++) {
     const std::string& key = begin->first;
     const std::string& value = begin->second;

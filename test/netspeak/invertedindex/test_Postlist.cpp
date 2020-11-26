@@ -2,16 +2,16 @@
 // Copyright (C) 2011-2013 Martin Trenkmann
 
 #include <memory>
+
 #include <boost/test/unit_test.hpp>
+
 #include "netspeak/invertedindex/PostlistBuilder.hpp"
 
 namespace ai = netspeak::invertedindex;
 namespace av = netspeak::value;
 
-template<typename T>
-void
-test_method_empty()
-{
+template <typename T>
+void test_method_empty() {
   typedef T value_type;
 
   // -------------------------------------------------------------------------
@@ -32,10 +32,8 @@ test_method_empty()
   BOOST_REQUIRE_EQUAL(postlist->head().total_size, 0);
 }
 
-template<typename T>
-void
-test_method_next(size_t value_count)
-{
+template <typename T>
+void test_method_next(size_t value_count) {
   typedef T value_type;
 
   // -------------------------------------------------------------------------
@@ -45,8 +43,7 @@ test_method_next(size_t value_count)
   size_t total_value_size(0); // payload
   std::vector<value_type> expected_values;
   ai::PostlistBuilder<value_type> builder;
-  for (unsigned i(0); i != value_count; ++i)
-  {
+  for (unsigned i(0); i != value_count; ++i) {
     av::generator<value_type>::randomized(value);
     total_value_size += av::value_traits<value_type>::size_of(value);
     expected_values.push_back(value);
@@ -59,31 +56,27 @@ test_method_next(size_t value_count)
   // -------------------------------------------------------------------------
   // Check the even build postlist (twice with rewind)
   // -------------------------------------------------------------------------
-  for (unsigned i(0); i != value_count; ++i)
-  {
+  for (unsigned i(0); i != value_count; ++i) {
     BOOST_REQUIRE(postlist->next(value));
     BOOST_REQUIRE_EQUAL(value, expected_values.at(i));
   }
   BOOST_REQUIRE(!postlist->next(value));
   postlist->rewind();
-  for (unsigned i(0); i != value_count; ++i)
-  {
+  for (unsigned i(0); i != value_count; ++i) {
     BOOST_REQUIRE(postlist->next(value));
     BOOST_REQUIRE_EQUAL(value, expected_values.at(i));
   }
   BOOST_REQUIRE(!postlist->next(value));
 }
 
-template<typename T>
-void
-run_test_case()
-{
-  const size_t value_count_small_scale(10000);   // w/o swap file
-//  const size_t value_count_large_scale(3000000); // w/  swap file
+template <typename T>
+void run_test_case() {
+  const size_t value_count_small_scale(10000); // w/o swap file
+  //  const size_t value_count_large_scale(3000000); // w/  swap file
 
   test_method_empty<T>();
   test_method_next<T>(value_count_small_scale);
-//  test_method_next<T>(value_count_large_scale);
+  //  test_method_next<T>(value_count_large_scale);
 }
 
 

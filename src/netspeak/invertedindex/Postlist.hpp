@@ -11,7 +11,8 @@ namespace invertedindex {
 /**
  * Specialized class to interpret raw values of a RawPostlist.
  */
-template <typename T> class Postlist : public RawPostlist {
+template <typename T>
+class Postlist : public RawPostlist {
 public:
   typedef T value_type;
 

@@ -25,15 +25,16 @@ inline bool is_prime(uint32_t number) {
 }
 
 inline uint32_t next_prime(uint32_t number) {
-  while (!is_prime(number))
-    ++number;
+  while (!is_prime(number)) ++number;
   return number;
 }
 
 // primary template
-template <typename T> T hash(const char* key, size_t length);
+template <typename T>
+T hash(const char* key, size_t length);
 
-template <> inline uint16_t hash<uint16_t>(const char* key, size_t length) {
+template <>
+inline uint16_t hash<uint16_t>(const char* key, size_t length) {
   // Included from /usr/include/c++/4.4/tr1_impl/functional_hash.h
   uint16_t result = 0;
   for (; length > 0; --length) {
@@ -42,7 +43,8 @@ template <> inline uint16_t hash<uint16_t>(const char* key, size_t length) {
   return result;
 }
 
-template <> inline uint32_t hash<uint32_t>(const char* key, size_t length) {
+template <>
+inline uint32_t hash<uint32_t>(const char* key, size_t length) {
   // Included from /usr/include/c++/4.4/tr1_impl/functional_hash.h
   uint32_t result = static_cast<uint32_t>(2166136261UL);
   for (; length > 0; --length) {
@@ -52,7 +54,8 @@ template <> inline uint32_t hash<uint32_t>(const char* key, size_t length) {
   return result;
 }
 
-template <> inline uint64_t hash<uint64_t>(const char* key, size_t length) {
+template <>
+inline uint64_t hash<uint64_t>(const char* key, size_t length) {
   // Included from /usr/include/c++/4.4/tr1_impl/functional_hash.h
   uint64_t result = static_cast<uint64_t>(14695981039346656037ULL);
   for (; length > 0; --length) {
@@ -62,7 +65,8 @@ template <> inline uint64_t hash<uint64_t>(const char* key, size_t length) {
   return result;
 }
 
-template <typename T> T hash(const std::string& key) {
+template <typename T>
+T hash(const std::string& key) {
   return hash<T>(key.c_str(), key.size());
 }
 

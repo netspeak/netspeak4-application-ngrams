@@ -6,12 +6,13 @@
 #include <cstdio>
 #include <memory>
 #include <unordered_map>
+
 #include <boost/filesystem.hpp>
 
 #include "netspeak/invertedindex/IndexStrategy.hpp"
-#include "netspeak/invertedindex/StorageWriter.hpp"
-#include "netspeak/invertedindex/PostlistSorter.hpp"
 #include "netspeak/invertedindex/PostlistBuilder.hpp"
+#include "netspeak/invertedindex/PostlistSorter.hpp"
+#include "netspeak/invertedindex/StorageWriter.hpp"
 #include "netspeak/util/checksum.hpp"
 
 namespace netspeak {
@@ -23,7 +24,8 @@ namespace bfs = boost::filesystem;
  * This strategy is for building an index from
  * unsorted records, e.g. from a pseudo inverted file.
  */
-template <typename T> class UnsortedInput : public IndexStrategy<T> {
+template <typename T>
+class UnsortedInput : public IndexStrategy<T> {
 public:
   typedef typename IndexStrategy<T>::record_type record_type;
   typedef typename record_type::value_type value_type;
@@ -46,7 +48,9 @@ public:
     this->set_expected_record_count(config.expected_record_count());
   }
 
-  virtual ~UnsortedInput() { bfs::remove_all(bucket_dir_); }
+  virtual ~UnsortedInput() {
+    bfs::remove_all(bucket_dir_);
+  }
 
   virtual void index() {
     // group / sort / store records
@@ -67,8 +71,7 @@ public:
         case value_sorting_type::descending:
           sort<std::greater<value_type> >(postlists);
           break;
-        default:
-          ;
+        default:;
       }
       this->stats_.key_count += postlists.size();
       store(postlists, storage);
@@ -134,7 +137,8 @@ private:
     return des_fs;
   }
 
-  template <typename Comp> static void sort(postlist_map& postlists) {
+  template <typename Comp>
+  static void sort(postlist_map& postlists) {
     for (auto it(postlists.begin()); it != postlists.end(); ++it) {
       it->second = PostlistSorter<value_type, Comp>::sort(*it->second);
     }
@@ -149,7 +153,7 @@ private:
 
   void insert_(const record_type& record) {
     if (!record.write(
-             bucket_fs_[util::hash32(record.key()) % bucket_fs_.size()])) {
+            bucket_fs_[util::hash32(record.key()) % bucket_fs_.size()])) {
       util::throw_runtime_error("Cannot write record", record);
     }
     // do rehashing, if the maximal bucket size exceeds
@@ -159,7 +163,7 @@ private:
         rehash_(2 * bucket_fs_.size());
       } else {
         util::log("Expected total number of records",
-                     this->config().expected_record_count());
+                  this->config().expected_record_count());
         // estimate the final number of buckets
         // note: division by zero is not possible
         const double avg_value_size =
@@ -177,8 +181,7 @@ private:
   void rehash_(size_t new_bucket_count) {
     close(bucket_fs_);
     bfs::path new_dir(util::tmpdir(this->config().index_directory()));
-    util::log("Rehashing current inserted records",
-                   this->stats().value_count);
+    util::log("Rehashing current inserted records", this->stats().value_count);
     bucket_fs_ = rehash(bucket_dir_, new_dir, new_bucket_count);
     util::log("New number of bucket files", bucket_fs_.size());
     bfs::remove_all(bucket_dir_);

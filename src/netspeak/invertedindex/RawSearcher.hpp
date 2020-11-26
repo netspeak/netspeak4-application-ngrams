@@ -7,8 +7,8 @@
 #include <memory>
 #include <string>
 
-#include "netspeak/invertedindex/RawPostlist.hpp"
 #include "netspeak/invertedindex/Properties.hpp"
+#include "netspeak/invertedindex/RawPostlist.hpp"
 
 namespace netspeak {
 namespace invertedindex {

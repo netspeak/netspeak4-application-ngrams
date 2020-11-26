@@ -6,9 +6,9 @@
 #include <memory>
 
 #include "netspeak/invertedindex/IndexStrategy.hpp"
-#include "netspeak/invertedindex/StorageWriter.hpp"
-#include "netspeak/invertedindex/PostlistSorter.hpp"
 #include "netspeak/invertedindex/PostlistBuilder.hpp"
+#include "netspeak/invertedindex/PostlistSorter.hpp"
+#include "netspeak/invertedindex/StorageWriter.hpp"
 
 namespace netspeak {
 namespace invertedindex {
@@ -17,7 +17,8 @@ namespace invertedindex {
  * This strategy is for building an index from record sequences
  * whose values are sorted, e.g. those extracted from real inverted files.
  */
-template <typename T> class SortedInput : public IndexStrategy<T> {
+template <typename T>
+class SortedInput : public IndexStrategy<T> {
 public:
   typedef typename IndexStrategy<T>::record_type record_type;
   typedef typename record_type::value_type value_type;
@@ -54,8 +55,7 @@ private:
         postlist = PostlistSorter<value_type, std::greater<value_type> >::sort(
             *postlist);
         break;
-      default:
-        ;
+      default:;
     }
     if (storage_.write(key_, *postlist)) {
       this->stats_.key_count++;

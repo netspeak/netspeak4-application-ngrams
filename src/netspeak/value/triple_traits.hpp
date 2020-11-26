@@ -15,7 +15,6 @@ namespace value {
 
 template <typename T1, typename T2, typename T3>
 struct value_traits<triple<T1, T2, T3> > {
-
   typedef triple<T1, T2, T3> value_type;
   typedef uint16_t io_size_type;
 

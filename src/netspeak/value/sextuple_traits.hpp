@@ -16,7 +16,6 @@ namespace value {
 template <typename T1, typename T2, typename T3, typename T4, typename T5,
           typename T6>
 struct value_traits<sextuple<T1, T2, T3, T4, T5, T6> > {
-
   typedef sextuple<T1, T2, T3, T4, T5, T6> value_type;
   typedef uint16_t io_size_type;
 

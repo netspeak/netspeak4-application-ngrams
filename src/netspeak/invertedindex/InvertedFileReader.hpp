@@ -19,7 +19,8 @@
 namespace netspeak {
 namespace invertedindex {
 
-template <typename T> class InvertedFileReader : public RecordReader<T> {
+template <typename T>
+class InvertedFileReader : public RecordReader<T> {
 private:
   typedef RecordReader<T> base_type;
   typedef typename base_type::record_type record_type;
@@ -39,7 +40,7 @@ public:
       while (is_.good()) {
         switch (is_.peek()) {
           case '\r':
-          case std::istream::traits_type::eof() :
+          case std::istream::traits_type::eof():
             is_.get();
             break;
           case '\n':
@@ -55,15 +56,16 @@ public:
             return true;
         }
       }
-    }
-    catch (std::exception& e) {
-      util::throw_runtime_error(std::string(e.what()) + " Line: " +
-                                std::to_string(num_lines_));
+    } catch (std::exception& e) {
+      util::throw_runtime_error(std::string(e.what()) +
+                                " Line: " + std::to_string(num_lines_));
     }
     return false;
   }
 
-  virtual std::size_t tell() { return is_.tellg(); }
+  virtual std::size_t tell() {
+    return is_.tellg();
+  }
 
 private:
   std::istream& is_;

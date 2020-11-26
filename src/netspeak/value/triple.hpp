@@ -6,7 +6,8 @@
 namespace netspeak {
 namespace value {
 
-template <typename T1, typename T2, typename T3> class triple {
+template <typename T1, typename T2, typename T3>
+class triple {
 public:
   typedef T1 e1_type;
   typedef T2 e2_type;
@@ -22,23 +23,41 @@ public:
 
   ~triple() {}
 
-  e1_type& e1() { return e1_; }
+  e1_type& e1() {
+    return e1_;
+  }
 
-  e2_type& e2() { return e2_; }
+  e2_type& e2() {
+    return e2_;
+  }
 
-  e3_type& e3() { return e3_; }
+  e3_type& e3() {
+    return e3_;
+  }
 
-  const e1_type& e1() const { return e1_; }
+  const e1_type& e1() const {
+    return e1_;
+  }
 
-  const e2_type& e2() const { return e2_; }
+  const e2_type& e2() const {
+    return e2_;
+  }
 
-  const e3_type& e3() const { return e3_; }
+  const e3_type& e3() const {
+    return e3_;
+  }
 
-  void set_e1(const e1_type& e1) { e1_ = e1; }
+  void set_e1(const e1_type& e1) {
+    e1_ = e1;
+  }
 
-  void set_e2(const e2_type& e2) { e2_ = e2; }
+  void set_e2(const e2_type& e2) {
+    e2_ = e2;
+  }
 
-  void set_e3(const e3_type& e3) { e3_ = e3; }
+  void set_e3(const e3_type& e3) {
+    e3_ = e3;
+  }
 
   void set(const e1_type& e1, const e2_type& e2, const e3_type& e3) {
     e1_ = e1;

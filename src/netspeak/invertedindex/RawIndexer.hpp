@@ -3,8 +3,8 @@
 #ifndef NETSPEAK_INVERTEDINDEX_RAW_INDEXER_HPP
 #define NETSPEAK_INVERTEDINDEX_RAW_INDEXER_HPP
 
-#include <string>
 #include <ostream>
+#include <string>
 
 #include "netspeak/invertedindex/Properties.hpp"
 

@@ -4,6 +4,7 @@
 #define NETSPEAK_INVERTEDINDEX_CONFIGURATION_HPP
 
 #include <cstdint>
+
 #include <boost/filesystem.hpp>
 
 #include "netspeak/util/conversion.hpp"
@@ -12,16 +13,9 @@
 namespace netspeak {
 namespace invertedindex {
 
-enum class key_sorting_type {
-  unsorted,
-  sorted
-};
+enum class key_sorting_type { unsorted, sorted };
 
-enum class value_sorting_type {
-  disabled,
-  ascending,
-  descending
-};
+enum class value_sorting_type { disabled, ascending, descending };
 
 inline std::string to_string(key_sorting_type sorting) {
   switch (sorting) {
@@ -62,19 +56,33 @@ public:
   ~Configuration() {}
 
 public:
-  uint64_t expected_record_count() const { return expected_record_count_; }
+  uint64_t expected_record_count() const {
+    return expected_record_count_;
+  }
 
-  const std::string& input_file() const { return input_file_; }
+  const std::string& input_file() const {
+    return input_file_;
+  }
 
-  const std::string& input_directory() const { return input_directory_; }
+  const std::string& input_directory() const {
+    return input_directory_;
+  }
 
-  const std::string& index_directory() const { return index_directory_; }
+  const std::string& index_directory() const {
+    return index_directory_;
+  }
 
-  key_sorting_type key_sorting() const { return key_sorting_; }
+  key_sorting_type key_sorting() const {
+    return key_sorting_;
+  }
 
-  util::memory_type max_memory_usage() const { return max_memory_usage_; }
+  util::memory_type max_memory_usage() const {
+    return max_memory_usage_;
+  }
 
-  value_sorting_type value_sorting() const { return value_sorting_; }
+  value_sorting_type value_sorting() const {
+    return value_sorting_;
+  }
 
   void print(std::ostream& os) const {
     const std::string exp_rec_cnt(
@@ -96,13 +104,21 @@ public:
     expected_record_count_ = record_count;
   }
 
-  void set_input_file(const std::string& file) { input_file_ = file; }
+  void set_input_file(const std::string& file) {
+    input_file_ = file;
+  }
 
-  void set_input_directory(const std::string& dir) { input_directory_ = dir; }
+  void set_input_directory(const std::string& dir) {
+    input_directory_ = dir;
+  }
 
-  void set_index_directory(const std::string& dir) { index_directory_ = dir; }
+  void set_index_directory(const std::string& dir) {
+    index_directory_ = dir;
+  }
 
-  void set_key_sorting(key_sorting_type sorting) { key_sorting_ = sorting; }
+  void set_key_sorting(key_sorting_type sorting) {
+    key_sorting_ = sorting;
+  }
 
   void set_max_memory_usage(util::memory_type memory) {
     max_memory_usage_ = memory;

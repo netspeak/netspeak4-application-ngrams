@@ -3,9 +3,10 @@
 #ifndef NETSPEAK_INVERTEDINDEX_ITERATOR_HPP
 #define NETSPEAK_INVERTEDINDEX_ITERATOR_HPP
 
-#include <vector>
 #include <numeric>
 #include <ostream>
+#include <vector>
+
 #include <boost/utility.hpp>
 
 #include "netspeak/invertedindex/ByteBuffer.hpp"
@@ -66,7 +67,9 @@ struct iterator_type : public boost::noncopyable {
 
   iterator_type(const swap_type& swap) : swap_(swap) {}
 
-  virtual ~iterator_type() { util::fclose(swap_.stream_); }
+  virtual ~iterator_type() {
+    util::fclose(swap_.stream_);
+  }
 
   void print(std::ostream& os) const {
     os << "{\n\t\tpage : ";
@@ -113,7 +116,9 @@ struct constant_size_iter : public iterator_type {
 
   virtual ~constant_size_iter() {}
 
-  inline size_t byte_size() const { return count_ * size_; }
+  inline size_t byte_size() const {
+    return count_ * size_;
+  }
 
   inline const char* next() {
     if (page_.index_cur_ == size())
@@ -134,7 +139,9 @@ struct constant_size_iter : public iterator_type {
     }
   }
 
-  inline size_t size() const { return count_; }
+  inline size_t size() const {
+    return count_;
+  }
 
   inline void write(FILE* fs) {
     rewind();
@@ -213,7 +220,9 @@ struct variable_size_iter : public iterator_type {
     }
   }
 
-  inline size_t size() const { return sizes_.size(); }
+  inline size_t size() const {
+    return sizes_.size();
+  }
 
   inline void write(FILE* fs) {
     rewind();

@@ -23,7 +23,8 @@ struct PhraseFileParserItem {
  * id (to set as template parameter). The line format then reads as follows:
  * <ngram> TAB <frequency> TAB <id>
  */
-template <bool stream_provides_phrase_id> class PhraseFileParser {
+template <bool stream_provides_phrase_id>
+class PhraseFileParser {
 public:
   PhraseFileParser(std::istream& is) : is_(is), id_offset_(0) {}
 

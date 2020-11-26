@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <vector>
+
 #include "netspeak/util/Math.hpp"
 
 namespace netspeak {

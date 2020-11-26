@@ -24,7 +24,6 @@ struct Head {
 } __attribute__((packed));
 
 class RawPostlist {
-
 public:
   RawPostlist() : iter_(new constant_size_iter) {}
 
@@ -51,15 +50,23 @@ public:
     assert(swap.stream_ != NULL);
   }
 
-  virtual ~RawPostlist() {};
+  virtual ~RawPostlist(){};
 
-  inline size_t byte_size() const { return sizeof(Head) + iter_->byte_size(); }
+  inline size_t byte_size() const {
+    return sizeof(Head) + iter_->byte_size();
+  }
 
-  inline bool empty() const { return size() == 0; }
+  inline bool empty() const {
+    return size() == 0;
+  }
 
-  inline const Head& head() const { return head_; }
+  inline const Head& head() const {
+    return head_;
+  }
 
-  inline const char* next() const { return iter_->next(); }
+  inline const char* next() const {
+    return iter_->next();
+  }
 
   inline void print(std::ostream& os) const {
     os << "{\n\thead : ";
@@ -69,9 +76,13 @@ public:
     os << "\n}";
   }
 
-  inline void rewind() const { iter_->rewind(); }
+  inline void rewind() const {
+    iter_->rewind();
+  }
 
-  inline size_t size() const { return iter_->size(); }
+  inline size_t size() const {
+    return iter_->size();
+  }
 
   inline void write(FILE* fs) {
     util::fwrite(&head_, sizeof(head_), 1, fs);

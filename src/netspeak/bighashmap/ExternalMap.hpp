@@ -3,15 +3,17 @@
 #ifndef NETSPEAK_BIGHASHMAP_EXTERNAL_MAP_HPP
 #define NETSPEAK_BIGHASHMAP_EXTERNAL_MAP_HPP
 
+#include <cmph.h>
+
 #include <mutex>
 #include <string>
 #include <type_traits>
+
 #include <boost/filesystem/fstream.hpp>
-#include <cmph.h>
 
 #include "netspeak/bighashmap/CmphMap.hpp"
-#include "netspeak/util/logging.hpp"
 #include "netspeak/util/checksum.hpp"
+#include "netspeak/util/logging.hpp"
 #include "netspeak/util/systemio.hpp"
 #include "netspeak/value/pair.hpp"
 #include "netspeak/value/pair_traits.hpp"
@@ -50,7 +52,9 @@ public:
 
   ExternalMap() = delete;
 
-  virtual ~ExternalMap() { util::fclose(data_); }
+  virtual ~ExternalMap() {
+    util::fclose(data_);
+  }
 
 private:
   typedef value::pair<Checksum, Value> Entry;

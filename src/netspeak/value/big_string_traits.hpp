@@ -5,12 +5,13 @@
 
 #include <cstdio>
 #include <string>
+
 #include <boost/algorithm/string/trim.hpp>
 
 #include "netspeak/util/exception.hpp"
-#include "netspeak/value/value_traits.hpp"
-#include "netspeak/value/string_traits.hpp"
 #include "netspeak/value/big_string.hpp"
+#include "netspeak/value/string_traits.hpp"
+#include "netspeak/value/value_traits.hpp"
 
 namespace netspeak {
 namespace value {
@@ -19,15 +20,19 @@ namespace value {
 // The base template is defined in netspeak/value/value_traits.hpp.
 // -----------------------------------------------------------------------------
 
-template <> struct NameOf<big_string> {
-  static std::string value() { return "BigString"; }
+template <>
+struct NameOf<big_string> {
+  static std::string value() {
+    return "BigString";
+  }
 };
 
 // -----------------------------------------------------------------------------
 // Full specialization of struct value_traits<> for big_string.
 // -----------------------------------------------------------------------------
 
-template <> struct value_traits<big_string> {
+template <>
+struct value_traits<big_string> {
   typedef big_string value_type;
   typedef uint32_t io_size_type;
   typedef std::size_t score_type;
@@ -80,14 +85,17 @@ template <> struct value_traits<big_string> {
     value_traits<std::string>::parse_from(value.str, is);
   }
 
-  static inline std::string type_name() { return NameOf<value_type>::value(); }
+  static inline std::string type_name() {
+    return NameOf<value_type>::value();
+  }
 };
 
 // -----------------------------------------------------------------------------
 // Random and numbered instance generators needed for unit testing.
 // -----------------------------------------------------------------------------
 
-template <> struct generator<big_string> {
+template <>
+struct generator<big_string> {
   typedef big_string value_type;
 
   static void randomized(value_type& value) {

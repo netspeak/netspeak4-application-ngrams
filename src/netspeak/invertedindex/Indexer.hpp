@@ -3,15 +3,15 @@
 #ifndef NETSPEAK_INVERTEDINDEX_INDEXER_HPP
 #define NETSPEAK_INVERTEDINDEX_INDEXER_HPP
 
-#include <memory>
 #include <cstring>
+#include <memory>
 #include <ostream>
 
 #include "netspeak/invertedindex/Configuration.hpp"
 #include "netspeak/invertedindex/IndexStrategy.hpp"
-#include "netspeak/invertedindex/UnsortedInput.hpp"
-#include "netspeak/invertedindex/SortedInput.hpp"
 #include "netspeak/invertedindex/RawIndexer.hpp"
+#include "netspeak/invertedindex/SortedInput.hpp"
+#include "netspeak/invertedindex/UnsortedInput.hpp"
 
 namespace netspeak {
 namespace invertedindex {
@@ -19,7 +19,8 @@ namespace invertedindex {
 /**
  * A class to create an inverted index from a number of records.
  */
-template <typename T> class Indexer : public RawIndexer {
+template <typename T>
+class Indexer : public RawIndexer {
 public:
   typedef T value_type;
   typedef typename IndexStrategy<value_type>::record_type record_type;

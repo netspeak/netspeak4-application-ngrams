@@ -3,16 +3,18 @@
 #ifndef NETSPEAK_BIGHASHMAP_CMPH_MAP_HPP
 #define NETSPEAK_BIGHASHMAP_CMPH_MAP_HPP
 
-#include <array>
-#include <string>
-#include <iostream>
-#include <boost/utility.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/filesystem.hpp>
 #include <cmph.h>
 
-#include "netspeak/util/systemio.hpp"
+#include <array>
+#include <iostream>
+#include <string>
+
+#include <boost/filesystem.hpp>
+#include <boost/type_traits.hpp>
+#include <boost/utility.hpp>
+
 #include "netspeak/util/exception.hpp"
+#include "netspeak/util/systemio.hpp"
 
 namespace netspeak {
 namespace bighashmap {
@@ -29,7 +31,8 @@ enum class Algorithm {
  * @author  martin.trenkmann@uni-weimar.de
  * @version $Id$
  */
-template <typename ValueT, typename Traits> class CmphMap {
+template <typename ValueT, typename Traits>
+class CmphMap {
 public:
   typedef ValueT Value;
   typedef uint32_t Checksum;
@@ -49,13 +52,19 @@ public:
     util::fclose(fd);
   }
 
-  virtual ~CmphMap() { cmph_destroy(mphf_); }
+  virtual ~CmphMap() {
+    cmph_destroy(mphf_);
+  }
 
   virtual bool Get(const std::string& key, Value& value) = 0;
 
-  uint32_t size() const { return cmph_size(mphf_); }
+  uint32_t size() const {
+    return cmph_size(mphf_);
+  }
 
-  Algorithm algorithm() const { return algo_; }
+  Algorithm algorithm() const {
+    return algo_;
+  }
 
 protected:
   uint32_t Hash(const std::string& key) {

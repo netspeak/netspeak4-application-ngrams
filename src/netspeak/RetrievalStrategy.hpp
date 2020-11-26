@@ -12,7 +12,8 @@ namespace netspeak {
  * Primary template to extract the phrase frequency and phrase id from certain
  * index entry type used by specialized classes of \c RetrievalStrategy.
  */
-template <typename IndexEntryT> struct index_entry_traits {
+template <typename IndexEntryT>
+struct index_entry_traits {
   typedef IndexEntryT value_type;
 
   static bool equal(const value_type& a, const value_type& b);
@@ -45,7 +46,8 @@ struct stats_type {
  * type representing some RetrievalStrategyTag. This technique is inspired by
  * the STL's interator category tag classes.
  */
-template <typename RetrievalStrategyTag> class RetrievalStrategy {
+template <typename RetrievalStrategyTag>
+class RetrievalStrategy {
 public:
   void initialize(const Configuration& config);
 

@@ -1,8 +1,8 @@
 // test_Indexer.hpp -*- C++ -*-
 // Copyright (C) 2011-2013 Martin Trenkmann
 
-#include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 
 namespace bfs = boost::filesystem;
 
@@ -11,7 +11,7 @@ namespace bfs = boost::filesystem;
 
 BOOST_AUTO_TEST_SUITE(test_Indexer);
 
-//BOOST_AUTO_TEST_CASE(test_too_long_key)
+// BOOST_AUTO_TEST_CASE(test_too_long_key)
 //{
 //  typedef uint64_t value_type;
 //
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE(test_Indexer);
 //  bfs::remove_all(index_dir);
 //}
 //
-//BOOST_AUTO_TEST_CASE(test_too_long_value)
+// BOOST_AUTO_TEST_CASE(test_too_long_value)
 //{
 //  typedef std::string value_type;
 //

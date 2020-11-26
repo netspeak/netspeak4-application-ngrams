@@ -2,22 +2,22 @@
 // Copyright (C) 2011-2013 Martin Trenkmann
 
 #include <memory>
+
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
+
 #include "netspeak/invertedindex/Postlist.hpp"
 #include "netspeak/invertedindex/PostlistBuilder.hpp"
 #include "netspeak/invertedindex/PostlistReader.hpp"
 #include "netspeak/util/systemio.hpp"
 
-namespace ai  = netspeak::invertedindex;
-namespace au  = netspeak::util;
-namespace av  = netspeak::value;
+namespace ai = netspeak::invertedindex;
+namespace au = netspeak::util;
+namespace av = netspeak::value;
 namespace bfs = boost::filesystem;
 
-template<typename T>
-void
-test_io_with_empty_postlist()
-{
+template <typename T>
+void test_io_with_empty_postlist() {
   typedef T value_type;
 
   // -------------------------------------------------------------------------
@@ -33,8 +33,7 @@ test_io_with_empty_postlist()
   FILE* tmp_fs(au::fopen(tmp_path, "wb+"));
 
   const unsigned num(1000);
-  for (unsigned i(0); i != num; ++i)
-  {
+  for (unsigned i(0); i != num; ++i) {
     postlist->write(tmp_fs);
   }
   BOOST_REQUIRE_EQUAL(au::ftell(tmp_fs), num * sizeof(postlist->head()));
@@ -43,8 +42,7 @@ test_io_with_empty_postlist()
   // Read empty postlist from file (1000 times)
   // -------------------------------------------------------------------------
   au::rewind(tmp_fs);
-  for (unsigned i(0); i != num; ++i)
-  {
+  for (unsigned i(0); i != num; ++i) {
     postlist = ai::PostlistReader<value_type>::read(tmp_path, tmp_fs);
   }
   BOOST_REQUIRE_EQUAL(au::ftell(tmp_fs), num * sizeof(postlist->head()));
@@ -53,8 +51,7 @@ test_io_with_empty_postlist()
   // Read empty postlist from file (1000 times with index_begin jump-in)
   // -------------------------------------------------------------------------
   au::rewind(tmp_fs);
-  for (unsigned i(0); i != num; ++i)
-  {
+  for (unsigned i(0); i != num; ++i) {
     postlist = ai::PostlistReader<value_type>::read(tmp_path, tmp_fs, 100);
   }
   BOOST_REQUIRE_EQUAL(au::ftell(tmp_fs), num * sizeof(postlist->head()));
@@ -63,10 +60,8 @@ test_io_with_empty_postlist()
   bfs::remove(tmp_path);
 }
 
-template<typename T>
-void
-test_io_with_full_postlist(size_t value_count)
-{
+template <typename T>
+void test_io_with_full_postlist(size_t value_count) {
   typedef T value_type;
 
   // -------------------------------------------------------------------------
@@ -80,10 +75,8 @@ test_io_with_full_postlist(size_t value_count)
   value_type expected_value;
   size_t expected_file_offset(0);
   ai::PostlistBuilder<value_type> builder;
-  for (unsigned i(0); i != num; ++i)
-  {
-    for (unsigned j(0); j != value_count; ++j)
-    {
+  for (unsigned i(0); i != num; ++i) {
+    for (unsigned j(0); j != value_count; ++j) {
       av::generator<value_type>::numbered(actual_value, i * num + j);
       builder.push_back(actual_value);
     }
@@ -99,12 +92,10 @@ test_io_with_full_postlist(size_t value_count)
   // -------------------------------------------------------------------------
   au::rewind(tmp_fs);
   expected_file_offset = 0;
-  for (unsigned i(0); i != num; ++i)
-  {
+  for (unsigned i(0); i != num; ++i) {
     const auto plist = ai::PostlistReader<value_type>::read(tmp_path, tmp_fs);
-    for (unsigned j(0); j != value_count; ++j)
-    {
-      av::generator<value_type>::numbered(expected_value, i*num+j);
+    for (unsigned j(0); j != value_count; ++j) {
+      av::generator<value_type>::numbered(expected_value, i * num + j);
       BOOST_REQUIRE(plist->next(actual_value));
       BOOST_REQUIRE_EQUAL(actual_value, expected_value);
     }
@@ -117,10 +108,8 @@ test_io_with_full_postlist(size_t value_count)
   bfs::remove(tmp_path);
 }
 
-template<typename T>
-void
-test_io_with_partial_postlist(size_t value_count)
-{
+template <typename T>
+void test_io_with_partial_postlist(size_t value_count) {
   typedef T value_type;
 
   // -------------------------------------------------------------------------
@@ -134,10 +123,8 @@ test_io_with_partial_postlist(size_t value_count)
   value_type expected_value;
   size_t expected_file_offset(0);
   ai::PostlistBuilder<value_type> builder;
-  for (unsigned i(0); i != num; ++i)
-  {
-    for (unsigned j(0); j != value_count; ++j)
-    {
+  for (unsigned i(0); i != num; ++i) {
+    for (unsigned j(0); j != value_count; ++j) {
       av::generator<value_type>::numbered(actual_value, i * num + j);
       builder.push_back(actual_value);
     }
@@ -153,12 +140,10 @@ test_io_with_partial_postlist(size_t value_count)
   // -------------------------------------------------------------------------
   au::rewind(tmp_fs);
   const size_t begin(value_count / 2);
-  for (unsigned i(0); i != num; ++i)
-  {
+  for (unsigned i(0); i != num; ++i) {
     const auto plist =
         ai::PostlistReader<value_type>::read(tmp_path, tmp_fs, begin);
-    for (unsigned j(begin); j != value_count; ++j)
-    {
+    for (unsigned j(begin); j != value_count; ++j) {
       av::generator<value_type>::numbered(expected_value, i * num + j);
       BOOST_REQUIRE(plist->next(actual_value));
       BOOST_REQUIRE_EQUAL(actual_value, expected_value);
@@ -173,12 +158,10 @@ test_io_with_partial_postlist(size_t value_count)
   // -------------------------------------------------------------------------
   au::rewind(tmp_fs);
   const size_t len(value_count / 4);
-  for (unsigned i(0); i != num; ++i)
-  {
+  for (unsigned i(0); i != num; ++i) {
     const auto plist =
         ai::PostlistReader<value_type>::read(tmp_path, tmp_fs, begin, len);
-    for (unsigned j(begin); j != begin + len; ++j)
-    {
+    for (unsigned j(begin); j != begin + len; ++j) {
       av::generator<value_type>::numbered(expected_value, i * num + j);
       BOOST_REQUIRE(plist->next(actual_value));
       BOOST_REQUIRE_EQUAL(actual_value, expected_value);
@@ -191,10 +174,8 @@ test_io_with_partial_postlist(size_t value_count)
   bfs::remove(tmp_path);
 }
 
-template<typename T>
-void
-run_test_case()
-{
+template <typename T>
+void run_test_case() {
   const size_t value_count_small_scale(10000);   // w/o swap file
   const size_t value_count_large_scale(3000000); // w/  swap file
 

@@ -8,7 +8,8 @@
 namespace netspeak {
 namespace value {
 
-template <typename T1, typename T2> class pair : std::pair<T1, T2> {
+template <typename T1, typename T2>
+class pair : std::pair<T1, T2> {
 public:
   typedef std::pair<T1, T2> base_type;
   typedef typename base_type::first_type e1_type;
@@ -23,17 +24,29 @@ public:
 
   ~pair() {}
 
-  e1_type& e1() { return this->first; }
+  e1_type& e1() {
+    return this->first;
+  }
 
-  e2_type& e2() { return this->second; }
+  e2_type& e2() {
+    return this->second;
+  }
 
-  const e1_type& e1() const { return this->first; }
+  const e1_type& e1() const {
+    return this->first;
+  }
 
-  const e2_type& e2() const { return this->second; }
+  const e2_type& e2() const {
+    return this->second;
+  }
 
-  void set_e1(const e1_type& e1) { this->first = e1; }
+  void set_e1(const e1_type& e1) {
+    this->first = e1;
+  }
 
-  void set_e2(const e2_type& e2) { this->second = e2; }
+  void set_e2(const e2_type& e2) {
+    this->second = e2;
+  }
 
   void set(const e1_type& e1, const e2_type& e2) {
     this->first = e1;

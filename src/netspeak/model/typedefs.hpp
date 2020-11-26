@@ -21,13 +21,11 @@ typedef uint32_t WordId;
 typedef uint32_t PhraseIndexPhraseFreq;
 
 // The type of entries in the phrase index.
-typedef value::pair<PhraseIndexPhraseFreq, __PhraseLocalId>
-    PhraseIndexValue;
+typedef value::pair<PhraseIndexPhraseFreq, __PhraseLocalId> PhraseIndexValue;
 
 // The type of entries in the postlist index.
 // Semantic: (index-of-phrase-index-postlist-entry, phrase-frequency)
-typedef value::pair<uint32_t, PhraseIndexPhraseFreq>
-    PostlistIndexValue;
+typedef value::pair<uint32_t, PhraseIndexPhraseFreq> PostlistIndexValue;
 
 
 } // namespace model

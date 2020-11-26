@@ -16,7 +16,8 @@ namespace invertedindex {
  * external n-merge-sort algorithm. If the size of the postlist is less than
  * max_memory_usage_mb sorting falls back to the std::sort algorithm.
  */
-template <typename T, typename Comp> class PostlistSorter {
+template <typename T, typename Comp>
+class PostlistSorter {
 public:
   typedef T value_type;
   typedef Comp compare_type;

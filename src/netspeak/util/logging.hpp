@@ -3,12 +3,12 @@
 #ifndef NETSPEAK_UTIL_LOGGING_HPP
 #define NETSPEAK_UTIL_LOGGING_HPP
 
-#include <ctime>
-#include <string>
 #include <cassert>
 #include <cstdarg>
+#include <ctime>
 #include <iostream>
 #include <iterator>
+#include <string>
 
 /**
  * Functions for logging output.
@@ -66,7 +66,8 @@ void log(const char* file, int line, const char* msg, Iter first, Iter last) {
 
 #define DEBUG_LOG(MESSAGE) util::log(__FILE__, __LINE__, MESSAGE)
 #define DEBUG_LOG2(MESSAGE, VAL) util::log(__FILE__, __LINE__, MESSAGE, VAL)
-#define DEBUG_LOG_RANGE(MESSAGE, FIRST, LAST) util::log(__FILE__, __LINE__, MESSAGE, FIRST, LAST)
+#define DEBUG_LOG_RANGE(MESSAGE, FIRST, LAST) \
+  util::log(__FILE__, __LINE__, MESSAGE, FIRST, LAST)
 
 #else
 

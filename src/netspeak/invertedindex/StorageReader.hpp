@@ -3,22 +3,24 @@
 #ifndef NETSPEAK_INVERTEDINDEX_STORAGE_READER_HPP
 #define NETSPEAK_INVERTEDINDEX_STORAGE_READER_HPP
 
-#include <mutex>
 #include <memory>
+#include <mutex>
 #include <type_traits>
+
 #include <boost/filesystem.hpp>
 
-#include "netspeak/util/systemio.hpp"
 #include "netspeak/bighashmap/BigHashMap.hpp"
-#include "netspeak/invertedindex/StorageWriter.hpp"
 #include "netspeak/invertedindex/PostlistReader.hpp"
+#include "netspeak/invertedindex/StorageWriter.hpp"
+#include "netspeak/util/systemio.hpp"
 
 namespace netspeak {
 namespace invertedindex {
 
 namespace bfs = boost::filesystem;
 
-template <typename T, bool ThreadSafe> class StorageReader {
+template <typename T, bool ThreadSafe>
+class StorageReader {
 private:
   typedef std::vector<FILE*> FileVector;
   typedef std::vector<bfs::path> PathVector;
@@ -63,7 +65,9 @@ public:
     Open(directory, memory);
   }
 
-  ~StorageReader() { Close(); }
+  ~StorageReader() {
+    Close();
+  }
 
   void Close() {
     table_.reset(); // calls delete
@@ -74,7 +78,9 @@ public:
     paths_.clear();
   }
 
-  bool IsOpen() const { return !files_.empty(); }
+  bool IsOpen() const {
+    return !files_.empty();
+  }
 
   void Open(const bfs::path& directory, util::memory_type memory) {
     if (IsOpen())

@@ -3,12 +3,12 @@
 #ifndef NETSPEAK_INVERTEDINDEX_BYTE_BUFFER_HPP
 #define NETSPEAK_INVERTEDINDEX_BYTE_BUFFER_HPP
 
-#include <memory>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 
-#include "netspeak/util/systemio.hpp"
 #include "netspeak/util/exception.hpp"
+#include "netspeak/util/systemio.hpp"
 #include "netspeak/value/big_string_traits.hpp"
 #include "netspeak/value/pair_traits.hpp"
 #include "netspeak/value/quadruple_traits.hpp"
@@ -29,19 +29,8 @@ namespace invertedindex {
 class ByteBuffer {
 private:
   struct buffer_type {
-    buffer_type(size_t initial_size)
-        : data(new char[initial_size]), size(initial_size) {
-      if (!data)
-        throw std::bad_alloc();
-    }
-    void resize(size_t new_size) {
-      if (new_size != size && new_size != 0) {
-        data.reset(new char[new_size]);
-        if (!data)
-          throw std::bad_alloc();
-      }
-      size = new_size;
-    }
+    buffer_type(size_t initial_size);
+    void resize(size_t new_size);
     std::unique_ptr<char[]> data;
     size_t size;
   };
@@ -51,15 +40,13 @@ public:
    * The explicit constructor.
    * The byte buffer has a initial size of <code>size</code>.
    */
-  ByteBuffer(size_t size = 0)
-      : buffer_(new buffer_type(size)), bufpos_(buffer_->data.get()) {}
+  ByteBuffer(size_t size = 0);
 
   /**
    * The copy constructor for shallow copying.
    * @param buffer
    */
-  ByteBuffer(const ByteBuffer& buffer)
-      : buffer_(buffer.buffer_), bufpos_(buffer_->data.get()) {}
+  ByteBuffer(const ByteBuffer& buffer);
 
   /**
    * The destructor.
@@ -72,50 +59,47 @@ private:
   }
 
 public: // methods
-  char* begin() { return buffer_->data.get(); }
-
-  const char* begin() const { return buffer_->data.get(); }
-
-  void clear() {
-    // does not free memory
-    buffer_->size = 0;
-    rewind();
+  char* begin() {
+    return buffer_->data.get();
   }
+  const char* begin() const {
+    return buffer_->data.get();
+  }
+
+  char* end() {
+    return buffer_->data.get() + buffer_->size;
+  }
+  const char* end() const {
+    return buffer_->data.get() + buffer_->size;
+  }
+
+  void clear();
 
   /**
    * Creates a deep copy of that buffer.
    */
-  ByteBuffer clone() const {
-    ByteBuffer deep_copy(size());
-    std::memcpy(deep_copy.buffer_->data.get(), begin(), size());
-    return deep_copy;
-  }
-
-  char* end() { return buffer_->data.get() + buffer_->size; }
-
-  const char* end() const { return buffer_->data.get() + buffer_->size; }
+  ByteBuffer clone() const;
 
   /**
    * The assignment operator for shallow copying.
    * The internal position will be set to the beginning.
    * @param buffer
    */
-  ByteBuffer& operator=(const ByteBuffer& buffer) {
-    buffer_ = buffer.buffer_;
-    bufpos_ = buffer_->data.get();
-    return *this;
-  }
+  ByteBuffer& operator=(const ByteBuffer& buffer);
 
-  template <typename T> bool get(T& value) {
+  template <typename T>
+  bool get(T& value) {
     typedef value::value_traits<T> traits_type;
-    if (!bufpos_ || bufpos_ + sizeof(value) > buffer_->data.get() + buffer_->size)
+    if (!bufpos_ ||
+        bufpos_ + sizeof(value) > buffer_->data.get() + buffer_->size)
       return false;
     const char* new_bufpos(traits_type::copy_from(value, bufpos_));
     bufpos_ = const_cast<char*>(new_bufpos);
     return true;
   }
 
-  template <typename T> bool put(const T& value) {
+  template <typename T>
+  bool put(const T& value) {
     typedef value::value_traits<T> traits_type;
     if (traits_type::size_of(value) > bytes_available())
       return false;
@@ -123,40 +107,29 @@ public: // methods
     return true;
   }
 
-  void seek(size_t offset) {
-    if (offset > size()) {
-      util::throw_out_of_range("ByteBuffer::seek failed", offset);
-    }
-    bufpos_ = buffer_->data.get() + offset;
-  }
-
-  size_t tell() const { return bufpos_ - begin(); }
-
-  void rewind() { bufpos_ = buffer_->data.get(); }
-
-  void read(FILE* fs) {
-    util::fread(buffer_->data.get(), 1, size(), fs);
-    rewind();
-  }
-
-  void write(FILE* fs) const { util::fwrite(begin(), 1, size(), fs); }
+  void seek(size_t offset);
+  size_t tell() const;
+  void rewind();
+  void read(FILE* fs);
+  void write(FILE* fs) const;
 
   /**
    * Allocates <tt>size</tt> bytes of memory.
    * @param size the new size of the byte buffer.
    */
-  void resize(size_t size) {
-    buffer_->resize(size);
-    rewind();
-  }
+  void resize(size_t size);
 
   /**
    * Get the size of the byte array.
    * @return the number of bytes stored.
    */
-  size_t size() const { return buffer_->size; }
+  size_t size() const {
+    return buffer_->size;
+  }
 
-  const char* position() const { return bufpos_; }
+  const char* position() const {
+    return bufpos_;
+  }
 
 private:
   std::shared_ptr<buffer_type> buffer_;

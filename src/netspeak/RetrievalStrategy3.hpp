@@ -37,7 +37,8 @@ struct RetrievalStrategy3Tag {
 /**
  * Specialized traits template for \c RetrievalStrategy3Tag.
  */
-template <> struct index_entry_traits<RetrievalStrategy3Tag> {
+template <>
+struct index_entry_traits<RetrievalStrategy3Tag> {
   typedef RetrievalStrategy3Tag::index_entry_type value_type;
   typedef value_type::e1_type phrase_frequency_type;
   typedef value_type::e2_type phrase_id_type;
@@ -82,7 +83,8 @@ template <> struct index_entry_traits<RetrievalStrategy3Tag> {
  * - For the very first retrieved postlist (see method initialize_result_set)
  *   we can determine such (jumpin-) frequency from the query.
  */
-template <> class RetrievalStrategy<RetrievalStrategy3Tag> {
+template <>
+class RetrievalStrategy<RetrievalStrategy3Tag> {
 public:
   typedef RetrievalStrategy3Tag::index_entry_type index_entry_type;
   typedef RetrievalStrategy3Tag::unit_metadata unit_metadata;

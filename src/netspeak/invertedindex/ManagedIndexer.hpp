@@ -5,10 +5,10 @@
 
 #include <boost/filesystem/fstream.hpp>
 
-#include "netspeak/invertedindex/Record.hpp"
 #include "netspeak/invertedindex/Indexer.hpp"
-#include "netspeak/invertedindex/Properties.hpp"
 #include "netspeak/invertedindex/InvertedFileReader.hpp"
+#include "netspeak/invertedindex/Properties.hpp"
+#include "netspeak/invertedindex/Record.hpp"
 #include "netspeak/util/exception.hpp"
 
 namespace netspeak {
@@ -51,8 +51,7 @@ public:
                   total_input_size / avg_record_size;
               indexer.set_expected_record_count(total_record_count);
             }
-          }
-          catch (std::exception& e) {
+          } catch (std::exception& e) {
             util::log("Indexer::insert failed", e.what());
           }
         }

@@ -1,8 +1,8 @@
 #ifndef NETSPEAK_MODEL_QUERY_SYNTAX_HPP
 #define NETSPEAK_MODEL_QUERY_SYNTAX_HPP
 
-#include <string>
 #include <ostream>
+#include <string>
 
 #include "netspeak/value/pair.hpp"
 
@@ -24,7 +24,6 @@ struct QuerySyntax {
   static const char BRACE_RIGHT = '}';
   static const char BRACKET_LEFT = '[';
   static const char BRACKET_RIGHT = ']';
-
 };
 
 

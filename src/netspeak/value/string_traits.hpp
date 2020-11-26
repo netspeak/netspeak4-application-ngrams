@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <string>
+
 #include <boost/algorithm/string/trim.hpp>
 
 #include "netspeak/util/exception.hpp"
@@ -17,15 +18,19 @@ namespace value {
 // The base template is defined in netspeak/value/value_traits.hpp.
 // -----------------------------------------------------------------------------
 
-template <> struct NameOf<std::string> {
-  static std::string value() { return "String"; }
+template <>
+struct NameOf<std::string> {
+  static std::string value() {
+    return "String";
+  }
 };
 
 // -----------------------------------------------------------------------------
 // Full specialization for std::string
 // -----------------------------------------------------------------------------
 
-template <> struct value_traits<std::string> {
+template <>
+struct value_traits<std::string> {
   typedef std::string value_type;
   typedef uint16_t io_size_type;
   typedef value_type::size_type score_type;
@@ -88,7 +93,7 @@ template <> struct value_traits<std::string> {
       switch (is.peek()) {
         case '\r':
         case '\n':
-        case std::istream::traits_type::eof() :
+        case std::istream::traits_type::eof():
           return;
         case tuple_element_separator:
           is.get();
@@ -99,14 +104,17 @@ template <> struct value_traits<std::string> {
     }
   }
 
-  static inline std::string type_name() { return NameOf<value_type>::value(); }
+  static inline std::string type_name() {
+    return NameOf<value_type>::value();
+  }
 };
 
 // -----------------------------------------------------------------------------
 // Random and numbered instance generators needed for unit testing.
 // -----------------------------------------------------------------------------
 
-template <> struct generator<std::string> {
+template <>
+struct generator<std::string> {
   typedef std::string value_type;
 
   static void randomized(value_type& value) {

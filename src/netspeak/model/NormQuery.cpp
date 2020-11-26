@@ -2,9 +2,8 @@
 
 #include <ostream>
 
-#include "netspeak/util/exception.hpp"
-
 #include "netspeak/error.hpp"
+#include "netspeak/util/exception.hpp"
 
 
 namespace netspeak {

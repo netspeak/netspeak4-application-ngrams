@@ -43,7 +43,7 @@ boost::optional<std::u32string> read_until_char(
 }
 
 
-RegexQuery parse_netspeak_regex_query(const std::string &netspeak_query) {
+RegexQuery parse_netspeak_regex_query(const std::string& netspeak_query) {
   RegexQueryBuilder builder;
 
   // while input and output strings are UTF-8, the implementation will work

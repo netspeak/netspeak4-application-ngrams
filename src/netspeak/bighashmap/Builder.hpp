@@ -3,19 +3,21 @@
 #ifndef NETSPEAK_BIGHASHMAP_BUILDER_HPP
 #define NETSPEAK_BIGHASHMAP_BUILDER_HPP
 
+#include <cmph.h>
+
 #include <cstdio>
 #include <string>
 #include <vector>
+
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <cmph.h>
 
 #include "netspeak/bighashmap/CmphMap.hpp"
-#include "netspeak/util/logging.hpp"
 #include "netspeak/util/checksum.hpp"
-#include "netspeak/util/systemio.hpp"
-#include "netspeak/util/exception.hpp"
 #include "netspeak/util/conversion.hpp"
+#include "netspeak/util/exception.hpp"
+#include "netspeak/util/logging.hpp"
+#include "netspeak/util/systemio.hpp"
 #include "netspeak/value/pair.hpp"
 #include "netspeak/value/value_traits.hpp"
 
@@ -26,7 +28,6 @@ namespace bfs = boost::filesystem;
 
 template <typename ValueT, typename TraitsT = value::value_traits<ValueT> >
 class Builder {
-
   typedef ValueT Value;
   typedef TraitsT Traits;
   typedef typename CmphMap<Value, Traits>::Checksum Checksum;
@@ -183,8 +184,8 @@ private:
     if (!ofs) {
       util::throw_runtime_error("Cannot create", idx_file);
     }
-    ofs << mph_file.filename().string() << '\n' << dat_file.filename().string()
-        << std::endl;
+    ofs << mph_file.filename().string() << '\n'
+        << dat_file.filename().string() << std::endl;
     ofs.close();
     bfs::remove(key_file);
     return idx_file;
@@ -221,7 +222,8 @@ private:
     uint64_t record_count(0);
     bfs::directory_iterator end;
     for (bfs::directory_iterator it(input_dir); it != end; ++it) {
-      if (bfs::is_regular_file(it->path()) && !util::is_hidden_file(it->path())) {
+      if (bfs::is_regular_file(it->path()) &&
+          !util::is_hidden_file(it->path())) {
         ifs.open(it->path());
         if (!ifs) {
           util::throw_runtime_error("Cannot open", it->path());
@@ -262,7 +264,8 @@ private:
     bfs::directory_iterator end;
     std::string::size_type delim;
     for (bfs::directory_iterator it(input_dir); it != end; ++it) {
-      if (bfs::is_regular_file(it->path()) && !util::is_hidden_file(it->path())) {
+      if (bfs::is_regular_file(it->path()) &&
+          !util::is_hidden_file(it->path())) {
         ifs.open(it->path());
         if (!ifs) {
           util::throw_runtime_error("Cannot open", it->path());

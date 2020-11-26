@@ -85,7 +85,8 @@ void check_inverted_index(
   searcher.close();
 }
 
-template <typename T> void run_test_case() {
+template <typename T>
+void run_test_case() {
   const size_t record_count(10000);
   std::multimap<std::string, T> expected_records;
 

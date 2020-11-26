@@ -4,11 +4,12 @@
 #define NETSPEAK_BIGHASHMAP_INTERNAL_MAP_HPP
 
 #include <string>
+
 #include <boost/filesystem/fstream.hpp>
 
 #include "netspeak/bighashmap/CmphMap.hpp"
-#include "netspeak/util/logging.hpp"
 #include "netspeak/util/checksum.hpp"
+#include "netspeak/util/logging.hpp"
 #include "netspeak/util/systemio.hpp"
 #include "netspeak/value/pair.hpp"
 #include "netspeak/value/pair_traits.hpp"
@@ -32,7 +33,9 @@ public:
 
   InternalMap() = delete;
 
-  virtual ~InternalMap() { std::free(data_); }
+  virtual ~InternalMap() {
+    std::free(data_);
+  }
 
 private:
   typedef value::pair<Checksum, Value> Entry;

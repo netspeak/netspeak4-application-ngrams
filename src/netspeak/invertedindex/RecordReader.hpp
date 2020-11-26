@@ -8,7 +8,8 @@
 namespace netspeak {
 namespace invertedindex {
 
-template <typename T> class RecordReader {
+template <typename T>
+class RecordReader {
 public:
   typedef Record<T> record_type;
 

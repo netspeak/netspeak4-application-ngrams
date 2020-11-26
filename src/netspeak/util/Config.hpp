@@ -96,7 +96,8 @@ public:
    * @brief Inserts all key-value-pairs of the given iterator file into this
    * config overwriting existing keys.
    */
-  template <typename T> void merge(T _begin, T _end) {
+  template <typename T>
+  void merge(T _begin, T _end) {
     for (; _begin != _end; _begin++) {
       data_.insert(*_begin);
     }

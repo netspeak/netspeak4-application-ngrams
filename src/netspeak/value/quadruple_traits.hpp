@@ -15,7 +15,6 @@ namespace value {
 
 template <typename T1, typename T2, typename T3, typename T4>
 struct value_traits<quadruple<T1, T2, T3, T4> > {
-
   typedef quadruple<T1, T2, T3, T4> value_type;
   typedef uint16_t io_size_type;
 

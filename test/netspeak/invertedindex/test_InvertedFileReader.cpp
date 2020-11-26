@@ -4,21 +4,21 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+
 #include <boost/test/unit_test.hpp>
 
 #include "netspeak/invertedindex/InvertedFileReader.hpp"
 #include "netspeak/invertedindex/Record.hpp"
 #include "netspeak/value/big_string.hpp"
-#include "netspeak/value/triple.hpp"
 #include "netspeak/value/pair.hpp"
+#include "netspeak/value/triple.hpp"
 
 namespace aii = netspeak::invertedindex;
-namespace av  = netspeak::value;
+namespace av = netspeak::value;
 
 BOOST_AUTO_TEST_SUITE(test_InvertedFileReader);
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_from_empty_stream)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_from_empty_stream) {
   typedef int Value;
 
   std::stringstream ss;
@@ -28,8 +28,7 @@ BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_from_empty_stream)
   BOOST_REQUIRE(!reader.read(actual_record));
 }
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_Int)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_Int) {
   typedef int Value;
 
   std::stringstream ss;
@@ -61,8 +60,7 @@ BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_Int)
   BOOST_REQUIRE(!reader.read(actual_record));
 }
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_Int_with_final_newline)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_Int_with_final_newline) {
   typedef int Value;
 
   std::stringstream ss;
@@ -94,8 +92,7 @@ BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_Int_with_final_newline)
   BOOST_REQUIRE(!reader.read(actual_record));
 }
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_Int_with_invalid_formatting)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_Int_with_invalid_formatting) {
   typedef int Value;
 
   std::stringstream ss;
@@ -114,8 +111,7 @@ BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_Int_with_invalid_formatting)
   BOOST_REQUIRE_THROW(reader.read(actual_record), std::runtime_error);
 }
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_BigString)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_BigString) {
   typedef av::big_string Value;
 
   std::stringstream ss;
@@ -147,8 +143,7 @@ BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_BigString)
   BOOST_REQUIRE(!reader.read(actual_record));
 }
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_IntDouble)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_IntDouble) {
   typedef av::pair<int, double> Value;
 
   std::stringstream ss;
@@ -179,8 +174,7 @@ BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_IntDouble)
   BOOST_REQUIRE(!reader.read(actual_record));
 }
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_IntDouble_old_separator)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_IntDouble_old_separator) {
   typedef av::pair<int, double> Value;
 
   std::stringstream ss;
@@ -211,8 +205,7 @@ BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_IntDouble_old_separator)
   BOOST_REQUIRE(!reader.read(actual_record));
 }
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_IntLongDouble)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_IntLongDouble) {
   typedef av::triple<int, long, double> Value;
 
   std::stringstream ss;
@@ -243,8 +236,7 @@ BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_IntLongDouble)
   BOOST_REQUIRE(!reader.read(actual_record));
 }
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_DoubleString)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_DoubleString) {
   typedef av::pair<double, std::string> Value;
 
   std::stringstream ss;
@@ -275,8 +267,7 @@ BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_DoubleString)
   BOOST_REQUIRE(!reader.read(actual_record));
 }
 
-BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_DoubleStringStringInt)
-{
+BOOST_AUTO_TEST_CASE(test_InvertedFileReader_read_DoubleStringStringInt) {
   typedef av::quadruple<double, std::string, std::string, int> Value;
 
   std::stringstream ss;

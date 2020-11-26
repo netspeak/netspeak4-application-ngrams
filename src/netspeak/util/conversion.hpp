@@ -3,11 +3,12 @@
 #ifndef NETSPEAK_UTIL_CONVERSION_HPP
 #define NETSPEAK_UTIL_CONVERSION_HPP
 
-#include <cstdlib>
 #include <cxxabi.h>
+
+#include <cstdlib>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "netspeak/util/exception.hpp"
 
@@ -25,18 +26,21 @@ inline const std::string demangle(const char* mangled) {
   return result.get() ? std::string(result.get()) : "error occurred";
 }
 
-template <typename T> bool to_number(const std::string& value, T& number) {
+template <typename T>
+bool to_number(const std::string& value, T& number) {
   return std::istringstream(value) >> number;
 }
 
-template <typename T> const T to_number(const std::string& value) {
+template <typename T>
+const T to_number(const std::string& value) {
   T number;
   if (!to_number<T>(value, number))
     throw_invalid_argument("to_number failed", value);
   return number;
 }
 
-template <typename T> std::string to_string(T value) {
+template <typename T>
+std::string to_string(T value) {
   std::ostringstream oss;
   oss << value;
   return oss.str();

@@ -6,6 +6,7 @@
 #include <limits>
 #include <memory>
 #include <numeric>
+
 #include <boost/utility.hpp>
 
 #include "netspeak/invertedindex/Iterator.hpp"
@@ -19,7 +20,8 @@ namespace invertedindex {
 /**
  * A class to build postlists.
  */
-template <typename T> class PostlistBuilder : public boost::noncopyable {
+template <typename T>
+class PostlistBuilder : public boost::noncopyable {
 public:
   typedef T value_type;
   typedef value::value_traits<value_type> traits_type;
@@ -105,7 +107,9 @@ private:
     mem_usage_ = 0;
   }
 
-  bool has_swap_() const { return swap_.stream_ != NULL; }
+  bool has_swap_() const {
+    return swap_.stream_ != NULL;
+  }
 
 private:
   size_t page_size_;

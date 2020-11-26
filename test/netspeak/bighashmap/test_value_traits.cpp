@@ -1,12 +1,13 @@
 // test_value_traits.cpp -*- C++ -*-
 // Copyright (C) 2011-2013 Martin Trenkmann
 
-#include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
+
 #include "netspeak/util/systemio.hpp"
+#include "netspeak/value/pair_traits.hpp"
 #include "netspeak/value/quadruple_traits.hpp"
 #include "netspeak/value/triple_traits.hpp"
-#include "netspeak/value/pair_traits.hpp"
 
 using namespace netspeak;
 namespace bfs = boost::filesystem;
@@ -14,11 +15,9 @@ namespace bfs = boost::filesystem;
 static const bfs::path k_tmp_file("test_value_traits.tmp");
 
 // Primary template matches for build-in types
-template<typename T>
-void
-test(unsigned record_count)
-{
-  typedef T                               value_type;
+template <typename T>
+void test(unsigned record_count) {
+  typedef T value_type;
   typedef value::value_traits<value_type> traits_type;
 
   // Test constant size of build-in types
@@ -27,8 +26,7 @@ test(unsigned record_count)
 
   // Test file I/O
   FILE* fs(util::fopen(k_tmp_file, "wb"));
-  for (unsigned i(0); i != record_count; ++i)
-  {
+  for (unsigned i(0); i != record_count; ++i) {
     test_value = i;
     BOOST_REQUIRE(traits_type::write_to(test_value, fs));
   }
@@ -37,8 +35,7 @@ test(unsigned record_count)
   // Read back from file
   value_type expected_value;
   fs = util::fopen(k_tmp_file, "rb");
-  for (unsigned i(0); i != record_count; ++i)
-  {
+  for (unsigned i(0); i != record_count; ++i) {
     expected_value = i;
     BOOST_REQUIRE(traits_type::read_from(test_value, fs));
     BOOST_REQUIRE_EQUAL(expected_value, test_value);
@@ -53,12 +50,11 @@ test(unsigned record_count)
   char* buffer_begin(new char[buffer_size]);
   char* buffer_pos_old(buffer_begin);
   const char* buffer_pos_new(buffer_begin);
-  for (unsigned i(0); i != record_count; ++i)
-  {
+  for (unsigned i(0); i != record_count; ++i) {
     test_value = i;
     buffer_pos_new = traits_type::copy_to(test_value, buffer_pos_old);
     BOOST_REQUIRE_EQUAL(traits_type::size_of(test_value),
-                                buffer_pos_new - buffer_pos_old);
+                        buffer_pos_new - buffer_pos_old);
     buffer_pos_old = const_cast<char*>(buffer_pos_new);
   }
   BOOST_REQUIRE_EQUAL(buffer_size, buffer_pos_old - buffer_begin);
@@ -66,12 +62,11 @@ test(unsigned record_count)
   // Read back from buffer
   buffer_pos_old = buffer_begin;
   buffer_pos_new = buffer_begin;
-  for (unsigned i(0); i != record_count; ++i)
-  {
+  for (unsigned i(0); i != record_count; ++i) {
     expected_value = i;
     buffer_pos_new = traits_type::copy_from(test_value, buffer_pos_old);
     BOOST_REQUIRE_EQUAL(traits_type::size_of(expected_value),
-                                buffer_pos_new - buffer_pos_old);
+                        buffer_pos_new - buffer_pos_old);
     BOOST_REQUIRE_EQUAL(expected_value, test_value);
     buffer_pos_old = const_cast<char*>(buffer_pos_new);
   }
@@ -80,8 +75,8 @@ test(unsigned record_count)
 }
 
 // Specialization template for std::string
-//template<>
-//void test_type(const std::string& value, unsigned loop_count)
+// template<>
+// void test_type(const std::string& value, unsigned loop_count)
 //{
 //  typedef std::string           value_type;
 //  typedef io_traits<value_type> traits_type;
@@ -150,47 +145,39 @@ BOOST_AUTO_TEST_SUITE(test_value_traits)
 
 static const size_t k_record_count(100000);
 
-BOOST_AUTO_TEST_CASE(test_i16)
-{
+BOOST_AUTO_TEST_CASE(test_i16) {
   test<int16_t>(k_record_count);
 }
 
-BOOST_AUTO_TEST_CASE(test_ui16)
-{
+BOOST_AUTO_TEST_CASE(test_ui16) {
   test<uint16_t>(k_record_count);
 }
 
-BOOST_AUTO_TEST_CASE(test_i32)
-{
+BOOST_AUTO_TEST_CASE(test_i32) {
   test<int32_t>(k_record_count);
 }
 
-BOOST_AUTO_TEST_CASE(test_ui32)
-{
+BOOST_AUTO_TEST_CASE(test_ui32) {
   test<uint32_t>(k_record_count);
 }
 
-BOOST_AUTO_TEST_CASE(test_i64)
-{
+BOOST_AUTO_TEST_CASE(test_i64) {
   test<int64_t>(k_record_count);
 }
 
-BOOST_AUTO_TEST_CASE(test_ui64)
-{
+BOOST_AUTO_TEST_CASE(test_ui64) {
   test<uint64_t>(k_record_count);
 }
 
-BOOST_AUTO_TEST_CASE(test_dbl)
-{
+BOOST_AUTO_TEST_CASE(test_dbl) {
   test<double>(k_record_count);
 }
 
-BOOST_AUTO_TEST_CASE(test_fl)
-{
+BOOST_AUTO_TEST_CASE(test_fl) {
   test<float>(k_record_count);
 }
 
-//BOOST_AUTO_TEST_CASE(test_string)
+// BOOST_AUTO_TEST_CASE(test_string)
 //{
 //  test_type<std::string>("this is a test", 42);
 //}

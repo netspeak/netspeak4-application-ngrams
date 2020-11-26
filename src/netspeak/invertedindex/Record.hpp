@@ -20,7 +20,8 @@ namespace invertedindex {
 /**
  * A class template to represent a key value pair.
  */
-template <typename T> class Record : public std::pair<std::string, T> {
+template <typename T>
+class Record : public std::pair<std::string, T> {
 public:
   typedef std::pair<std::string, T> base_type;
   typedef typename base_type::first_type key_type;
@@ -39,17 +40,29 @@ public:
 
   ~Record() {}
 
-  key_type& key() { return this->first; }
+  key_type& key() {
+    return this->first;
+  }
 
-  const key_type& key() const { return this->first; }
+  const key_type& key() const {
+    return this->first;
+  }
 
-  void set_key(const key_type& key) { this->first = key; }
+  void set_key(const key_type& key) {
+    this->first = key;
+  }
 
-  value_type& value() { return this->second; }
+  value_type& value() {
+    return this->second;
+  }
 
-  const value_type& value() const { return this->second; }
+  const value_type& value() const {
+    return this->second;
+  }
 
-  void set_value(const value_type& value) { this->second = value; }
+  void set_value(const value_type& value) {
+    this->second = value;
+  }
 
   void set(const key_type& key, const value_type& value) {
     set_key(key);
@@ -78,7 +91,8 @@ public:
   }
 };
 
-template <typename T> const char Record<T>::delimiter('\t');
+template <typename T>
+const char Record<T>::delimiter('\t');
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Record<T>& record) {

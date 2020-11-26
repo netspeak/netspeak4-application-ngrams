@@ -19,7 +19,8 @@ using namespace netspeak;
 using namespace value;
 namespace bfs = boost::filesystem;
 
-template <typename Value> struct RandomRecordGenerator {
+template <typename Value>
+struct RandomRecordGenerator {
   typedef std::pair<std::string, Value> Record;
 
   RandomRecordGenerator() : counter(0) {}

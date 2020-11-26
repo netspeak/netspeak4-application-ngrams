@@ -20,7 +20,8 @@ namespace invertedindex {
 /**
  * A class to read postlists from a binary file.
  */
-template <typename T> class PostlistReader {
+template <typename T>
+class PostlistReader {
 private:
   typedef variable_size_iter::size_vector size_vector;
 

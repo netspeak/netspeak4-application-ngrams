@@ -13,8 +13,8 @@ namespace value {
 // Partial specialization for value::pair<T1, T2>
 // -----------------------------------------------------------------------------
 
-template <typename T1, typename T2> struct value_traits<pair<T1, T2> > {
-
+template <typename T1, typename T2>
+struct value_traits<pair<T1, T2> > {
   typedef pair<T1, T2> value_type;
   typedef uint16_t io_size_type;
 
@@ -70,7 +70,8 @@ template <typename T1, typename T2> struct value_traits<pair<T1, T2> > {
 // Random and numbered instance generators needed for unit testing.
 // -----------------------------------------------------------------------------
 
-template <typename T1, typename T2> struct generator<pair<T1, T2> > {
+template <typename T1, typename T2>
+struct generator<pair<T1, T2> > {
   typedef pair<T1, T2> value_type;
 
   static void randomized(value_type& value) {

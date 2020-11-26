@@ -35,7 +35,8 @@ inline void signal_error(const std::string& msg) {
   throw_runtime_error(msg);
 }
 
-template <typename T> void signal_error(const std::string& msg, const T& obj) {
+template <typename T>
+void signal_error(const std::string& msg, const T& obj) {
   std::perror(msg.c_str());
   throw_runtime_error(msg, obj);
 }

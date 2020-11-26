@@ -21,7 +21,8 @@ namespace invertedindex {
 /**
  * A class to write records in the inverted file format to an output stream.
  */
-template <typename T> class InvertedFileWriter {
+template <typename T>
+class InvertedFileWriter {
 public:
   typedef Record<T> RecordType;
 
@@ -48,7 +49,9 @@ public:
     return static_cast<bool>(os_);
   }
 
-  std::size_t tell() { return os_.tellp(); }
+  std::size_t tell() {
+    return os_.tellp();
+  }
 
 private:
   std::ostream& os_;

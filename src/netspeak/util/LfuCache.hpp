@@ -17,7 +17,8 @@ namespace util {
 /**
  * A simple and fast object cache with LFU policy.
  */
-template <typename T> class LfuCache {
+template <typename T>
+class LfuCache {
 public:
   typedef std::string key_type;
   typedef T value_type;

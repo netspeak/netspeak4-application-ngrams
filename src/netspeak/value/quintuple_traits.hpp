@@ -15,7 +15,6 @@ namespace value {
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 struct value_traits<quintuple<T1, T2, T3, T4, T5> > {
-
   typedef quintuple<T1, T2, T3, T4, T5> value_type;
   typedef uint16_t io_size_type;
 

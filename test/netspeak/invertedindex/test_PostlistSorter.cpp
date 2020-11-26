@@ -2,27 +2,25 @@
 // Copyright (C) 2011-2013 Martin Trenkmann
 
 #include <memory>
+
 #include <boost/test/unit_test.hpp>
 
+#include "netspeak/invertedindex/Configuration.hpp"
 #include "netspeak/invertedindex/PostlistBuilder.hpp"
 #include "netspeak/invertedindex/PostlistSorter.hpp"
-#include "netspeak/invertedindex/Configuration.hpp"
 
 namespace ai = netspeak::invertedindex;
 namespace av = netspeak::value;
 
-template<typename T, typename Comp>
-void
-test_sort(size_t value_count)
-{
-  typedef T    value_type;
+template <typename T, typename Comp>
+void test_sort(size_t value_count) {
+  typedef T value_type;
   typedef Comp compare_type;
 
   value_type value;
   std::vector<value_type> values;
   ai::PostlistBuilder<value_type> builder;
-  for (unsigned i(0); i != value_count; ++i)
-  {
+  for (unsigned i(0); i != value_count; ++i) {
     av::generator<value_type>::numbered(value, i);
     builder.push_back(value);
     values.push_back(value);
@@ -33,8 +31,7 @@ test_sort(size_t value_count)
       ai::PostlistSorter<value_type, compare_type>::sort(*postlist, 10);
   std::sort(values.begin(), values.end(), compare_type());
   BOOST_REQUIRE_EQUAL(values.size(), sorted_postlist->size());
-  for (unsigned i(0); i != values.size(); ++i)
-  {
+  for (unsigned i(0); i != values.size(); ++i) {
     BOOST_REQUIRE(sorted_postlist->next(value));
     BOOST_REQUIRE_EQUAL(values.at(i), value);
   }
@@ -42,10 +39,8 @@ test_sort(size_t value_count)
 
 // TEST CASES
 
-template<typename T>
-void
-run_test_case()
-{
+template <typename T>
+void run_test_case() {
   const size_t value_count_small_scale(10000);   // w/o swap file
   const size_t value_count_large_scale(3000000); // w/  swap file
 

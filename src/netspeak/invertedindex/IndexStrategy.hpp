@@ -9,7 +9,8 @@
 namespace netspeak {
 namespace invertedindex {
 
-template <typename T> class IndexStrategy {
+template <typename T>
+class IndexStrategy {
 public:
   typedef Record<T> record_type;
 
@@ -38,9 +39,13 @@ public:
     }
   }
 
-  const Configuration& config() const { return config_; }
+  const Configuration& config() const {
+    return config_;
+  }
 
-  const stats_type& stats() const { return stats_; }
+  const stats_type& stats() const {
+    return stats_;
+  }
 
 private:
   virtual void insert_(const record_type& record) = 0;
