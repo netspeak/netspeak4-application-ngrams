@@ -17,5 +17,7 @@ CMakeFiles/
 CMakeCache.txt
 compile_commands.json
 
+test/data/
+
 /netspeak4
 /netspeak4-test
