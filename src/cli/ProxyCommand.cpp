@@ -95,7 +95,8 @@ int ProxyCommand::run(bpo::variables_map variables) {
 
   grpc::ServerBuilder builder;
   auto port = variables["port"].as<uint16_t>();
-  builder.AddListeningPort(localhost(port), grpc::InsecureServerCredentials());
+  builder.AddListeningPort("127.0.0.1:" + std::to_string(port),
+                           grpc::InsecureServerCredentials());
   builder.RegisterService(&service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on port " << port << "\n";
