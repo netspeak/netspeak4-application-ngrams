@@ -21,15 +21,13 @@ This will install, a C++ compiler, build tools, gRPC, Protobuf tools, and other 
 
 Some of the dependencies will by compiled from source and might be compiled/installed in parallel causing noticeable stuttering or even freezes for a few seconds. The heaviest dependencies will be installed globally, so they only have to be installed once.
 
+#### CI
+
+The install script will also install some dependencies that are used by other scripts (e.g. the ones that generate Protobuf and ANTLR4 files). If you do not use these scripts (e.g. in CI), then running `sudo bash build/install-dependencies.sh ci` instead will only install the dependencies that are necessary to compile the project.
+
 #### For Windows users
 
 Netspeak 4 is a Linux project. To compile and run it on your system, install WSL with any Linux distribution and run all commands there.
-
-#### For Webis members
-
-Among the dependencies are some Webis-only projects.
-These will be checked out via git in readonly mode.
-If you want to make changes to these projects and see how the affect Netspeak, replace the project folders in `./build/dependencies/` with symbolic links to wherever your pushable version is.
 
 ### Building
 

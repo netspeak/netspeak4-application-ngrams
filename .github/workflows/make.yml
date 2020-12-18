@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install dependencies
-      run: bash ./build/install-dependencies.sh
+      run: bash ./build/install-dependencies.sh ci
     - run: bash ./build/cmake.sh
     - name: Build
       run: make
