@@ -81,11 +81,12 @@ int ServeCommand::run(boost::program_options::variables_map variables) {
 
   grpc::ServerBuilder builder;
   auto port = variables["port"].as<uint16_t>();
-  builder.AddListeningPort("0.0.0.0:" + std::to_string(port),
+  builder.AddListeningPort("[::]:" + std::to_string(port),
                            grpc::InsecureServerCredentials());
   builder.RegisterService(&service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on port " << port << "\n";
+  std::cout.flush();
   server->Wait();
 
   return EXIT_SUCCESS;
