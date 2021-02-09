@@ -52,7 +52,7 @@ void Configuration::load_extends() {
       return;
     }
     if (!base_dir_.empty()) {
-      extends_path = bfs::absolute(extends_path, base_dir_);
+      extends_path = bfs::canonical(extends_path, base_dir_);
     }
     extends_ = std::make_unique<Configuration>(extends_path);
   }
@@ -64,13 +64,13 @@ void Configuration::desugar_home() {
       return;
     }
     if (!base_dir_.empty()) {
-      home_path = bfs::absolute(home_path, base_dir_);
+      home_path = bfs::canonical(home_path, base_dir_);
     }
 
     auto set_default = [&](const std::string& key,
                            const std::string& default_value) {
       if (!config_.contains(key)) {
-        config_[key] = bfs::absolute(default_value, home_path).string();
+        config_[key] = bfs::canonical(default_value, home_path).string();
       }
     };
 
@@ -132,7 +132,7 @@ bfs::path relative_to(std::string path, const bfs::path& to) {
   if (to.empty()) {
     return path;
   } else {
-    return bfs::absolute(path, to);
+    return bfs::canonical(path, to);
   }
 }
 bfs::path Configuration::get_required_path(const std::string& key) const {
