@@ -91,15 +91,14 @@ public:
   typedef index_entry_traits<RetrievalStrategy3Tag> traits;
 
   void initialize(const Configuration& config) {
-    auto check_config = [&](const std::string& key) {
-      util::check(config.contains(key), "incomplete configuration", key);
-    };
-    check_config(Configuration::path_to_phrase_dictionary);
-    check_config(Configuration::path_to_postlist_index);
-    check_config(Configuration::path_to_phrase_index);
+    // check config
+    config.get_required_path(Configuration::PATH_TO_PHRASE_DICTIONARY);
+    config.get_required_path(Configuration::PATH_TO_POSTLIST_INDEX);
+    config.get_required_path(Configuration::PATH_TO_PHRASE_INDEX);
 
     // Open ngram dictionary.
-    const bfs::path dir = config.at(Configuration::path_to_phrase_dictionary);
+    const bfs::path dir =
+        config.get_required_path(Configuration::PATH_TO_PHRASE_DICTIONARY);
     phrase_dictionary_.reset(
         PhraseDictionary::Open(dir, util::memory_type::min_required));
 
@@ -107,13 +106,14 @@ public:
     invertedindex::Configuration index_config;
     index_config.set_max_memory_usage(util::memory_type::mb1024);
     index_config.set_index_directory(
-        config.at(Configuration::path_to_postlist_index));
+        config.get_required_path(Configuration::PATH_TO_POSTLIST_INDEX)
+            .string());
     util::log("Open postlist index in", index_config.index_directory());
     postlist_index_.open(index_config);
 
     // Open ngram index.
     index_config.set_index_directory(
-        config.at(Configuration::path_to_phrase_index));
+        config.get_required_path(Configuration::PATH_TO_PHRASE_INDEX).string());
     util::log("Open phrase index in", index_config.index_directory());
     phrase_index_.open(index_config);
   }

@@ -281,8 +281,8 @@ int ShellCommand::run(boost::program_options::variables_map variables) {
 
   if (variables.count("in") != 0) {
     config = {
-      { Configuration::path_to_home, variables["in"].as<std::string>() },
-      { Configuration::cache_capacity, "1000" },
+      { Configuration::PATH_TO_HOME, variables["in"].as<std::string>() },
+      { Configuration::CACHE_CAPACITY, "1000" },
     };
   } else if (variables.count("config") != 0) {
     config = Configuration(variables["config"].as<std::string>());

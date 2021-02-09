@@ -13,62 +13,30 @@ using namespace model;
 
 const std::string DEFAULT_REGEX_MAX_MATCHES = "100";
 const std::string DEFAULT_REGEX_MAX_TIME = "20" /* ms */;
-
-/**
- * @brief Sets default paths for a normal index based on the (home) directory of
- * the index.
- */
-void set_default_paths(Configuration& config) {
-  auto home = config.get(Configuration::path_to_home, "");
-  if (!home.empty()) {
-    if (home[home.size() - 1] != '/') {
-      home.push_back('/');
-    }
-
-    auto set_default = [&](const std::string& key,
-                           const std::string& default_value) {
-      if (!config.contains(key)) {
-        config[key] = home + default_value;
-      }
-    };
-
-    set_default(Configuration::path_to_phrase_corpus,
-                Configuration::default_phrase_corpus_dir_name);
-    set_default(Configuration::path_to_phrase_dictionary,
-                Configuration::default_phrase_dictionary_dir_name);
-    set_default(Configuration::path_to_phrase_index,
-                Configuration::default_phrase_index_dir_name);
-    set_default(Configuration::path_to_postlist_index,
-                Configuration::default_postlist_index_dir_name);
-    set_default(Configuration::path_to_hash_dictionary,
-                Configuration::default_hash_dictionary_dir_name);
-    set_default(Configuration::path_to_regex_vocabulary,
-                Configuration::default_regex_vocabulary_dir_name);
-  }
-}
+const std::string DEFAULT_CACHE_CAPCITY = "1000000";
 
 Netspeak::search_config Netspeak::get_search_config(
     const Configuration& config) const {
   Netspeak::search_config sc = {
     // regex
     .regex_max_matches = boost::lexical_cast<size_t>(config.get(
-        Configuration::search_regex_max_matches, DEFAULT_REGEX_MAX_MATCHES)),
+        Configuration::SEARCH_REGEX_MAX_MATCHES, DEFAULT_REGEX_MAX_MATCHES)),
     .regex_max_time =
         std::chrono::milliseconds(boost::lexical_cast<size_t>(config.get(
-            Configuration::search_regex_max_time, DEFAULT_REGEX_MAX_TIME))),
+            Configuration::SEARCH_REGEX_MAX_TIME, DEFAULT_REGEX_MAX_TIME))),
   };
   return sc;
 }
 
-void Netspeak::initialize(const Configuration& readonly_config) {
-  Configuration config(readonly_config);
-  set_default_paths(config);
-
+void Netspeak::initialize(const Configuration& config) {
   search_config_ = get_search_config(config);
 
-  const auto pc_dir = config.get(Configuration::path_to_phrase_corpus);
-  const auto pd_dir = config.get(Configuration::path_to_phrase_dictionary);
-  const auto cache_cap = config.get(Configuration::cache_capacity);
+  const auto pc_dir =
+      config.get_required_path(Configuration::PATH_TO_PHRASE_CORPUS);
+  const auto pd_dir =
+      config.get_required_path(Configuration::PATH_TO_PHRASE_DICTIONARY);
+  const auto cache_cap =
+      config.get(Configuration::CACHE_CAPACITY, DEFAULT_CACHE_CAPCITY);
   result_cache_.reserve(std::stoul(cache_cap));
 
   auto dir = bfs::path(pd_dir);
@@ -82,10 +50,10 @@ void Netspeak::initialize(const Configuration& readonly_config) {
 
   // The hash dictionary is optional.
   hash_dictionary_ = std::make_shared<Dictionaries::Map>();
-  auto sdd = config.find(Configuration::path_to_hash_dictionary);
-  if (sdd != config.end() && bfs::exists(sdd->second)) {
+  auto sdd = config.get_optional_path(Configuration::PATH_TO_HASH_DICTIONARY);
+  if (sdd && bfs::exists(*sdd)) {
     const bfs::directory_iterator end;
-    for (bfs::directory_iterator it(sdd->second); it != end; ++it) {
+    for (bfs::directory_iterator it(*sdd); it != end; ++it) {
       util::log("Open hash dictionary in", *it);
       const auto dict = Dictionaries::read_from_file(*it);
       for (const auto& pair : dict) {
@@ -95,10 +63,10 @@ void Netspeak::initialize(const Configuration& readonly_config) {
   }
 
   // The regex vocabulary is optional.
-  sdd = config.find(Configuration::path_to_regex_vocabulary);
-  if (sdd != config.end() && bfs::exists(sdd->second)) {
+  sdd = config.get_optional_path(Configuration::PATH_TO_REGEX_VOCABULARY);
+  if (sdd && bfs::exists(*sdd)) {
     const bfs::directory_iterator end;
-    for (bfs::directory_iterator it(sdd->second); it != end; ++it) {
+    for (bfs::directory_iterator it(*sdd); it != end; ++it) {
       util::log("Open regex vocabulary in", *it);
       bfs::ifstream ifs(*it);
       util::check(ifs.is_open(), error_message::cannot_open, *it);

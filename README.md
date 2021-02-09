@@ -169,6 +169,88 @@ nested brackets are not allowed. As you can see in the examples above you can
 quote phrases to be handled as one entity is `[]` and `{}`.
 
 
+## Index configuration files
+
+Netspeak loads indexes using configuration files. These are small `.properties` files that contain information about the location and directory structure of the index, metadata (like name and language), and runtime parameters like the cache size.
+
+The following section will explain all supported keys.
+
+### Metadata
+
+The following keys hold metadata about the corpus used to create the current index.
+
+- `corpus.key = string` _(required)_
+
+  A unique key to identify the corpus. Two corpora with the same key are always assumed to be equal.
+
+- `corpus.name = string` _(required)_
+
+  The human-readable name of the corpus.
+
+- `corpus.language = string` _(required)_
+
+  The [ISO 639-1 code](https://en.wikipedia.org/wiki/ISO_639-1) of the language of the corpus.
+
+### Performance
+
+The following keys are parameters used to fine-tune performance.
+
+- `cache.capacity = size_t` _(optional)_
+
+  This sets the capacity of Netspeak's main cache: the norm query cache. This LFU cache stores the outputs of the query processor. It has a static capacity that limits the maximum number of items.
+
+  The default cache capacity of the current implementation is 1 million. At this capacity, an empty cache will use about 100MB and a full cache will use about 3GB of memory (depends on the cached queries). Other implementation may use different defaults.
+
+- `search.regex.max-matches = uint32` _(optional)_
+
+  The maximum number of regex matches. The current implementation replaces regex queries with a set of matching words (e.g. `route?` may be replaced with `[ router routed ]`). This parameter sets the maximum amount of words each regex query can be replaced with.
+
+  Choosing a large maximum can cause queries containing regexes to become very slow. This is only a maximum and the implementation may choose to use fewer words to (hopefully) stay fast.
+
+  You can set this to 0 to disable regex queries.
+
+  The default is implementation defined. The current implementation has a default of 100.
+
+- `search.regex.max-time = uint32` _(optional)_
+
+  The maximum amount of time in milliseconds Netspeak is allowed to search for regex matches. Choosing a generous duration will lead to more accurate search results but may degrade performance.
+
+  The default is implementation-defined but will generally around be a few milliseconds.
+
+### Paths
+
+The following keys are paths to locate the index.
+
+- `path.to.phrase-index = path` _(optional)_ <br>
+  `path.to.phrase-corpus = path` _(optional)_ <br>
+  `path.to.phrase-dictionary = path` _(optional)_ <br>
+  `path.to.postlist-index = path` _(optional)_ <br>
+  `path.to.hash-dictionary = path` _(optional)_ <br>
+  `path.to.regex-vocabulary = path` _(optional)_ <br>
+
+  Paths to the individual components of a Netspeak index.
+
+- `path.to.home = path` _(optional)_
+
+  This will set all unset `path.to.xxxx` values to `<path.to.home>/xxxx`.
+
+  If a Netspeak index follows the default index format (all indexes created by Netspeak do), then `path.to.home` can be used to set all index paths at once.
+
+  Note: "unset" means not present in this configuration file. Keys from the `extends` file are not considered.
+
+#### Note
+
+All paths (if not absolute) are relative to the directory the configuration file lives in.
+
+### Other
+
+- `extends = path` _(optional)_
+
+  The path of another configuration files.
+
+  All keys that are not present in the current configuration file will be retrieved from this one instead. This can be used to implement inheritance.
+
+
 ---
 
 ## Contributors

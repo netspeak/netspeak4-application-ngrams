@@ -52,9 +52,9 @@ service::UniqueMap::entry load_map_entry(const std::string& config_file) {
   Configuration config(config_file);
 
   service::Corpus corpus;
-  corpus.set_key(config.get(Configuration::corpus_key));
-  corpus.set_name(config.get(Configuration::corpus_name));
-  corpus.set_language(config.get(Configuration::corpus_language));
+  corpus.set_key(config.get_required(Configuration::CORPUS_KEY));
+  corpus.set_name(config.get_required(Configuration::CORPUS_NAME));
+  corpus.set_language(config.get_required(Configuration::CORPUS_LANGUAGE));
 
   auto netspeak = std::make_unique<Netspeak>();
   netspeak->initialize(config);

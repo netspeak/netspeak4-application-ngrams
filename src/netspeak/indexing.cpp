@@ -43,7 +43,7 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // -------------------------------------------------------------------------
 
   const bfs::path phrase_corpus_dir =
-      netspeak_dir / Configuration::default_phrase_corpus_dir_name;
+      netspeak_dir / Configuration::DEFAULT_PHRASE_CORPUS_DIR_NAME;
   util::check(bfs::create_directory(phrase_corpus_dir),
               error_message::cannot_create, phrase_corpus_dir);
 
@@ -56,7 +56,7 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // -------------------------------------------------------------------------
 
   const bfs::path phrase_dictionary_dir =
-      netspeak_dir / Configuration::default_phrase_dictionary_dir_name;
+      netspeak_dir / Configuration::DEFAULT_PHRASE_DICTIONARY_DIR_NAME;
   util::check(bfs::create_directories(phrase_dictionary_dir),
               error_message::cannot_create, phrase_dictionary_dir);
 
@@ -70,7 +70,7 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // -------------------------------------------------------------------------
 
   const bfs::path phrase_index_dir =
-      netspeak_dir / Configuration::default_phrase_index_dir_name;
+      netspeak_dir / Configuration::DEFAULT_PHRASE_INDEX_DIR_NAME;
   util::check(bfs::create_directories(phrase_index_dir),
               error_message::cannot_create, phrase_index_dir);
 
@@ -83,7 +83,7 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // -------------------------------------------------------------------------
 
   const bfs::path postlist_index_dir =
-      netspeak_dir / Configuration::default_postlist_index_dir_name;
+      netspeak_dir / Configuration::DEFAULT_POSTLIST_INDEX_DIR_NAME;
   util::check(bfs::create_directory(postlist_index_dir),
               error_message::cannot_create, postlist_index_dir);
 
@@ -96,17 +96,17 @@ void BuildNetspeak(const bfs::path& phrase_dir, const bfs::path& netspeak_dir) {
   // -------------------------------------------------------------------------
 
   const Configuration config = {
-    { Configuration::path_to_home, netspeak_dir.string() },
-    { Configuration::path_to_phrase_corpus, phrase_corpus_dir.string() },
-    { Configuration::path_to_phrase_dictionary,
+    { Configuration::PATH_TO_HOME, netspeak_dir.string() },
+    { Configuration::PATH_TO_PHRASE_CORPUS, phrase_corpus_dir.string() },
+    { Configuration::PATH_TO_PHRASE_DICTIONARY,
       phrase_dictionary_dir.string() },
-    { Configuration::path_to_phrase_index, phrase_index_dir.string() },
-    { Configuration::path_to_postlist_index, postlist_index_dir.string() },
-    { Configuration::cache_capacity, "1000" },
+    { Configuration::PATH_TO_PHRASE_INDEX, phrase_index_dir.string() },
+    { Configuration::PATH_TO_POSTLIST_INDEX, postlist_index_dir.string() },
+    { Configuration::CACHE_CAPACITY, "1000" },
   };
 
   const bfs::path regex_vocabulary_dir =
-      netspeak_dir / Configuration::default_regex_vocabulary_dir_name;
+      netspeak_dir / Configuration::DEFAULT_REGEX_VOCABULARY_DIR_NAME;
   util::check(bfs::create_directory(regex_vocabulary_dir),
               error_message::cannot_create, regex_vocabulary_dir);
 

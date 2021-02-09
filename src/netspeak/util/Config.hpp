@@ -6,6 +6,8 @@
 #include <ostream>
 #include <string>
 
+#include "boost/filesystem.hpp"
+
 
 namespace netspeak {
 namespace util {
@@ -19,14 +21,14 @@ namespace util {
 class Config {
 private:
   std::map<std::string, std::string> data_;
-  std::string file_name_;
+  boost::filesystem::path file_name_;
 
 public:
   typedef std::map<std::string, std::string>::value_type initializer_list_type;
   Config(std::initializer_list<initializer_list_type> list)
       : data_(list), file_name_() {}
   Config() : data_(), file_name_() {}
-  Config(const std::string& file_name);
+  Config(boost::filesystem::path file_name);
 
   std::map<std::string, std::string>::const_iterator begin() const {
     return data_.begin();
@@ -57,11 +59,8 @@ public:
    * This is mainly for better error messages as it gives the user a way to
    * identify a config.
    */
-  const std::string& file_name() const {
+  const boost::filesystem::path& file_name() const {
     return file_name_;
-  }
-  void set_file_name(const std::string& file_name) {
-    file_name_ = file_name;
   }
 
   /**

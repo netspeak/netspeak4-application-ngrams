@@ -1,43 +1,68 @@
 #ifndef NETSPEAK_CONFIGURATION_HPP
 #define NETSPEAK_CONFIGURATION_HPP
 
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "boost/filesystem.hpp"
+#include "boost/optional.hpp"
+
 #include "netspeak/util/Config.hpp"
 
 namespace netspeak {
 
-class Configuration : public util::Config {
-public:
-  Configuration() : util::Config() {}
-  Configuration(const std::string& file_name) : util::Config(file_name) {}
-  Configuration(std::initializer_list<util::Config::initializer_list_type> list)
-      : util::Config(list) {}
+class Configuration {
+private:
+  util::Config config_;
+  std::unique_ptr<Configuration> extends_;
+  boost::filesystem::path base_dir_;
+
+  void load_extends();
+  void desugar_home();
 
 public:
-  static const std::string path_to_home;
-  static const std::string path_to_phrase_index;
-  static const std::string path_to_phrase_corpus;
-  static const std::string path_to_phrase_dictionary;
-  static const std::string path_to_postlist_index;
-  static const std::string path_to_hash_dictionary;
-  static const std::string path_to_regex_vocabulary;
+  Configuration() : config_(), extends_(), base_dir_() {}
+  Configuration(boost::filesystem::path file_name);
+  Configuration(
+      std::initializer_list<util::Config::initializer_list_type> list);
 
-  static const std::string cache_capacity;
+  std::string get_required(const std::string& key) const;
+  boost::optional<std::string> get_optional(const std::string& key) const;
+  std::string get(const std::string& key,
+                  const std::string& defaultValue) const;
 
-  static const std::string corpus_key;
-  static const std::string corpus_name;
-  static const std::string corpus_language;
+  boost::filesystem::path get_required_path(const std::string& key) const;
+  boost::optional<boost::filesystem::path> get_optional_path(
+      const std::string& key) const;
+  boost::filesystem::path get_path(const std::string& key,
+                                   const std::string& defaultValue) const;
 
-  static const std::string search_regex_max_matches;
-  static const std::string search_regex_max_time;
+public:
+  static const std::string PATH_TO_HOME;
+  static const std::string PATH_TO_PHRASE_INDEX;
+  static const std::string PATH_TO_PHRASE_CORPUS;
+  static const std::string PATH_TO_PHRASE_DICTIONARY;
+  static const std::string PATH_TO_POSTLIST_INDEX;
+  static const std::string PATH_TO_HASH_DICTIONARY;
+  static const std::string PATH_TO_REGEX_VOCABULARY;
+  static const std::string EXTENDS;
 
-  // TODO: Should the default values really be here or should they rather be in
-  // Netspeak.hpp?
-  static const std::string default_phrase_index_dir_name;
-  static const std::string default_phrase_corpus_dir_name;
-  static const std::string default_phrase_dictionary_dir_name;
-  static const std::string default_postlist_index_dir_name;
-  static const std::string default_hash_dictionary_dir_name;
-  static const std::string default_regex_vocabulary_dir_name;
+  static const std::string CORPUS_KEY;
+  static const std::string CORPUS_NAME;
+  static const std::string CORPUS_LANGUAGE;
+
+  static const std::string CACHE_CAPACITY;
+
+  static const std::string SEARCH_REGEX_MAX_MATCHES;
+  static const std::string SEARCH_REGEX_MAX_TIME;
+
+  static const std::string DEFAULT_PHRASE_INDEX_DIR_NAME;
+  static const std::string DEFAULT_PHRASE_CORPUS_DIR_NAME;
+  static const std::string DEFAULT_PHRASE_DICTIONARY_DIR_NAME;
+  static const std::string DEFAULT_POSTLIST_INDEX_DIR_NAME;
+  static const std::string DEFAULT_HASH_DICTIONARY_DIR_NAME;
+  static const std::string DEFAULT_REGEX_VOCABULARY_DIR_NAME;
 };
 
 } // namespace netspeak
