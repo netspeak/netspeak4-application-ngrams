@@ -86,7 +86,12 @@ int ServeCommand::run(boost::program_options::variables_map variables) {
   builder.RegisterService(&service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on port " << port << "\n";
+
+  // For some reason, this flush is essential for the whole thing to work in
+  // docker. I have no idea why but after about 30h of trial and error, it
+  // finally worked and this is what made it work.
   std::cout.flush();
+
   server->Wait();
 
   return EXIT_SUCCESS;
