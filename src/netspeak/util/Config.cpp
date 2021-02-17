@@ -9,7 +9,8 @@ namespace netspeak {
 namespace util {
 
 
-Config::Config(boost::filesystem::path file_name) : data_(), file_name_(file_name) {
+Config::Config(boost::filesystem::path file_name)
+    : data_(), file_name_(file_name) {
   std::ifstream ifs(file_name.string());
   if (!ifs.good()) {
     throw tracable_runtime_error("Could not open " + file_name.string());
@@ -35,7 +36,8 @@ const std::string& Config::get(const std::string& key) const {
                                    "\" is missing.");
     } else {
       throw tracable_runtime_error("Incomplete config. \"" + key +
-                                   "\" is missing in \"" + file_name_.string() + "\".");
+                                   "\" is missing in \"" + file_name_.string() +
+                                   "\".");
     }
   }
 }

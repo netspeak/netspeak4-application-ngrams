@@ -98,7 +98,7 @@ public:
   template <typename T>
   void merge(T _begin, T _end) {
     for (; _begin != _end; _begin++) {
-      data_.insert(*_begin);
+      data_[_begin->first] = _begin->second;
     }
   }
 

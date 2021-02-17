@@ -42,6 +42,17 @@ PREFIX::DEFAULT_HASH_DICTIONARY_DIR_NAME("hash-dictionary");
 PREFIX::DEFAULT_REGEX_VOCABULARY_DIR_NAME("regex-vocabulary");
 
 
+const std::unordered_set<std::string> PATHS{
+  Configuration::PATH_TO_HOME,
+  Configuration::PATH_TO_PHRASE_INDEX,
+  Configuration::PATH_TO_PHRASE_CORPUS,
+  Configuration::PATH_TO_PHRASE_DICTIONARY,
+  Configuration::PATH_TO_POSTLIST_INDEX,
+  Configuration::PATH_TO_HASH_DICTIONARY,
+  Configuration::PATH_TO_REGEX_VOCABULARY,
+};
+
+
 // CONSTRUCTOR
 
 
@@ -85,14 +96,19 @@ void Configuration::desugar_home() {
   }
 }
 
+Configuration::Configuration(
+    std::initializer_list<util::Config::initializer_list_type> list)
+    : config_(list), extends_(), base_dir_() {
+  load_extends();
+  desugar_home();
+}
 Configuration::Configuration(bfs::path file_name)
     : config_(file_name), extends_(), base_dir_(file_name.parent_path()) {
   load_extends();
   desugar_home();
 }
-Configuration::Configuration(
-    std::initializer_list<util::Config::initializer_list_type> list)
-    : config_(list), extends_(), base_dir_() {
+Configuration::Configuration(const util::Config& config)
+    : config_(config), extends_(), base_dir_() {
   load_extends();
   desugar_home();
 }
@@ -152,6 +168,49 @@ boost::optional<bfs::path> Configuration::get_optional_path(
 bfs::path Configuration::get_path(const std::string& key,
                                   const std::string& defaultValue) const {
   return relative_to(get(key, defaultValue), base_dir_);
+}
+
+
+std::unordered_set<std::string> Configuration::keys() const {
+  std::unordered_set<std::string> result;
+  if (extends_) {
+    result = extends_->keys();
+  }
+
+  for (auto& foo : config_) {
+    result.insert(foo.first);
+  }
+
+  result.erase(EXTENDS);
+
+  return result;
+}
+
+
+util::Config Configuration::full_config() const {
+  util::Config config;
+
+  for (auto& key : keys()) {
+    if (PATHS.find(key) == PATHS.end()) {
+      // not a path
+      config[key] = get_required(key);
+    } else {
+      // path
+      config[key] = get_required_path(key).string();
+    }
+  }
+
+  return config;
+}
+
+
+Configuration Configuration::extend(const Configuration& base) const {
+  auto config = base.full_config();
+
+  auto this_config = full_config();
+  config.merge(this_config.begin(), this_config.end());
+
+  return Configuration(config);
 }
 
 } // namespace netspeak

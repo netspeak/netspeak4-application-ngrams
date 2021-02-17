@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "boost/filesystem.hpp"
@@ -23,9 +25,10 @@ private:
 
 public:
   Configuration() : config_(), extends_(), base_dir_() {}
-  Configuration(boost::filesystem::path file_name);
   Configuration(
       std::initializer_list<util::Config::initializer_list_type> list);
+  explicit Configuration(boost::filesystem::path file_name);
+  explicit Configuration(const util::Config& config);
 
   std::string get_required(const std::string& key) const;
   boost::optional<std::string> get_optional(const std::string& key) const;
@@ -37,6 +40,12 @@ public:
       const std::string& key) const;
   boost::filesystem::path get_path(const std::string& key,
                                    const std::string& defaultValue) const;
+
+  std::unordered_set<std::string> keys() const;
+
+  util::Config full_config() const;
+
+  Configuration extend(const Configuration& base) const;
 
 public:
   static const std::string PATH_TO_HOME;
