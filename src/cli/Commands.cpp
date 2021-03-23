@@ -99,6 +99,12 @@ std::string get_option_identifier(const bpo::option_description& option) {
     id.push_back(' ');
     id.append(arg);
   }
+
+  auto semantic = option.semantic();
+  if (semantic->is_required()) {
+    id.append(" (req)");
+  }
+
   return id;
 }
 void print_command_help(Command& command) {
@@ -107,21 +113,30 @@ void print_command_help(Command& command) {
 
   // print options
   auto option_desc = get_option_desc(command);
-  size_t max_name_len = 0;
-  for (const auto& option_ptr : option_desc.options()) {
-    if (option_ptr) {
-      auto name = get_option_identifier(*option_ptr);
-      max_name_len = std::max(max_name_len, name.size());
+
+  std::cout << "\n";
+
+  if (option_desc.options().empty()) {
+    std::cout << "No arguments.\n";
+  } else {
+    std::cout << "Arguments:\n";
+
+    size_t max_name_len = 0;
+    for (const auto& option_ptr : option_desc.options()) {
+      if (option_ptr) {
+        auto name = get_option_identifier(*option_ptr);
+        max_name_len = std::max(max_name_len, name.size());
+      }
     }
-  }
-  for (const auto& option_ptr : option_desc.options()) {
-    if (option_ptr) {
-      std::cout << "\n";
-      auto name = get_option_identifier(*option_ptr);
-      auto desc = option_ptr->description();
-      auto padding = max_name_len - name.size();
-      std::cout << "  " << name << std::string(padding, ' ') << "  ";
-      print_text(std::cout, desc, 2 + max_name_len + 2);
+    for (const auto& option_ptr : option_desc.options()) {
+      if (option_ptr) {
+        std::cout << "\n";
+        auto name = get_option_identifier(*option_ptr);
+        auto desc = option_ptr->description();
+        auto padding = max_name_len - name.size();
+        std::cout << "  " << name << std::string(padding, ' ') << "  ";
+        print_text(std::cout, desc, 2 + max_name_len + 2);
+      }
     }
   }
 }
