@@ -42,5 +42,15 @@ cd ..
 
 
 # Configure CMake
+
+# Release build
+mkdir -p release
+cd release
+../dependencies/cmake-3.17.0/bin/cmake -DCMAKE_BUILD_TYPE=Release ../..
 cd ..
-./build/dependencies/cmake-3.17.0/bin/cmake .
+
+# Debug build
+mkdir -p debug
+cd debug
+../dependencies/cmake-3.17.0/bin/cmake -DCMAKE_BUILD_TYPE=Debug ../..
+cd ..

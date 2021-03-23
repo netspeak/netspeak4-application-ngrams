@@ -6,6 +6,8 @@ antlr4/
 !src/antlr4/
 build/env/cmake-*/
 build/env/grpc/
+build/debug/
+build/release/
 
 conf/generated-js
 conf/generated-java

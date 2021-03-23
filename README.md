@@ -31,25 +31,26 @@ Netspeak 4 is a Linux project. To compile and run it on your system, install WSL
 
 ### Building
 
-To build this project, first generate the `Makefile` using CMake. This project gets its own local CMake version, so you have to run the following command once:
+This project has a `debug` build and a `release` build. To make/update either one run:
 
 ```bash
-bash build/cmake.sh
+# debug build
+bash build/make-debug.sh
+# release build
+bash build/make-release.sh
 ```
 
-Use the `make` command to compile the `netspeak4` and `netspeak4-test` executables.
-
-```bash
-make
-```
+The Netspeak executable can then be found at `build/{debug,release}/netspeak4`.
 
 ### Running tests
 
-First build this project and then run the `./build/run-tests.sh` script:
+Run the following command:
 
 ```bash
-bash ./build/run-tests.sh
+bash build/run-tests.sh
 ```
+
+This will use the `debug` build to run tests.
 
 (It's recommended to do it like this because otherwise the test application might have problems locating its test resources.)
 
