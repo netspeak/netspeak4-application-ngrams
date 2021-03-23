@@ -17,7 +17,14 @@ namespace bpo = boost::program_options;
 namespace bfs = boost::filesystem;
 
 std::string RegexCommand::desc() {
-  return "Load an interactive shell for a regex word list.";
+  return "Load an interactive shell for a regex word list.\n"
+         "\n"
+         "This is intended as an easy way to test the regex index. The regex "
+         "index is a small in-memory index used to process Netspeak regex "
+         "words.\n"
+         "\n"
+         "Example:\n"
+         "    netspeak4 regex -i \"/path/to/index/regex-list/regex-vocab\"";
 };
 
 void RegexCommand::add_options(

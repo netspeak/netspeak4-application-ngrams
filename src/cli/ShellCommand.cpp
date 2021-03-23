@@ -26,7 +26,7 @@ namespace bfs = boost::filesystem;
 using namespace netspeak;
 
 std::string ShellCommand::desc() {
-  return "Load an interactive shell from a Netspeak index.\n"
+  return "Load an interactive shell for a Netspeak index or server.\n"
          "\n"
          "This supports multiple input methods. You load an index "
          "configuration file using `--config`, load an index directly using "

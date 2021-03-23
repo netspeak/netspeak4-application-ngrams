@@ -107,7 +107,13 @@ std::string get_option_identifier(const bpo::option_description& option) {
 
   return id;
 }
-void print_command_help(Command& command) {
+void print_command_help(Command& command, bool with_name) {
+  if (with_name) {
+    std::cout << FG_GREEN << "netspeak4 " << command.name() << " ..." << RESET
+              << "\n"
+              << "\n";
+  }
+
   // print description
   print_text(std::cout, command.desc());
 
@@ -146,8 +152,8 @@ void print_command_help(Command& command) {
  *
  * @param commands
  */
-void print_commands_help(
-    const std::vector<std::unique_ptr<Command>>& commands) {
+void print_commands_help(const std::vector<std::unique_ptr<Command>>& commands,
+                         bool full) {
   size_t max_name_len = 0;
   for (const auto& command : commands) {
     max_name_len = std::max(max_name_len, command->name().size());
@@ -170,13 +176,12 @@ void print_commands_help(
             << "Run `netspeak4 <command> --help` to view command-specific "
                "usage information.\n";
 
-  for (auto& command : commands) {
-    std::cout << "\n";
-    std::cout << FG_BRIGHT_BLACK << std::string(40, '-') << RESET << "\n";
-    std::cout << FG_GREEN << "netspeak4 " << command->name() << " ..." << RESET
-              << "\n"
-              << "\n";
-    print_command_help(*command);
+  if (full) {
+    for (auto& command : commands) {
+      std::cout << "\n";
+      std::cout << FG_BRIGHT_BLACK << std::string(40, '-') << RESET << "\n";
+      print_command_help(*command, true);
+    }
   }
 }
 
@@ -184,12 +189,12 @@ void print_error(const std::vector<std::unique_ptr<Command>>& commands,
                  const std::string& message) {
   std::cerr << "Error: " << message << "\n"
             << "\n";
-  print_commands_help(commands);
+  print_commands_help(commands, false);
 }
 void print_error(Command& command, const std::string& message) {
   std::cerr << "Error: " << message << "\n"
             << "\n";
-  print_command_help(command);
+  print_command_help(command, true);
 }
 
 int run_command(Command& command, const std::vector<std::string>& opts) {
@@ -245,7 +250,7 @@ int Commands::run(int argc, char* argv[]) {
 
     if (variables.count("command") == 0) {
       if (variables.count("help") != 0) {
-        print_commands_help(commands_);
+        print_commands_help(commands_, true);
         return EXIT_SUCCESS;
       } else {
         throw std::runtime_error("Missing command.");
@@ -258,7 +263,7 @@ int Commands::run(int argc, char* argv[]) {
       if (command.name() == command_name) {
         // might print help
         if (variables.count("help") != 0) {
-          print_command_help(command);
+          print_command_help(command, false);
           return EXIT_SUCCESS;
         }
 
