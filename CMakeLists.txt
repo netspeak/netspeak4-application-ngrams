@@ -34,6 +34,7 @@ set(NETSPEAK_SOURCES
 "src/cli/BuildCommand"
 "src/cli/Command"
 "src/cli/Commands"
+"src/cli/logging"
 "src/cli/ProxyCommand"
 "src/cli/RegexCommand"
 "src/cli/ServeCommand"
@@ -107,6 +108,8 @@ set(NETSPEAK_SOURCES
 "src/netspeak/service/LoadBalanceProxy"
 "src/netspeak/service/NetspeakService.grpc.pb"
 "src/netspeak/service/NetspeakService.pb"
+"src/netspeak/service/RequestLogger"
+"src/netspeak/service/tracking"
 "src/netspeak/service/UniqueMap"
 
 "src/netspeak/util/ChainCutter"
@@ -117,10 +120,12 @@ set(NETSPEAK_SOURCES
 "src/netspeak/util/exception"
 "src/netspeak/util/FileDescriptor"
 "src/netspeak/util/glob"
+"src/netspeak/util/JsonWriter"
 "src/netspeak/util/LfuCache"
 "src/netspeak/util/logging"
 "src/netspeak/util/Math"
 "src/netspeak/util/memory"
+"src/netspeak/util/Mut"
 "src/netspeak/util/PropertiesFormat"
 "src/netspeak/util/service"
 "src/netspeak/util/systemio"
@@ -152,6 +157,7 @@ pthread
 -l:libcmph.a
 
 # boost
+-l:libboost_date_time.a
 -l:libboost_filesystem.a
 -l:libboost_system.a
 -l:libboost_program_options.a

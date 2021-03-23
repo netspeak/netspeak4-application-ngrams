@@ -65,7 +65,9 @@ We use `clang-format` to format our code. If your IDE doesn't support this, you 
 
 ## Using the Netspeak4 CLI
 
-After compiling, you can run `./netspeak4` which will start a small command line interface for Netspeak.
+After compiling, you can run the Netspeak executable which will start a small command line interface for Netspeak.
+
+The Netspeak CLI aims to be self-documenting, so this section will be brief. To view the full CLI documentation run `netspeak4 --help`. This will list all commands and how to use them.
 
 #### `build`
 
@@ -86,13 +88,18 @@ __If it's too low, the build process will fail.__
 For small indexes a limit for 1024 is sufficient but for larger data sets (>10GB input), be sure it's at least 2048. You can set the limit using the `ulimit` command. <br>
 WSL users: This limit will be reset with every restart of your Linux subsystem.
 
-#### `shell`
 
-After creating an index, you can use `./netspeak4 shell -i "/my-index"` to start up a small interactive shell. The shell will take any Netspeak query and display a textual representation of the result set.
+## Logging
 
-#### `regex`
+The `serve` and `proxy` sub-command both support logging. This means that they will log every request they receive and every error produced.
 
-After creating an index, you can use `./netspeak4 regex -i "/my-index/regex-list/regex-vocab"` to start up a small interactive shell that will only return the results of the regex index. The shell will take any regex query and display the results.
+### Tracking ID
+
+Tracking is implemented via optional client metadata. Clients can provide a number to track their session to help improve the service.
+
+The tracking number has to be provided as client metadata using the key `netspeak-tracking-id`. The value of that key has to be a 128bit hexadecimal number matching the following regex: `^[0-9A-Fa-f]{32}$`.
+
+There are no requirements for the actual number but it is recommended for them to be randomly generated.
 
 
 ## Protobuf

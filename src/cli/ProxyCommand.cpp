@@ -10,6 +10,7 @@
 #include <grpcpp/server_builder.h>
 #include <grpcpp/server_context.h>
 
+#include "cli/logging.hpp"
 #include "cli/util.hpp"
 
 #include "netspeak/Netspeak.hpp"
@@ -22,14 +23,17 @@ namespace cli {
 namespace bpo = boost::program_options;
 using namespace netspeak;
 
+#define PORT_KEY "port"
+#define SOURCE_KEY "source"
+
 std::string ProxyCommand::desc() {
   return "A proxy to both combine and balance multiple Netspeak gRPC services.";
 };
 
 void ProxyCommand::add_options(bpo::options_description_easy_init& easy_init) {
-  easy_init("port,p", bpo::value<uint16_t>()->required(),
+  easy_init(PORT_KEY ",p", bpo::value<uint16_t>()->required(),
             "The port on which the server will listen.");
-  easy_init("source,s",
+  easy_init(SOURCE_KEY ",s",
             bpo::value<std::vector<std::string>>()->required()->multitoken(),
             "The addresses of Netspeak gRPC servers.\n"
             "\n"
@@ -87,17 +91,24 @@ std::vector<std::pair<service::Corpus, StubPtr>> scanSources(
   return list;
 }
 
-int ProxyCommand::run(bpo::variables_map variables) {
-  const auto& sources = variables["source"].as<std::vector<std::string>>();
+std::unique_ptr<service::NetspeakService::Service> build_proxy_service(
+    boost::program_options::variables_map& variables) {
+  const auto& sources = variables[SOURCE_KEY].as<std::vector<std::string>>();
 
   const auto list = scanSources(sources);
-  service::LoadBalanceProxy service(list);
+
+  return std::make_unique<service::LoadBalanceProxy>(list);
+}
+
+int ProxyCommand::run(bpo::variables_map variables) {
+  auto port = variables[PORT_KEY].as<uint16_t>();
+  auto service = build_proxy_service(variables);
+  service = add_logging(variables, std::move(service));
 
   grpc::ServerBuilder builder;
-  auto port = variables["port"].as<uint16_t>();
-  builder.AddListeningPort("0.0.0.0:" + std::to_string(port),
+  builder.AddListeningPort("[::]:" + std::to_string(port),
                            grpc::InsecureServerCredentials());
-  builder.RegisterService(&service);
+  builder.RegisterService(&*service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on port " << port << "\n";
   server->Wait();

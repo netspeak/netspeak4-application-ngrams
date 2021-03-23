@@ -12,6 +12,7 @@
 #include "boost/filesystem.hpp"
 #include "boost/optional.hpp"
 
+#include "cli/logging.hpp"
 #include "cli/util.hpp"
 
 #include "netspeak/Netspeak.hpp"
@@ -28,13 +29,17 @@ namespace bpo = boost::program_options;
 namespace bfs = boost::filesystem;
 using namespace netspeak;
 
+#define CONFIG_KEY "config"
+#define PORT_KEY "port"
+#define OVERRIDE_KEY "override"
+
 std::string ServeCommand::desc() {
   return "Create a new gRPC server for a Netspeak index.";
 };
 
 void ServeCommand::add_options(
     boost::program_options::options_description_easy_init& easy_init) {
-  easy_init("config,c",
+  easy_init(CONFIG_KEY ",c",
             bpo::value<std::vector<std::string>>()->required()->multitoken(),
             "The configuration file(s) of the index(es).\n"
             "\n"
@@ -45,10 +50,10 @@ void ServeCommand::add_options(
             "    netspeak4 serve -c /*.properties\n"
             "\n"
             "Note that all indexes have to have unique coprus keys.");
-  easy_init("port,p", bpo::value<uint16_t>()->required(),
+  easy_init(PORT_KEY ",p", bpo::value<uint16_t>()->required(),
             "The port on which the server will listen.");
   easy_init(
-      "override,r", bpo::value<std::vector<std::string>>()->multitoken(),
+      OVERRIDE_KEY ",r", bpo::value<std::vector<std::string>>()->multitoken(),
       "A key-value pair that will override a properties in the given "
       "configuration file(s). You can specify any number of overrides\n"
       "\n"
@@ -62,6 +67,7 @@ void ServeCommand::add_options(
       "virtual file that contains all overrides and extends the given file.\n"
       "\n"
       "The only key that cannot be overriden is `extends`.");
+  add_logging_options(easy_init);
 }
 
 boost::optional<Configuration> parse_overrides(
@@ -101,7 +107,7 @@ boost::optional<Configuration> parse_overrides(
 }
 Configuration load_config(const std::string& config_file,
                           const boost::optional<Configuration>& override) {
-  std::cout << "Loading config " << config_file << "\n";
+  std::cout << "Loading config " << config_file << std::endl;
   Configuration config(config_file);
   if (override) {
     config = override->extend(config);
@@ -115,10 +121,12 @@ service::UniqueMap::entry load_map_entry(const Configuration& config) {
   corpus.set_name(config.get_required(Configuration::CORPUS_NAME));
   corpus.set_language(config.get_required(Configuration::CORPUS_LANGUAGE));
 
+  std::cout << "Loading index " << corpus << std::endl;
+
   auto netspeak = std::make_unique<Netspeak>();
   netspeak->initialize(config);
 
-  std::cout << "Loaded index " << corpus << "\n";
+  std::cout << "Loaded index " << corpus << std::endl;
 
   return service::UniqueMap::entry{
     .instance = std::move(netspeak),
@@ -126,14 +134,14 @@ service::UniqueMap::entry load_map_entry(const Configuration& config) {
   };
 }
 
-
-int ServeCommand::run(boost::program_options::variables_map variables) {
-  const auto& patterns = variables["config"].as<std::vector<std::string>>();
+std::unique_ptr<service::NetspeakService::Service> build_service(
+    boost::program_options::variables_map& variables) {
+  const auto& patterns = variables[CONFIG_KEY].as<std::vector<std::string>>();
   const auto overrides =
-      variables.count("override") == 0
+      variables.count(OVERRIDE_KEY) == 0
           ? boost::none
           : parse_overrides(
-                variables["override"].as<std::vector<std::string>>());
+                variables[OVERRIDE_KEY].as<std::vector<std::string>>());
 
   auto entries = std::make_unique<std::vector<service::UniqueMap::entry>>();
   for (const auto& pattern : patterns) {
@@ -143,15 +151,21 @@ int ServeCommand::run(boost::program_options::variables_map variables) {
       entries->push_back(load_map_entry(load_config(path, overrides)));
     }
   }
-  service::UniqueMap service(std::move(entries));
+
+  return std::make_unique<service::UniqueMap>(std::move(entries));
+}
+
+int ServeCommand::run(boost::program_options::variables_map variables) {
+  auto port = variables[PORT_KEY].as<uint16_t>();
+  auto service = build_service(variables);
+  service = add_logging(variables, std::move(service));
 
   grpc::ServerBuilder builder;
-  auto port = variables["port"].as<uint16_t>();
   builder.AddListeningPort("[::]:" + std::to_string(port),
                            grpc::InsecureServerCredentials());
-  builder.RegisterService(&service);
+  builder.RegisterService(&*service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  std::cout << "Server listening on port " << port << "\n";
+  std::cout << "Server listening on port " << port << std::endl;
 
   // For some reason, this flush is essential for the whole thing to work in
   // docker. I have no idea why but after about 30h of trial and error, it
