@@ -22,6 +22,45 @@ netspeak::service::CorporaResponse getCorpora(
     netspeak::service::NetspeakService::Stub& stub,
     const std::string& stub_address = "");
 
+
+extern const std::string RESET;
+
+extern const std::string FG_BLACK;
+extern const std::string FG_RED;
+extern const std::string FG_GREEN;
+extern const std::string FG_YELLOW;
+extern const std::string FG_BLUE;
+extern const std::string FG_MAGENTA;
+extern const std::string FG_CYAN;
+extern const std::string FG_WHITE;
+
+extern const std::string FG_BRIGHT_BLACK;
+extern const std::string FG_BRIGHT_RED;
+extern const std::string FG_BRIGHT_GREEN;
+extern const std::string FG_BRIGHT_YELLOW;
+extern const std::string FG_BRIGHT_BLUE;
+extern const std::string FG_BRIGHT_MAGENTA;
+extern const std::string FG_BRIGHT_CYAN;
+extern const std::string FG_BRIGHT_WHITE;
+
+extern const std::string BG_BLACK;
+extern const std::string BG_RED;
+extern const std::string BG_GREEN;
+extern const std::string BG_YELLOW;
+extern const std::string BG_BLUE;
+extern const std::string BG_MAGENTA;
+extern const std::string BG_CYAN;
+extern const std::string BG_WHITE;
+
+extern const std::string BG_BRIGHT_BLACK;
+extern const std::string BG_BRIGHT_RED;
+extern const std::string BG_BRIGHT_GREEN;
+extern const std::string BG_BRIGHT_YELLOW;
+extern const std::string BG_BRIGHT_BLUE;
+extern const std::string BG_BRIGHT_MAGENTA;
+extern const std::string BG_BRIGHT_CYAN;
+extern const std::string BG_BRIGHT_WHITE;
+
 } // namespace cli
 
 #endif

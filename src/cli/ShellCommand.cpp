@@ -26,26 +26,39 @@ namespace bfs = boost::filesystem;
 using namespace netspeak;
 
 std::string ShellCommand::desc() {
-  return "Load an interactive shell from a Netspeak index.";
+  return "Load an interactive shell from a Netspeak index.\n"
+         "\n"
+         "This supports multiple input methods. You load an index "
+         "configuration file using `--config`, load an index directly using "
+         "`--in`, or connect to a Netspeak server using `--source`.\n"
+         "\n"
+         "You have to provide exactly one of `--config`, `--in`, or "
+         "`--source`. Providing none or multiple of this arguments is "
+         "invalid.\n"
+         "\n"
+         "Examples:\n"
+         "\n"
+         "Loading a local Netspeak index (without configuration):\n"
+         "    netspeak4 shell --in \"/path/to/index\"\n"
+         "\n"
+         "Loading an index configuration file:\n"
+         "    netspeak4 shell --config \"/path/to/config.properties\"\n"
+         "\n"
+         "Connect to a Netspeak server:\n"
+         "    netspeak4 shell --source web-en.api.netspeak.org:7883\n"
+         "    netspeak4 shell --source localhost:1234\n"
+         "    netspeak4 shell --source localhost:1234 --corpus web-en\n";
 };
 
 void ShellCommand::add_options(
     boost::program_options::options_description_easy_init& easy_init) {
-  easy_init(
-      "in,i", bpo::value<std::string>(),
-      "Directory containing a Netspeak index.\n"
-      "\n"
-      "You have to provide exactly one of `--config`, `--in`, or `--source`.");
+  easy_init("in,i", bpo::value<std::string>(),
+            "Directory containing a Netspeak index.");
   easy_init(
       "config,c", bpo::value<std::string>(),
-      "A .properties file describing the configuration of a Netspeak index.\n"
-      "\n"
-      "You have to provide exactly one of `--config`, `--in`, or `--source`.");
-  easy_init(
-      "source,s", bpo::value<std::string>(),
-      "The address of a Netspeak gRPC server.\n"
-      "\n"
-      "You have to provide exactly one of `--config`, `--in`, or `--source`.");
+      "A .properties file describing the configuration of a Netspeak index.");
+  easy_init("source,s", bpo::value<std::string>(),
+            "The address of a Netspeak gRPC server.");
   easy_init("corpus", bpo::value<std::string>(),
             "The corpus key used for all requests to a Netspeak server.\n"
             "\n"
@@ -68,7 +81,7 @@ void RunShell(Searcher& searcher) {
 
   while (true) {
     std::string query;
-    std::cout << "\n\033[90m>>>\033[0m ";
+    std::cout << "\n" << FG_BRIGHT_BLACK << ">>>" << RESET << " ";
     std::getline(std::cin, query);
     if (query == "q") {
       std::cout << "Shutting down. This might take a while." << std::endl;
@@ -92,7 +105,7 @@ void RunShell(Searcher& searcher) {
       const auto& result = response.result();
 
       // print some meta data about the response
-      std::cout << "\033[90m";
+      std::cout << FG_BRIGHT_BLACK;
       std::cout << result.phrases().size()
                 << " phrase(s) (limit=" << max_phrases_request << ") took "
                 << std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -107,7 +120,7 @@ void RunShell(Searcher& searcher) {
         }
         std::cout << ")";
       }
-      std::cout << "\033[0m" << std::endl;
+      std::cout << RESET << std::endl;
       std::cout << std::endl;
 
       // print all retrieved phrases
@@ -133,12 +146,12 @@ void RunShell(Searcher& searcher) {
             case service::Phrase::Word::WORD_FOR_STAR:
             case service::Phrase::Word::WORD_FOR_PLUS:
             case service::Phrase::Word::WORD_FOR_REGEX:
-              std::cout << "\033[31m";
+              std::cout << FG_RED;
               break;
             case service::Phrase::Word::WORD_IN_DICTSET:
             case service::Phrase::Word::WORD_IN_OPTIONSET:
             case service::Phrase::Word::WORD_IN_ORDERSET:
-              std::cout << "\033[34m";
+              std::cout << FG_BLUE;
               break;
             default:
               break;
@@ -148,7 +161,7 @@ void RunShell(Searcher& searcher) {
           std::cout << word.text();
 
           // reset colors
-          std::cout << "\033[0m";
+          std::cout << RESET;
         }
         std::cout << std::endl;
       }

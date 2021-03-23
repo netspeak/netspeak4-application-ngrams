@@ -6,6 +6,8 @@
 
 #include "boost/program_options.hpp"
 
+#include "cli/util.hpp"
+
 namespace cli {
 
 namespace bpo = boost::program_options;
@@ -81,6 +83,49 @@ std::string get_first_line(const std::string& text) {
   }
 }
 
+bpo::options_description get_option_desc(Command& command) {
+  bpo::options_description desc(command.desc());
+
+  auto easy_init = desc.add_options();
+  command.add_options(easy_init);
+
+  return desc;
+}
+
+std::string get_option_identifier(const bpo::option_description& option) {
+  std::string id = option.format_name();
+  auto arg = option.format_parameter();
+  if (!arg.empty()) {
+    id.push_back(' ');
+    id.append(arg);
+  }
+  return id;
+}
+void print_command_help(Command& command) {
+  // print description
+  print_text(std::cout, command.desc());
+
+  // print options
+  auto option_desc = get_option_desc(command);
+  size_t max_name_len = 0;
+  for (const auto& option_ptr : option_desc.options()) {
+    if (option_ptr) {
+      auto name = get_option_identifier(*option_ptr);
+      max_name_len = std::max(max_name_len, name.size());
+    }
+  }
+  for (const auto& option_ptr : option_desc.options()) {
+    if (option_ptr) {
+      std::cout << "\n";
+      auto name = get_option_identifier(*option_ptr);
+      auto desc = option_ptr->description();
+      auto padding = max_name_len - name.size();
+      std::cout << "  " << name << std::string(padding, ' ') << "  ";
+      print_text(std::cout, desc, 2 + max_name_len + 2);
+    }
+  }
+}
+
 /**
  * @brief Print a short help message that lists all available commands.
  *
@@ -107,53 +152,16 @@ void print_commands_help(
   }
 
   std::cout << "\n"
-            << "Run \"netspeak4 <command> --help\" to get command-specific "
+            << "Run `netspeak4 <command> --help` to view command-specific "
                "usage information.\n";
-}
 
-bpo::options_description get_option_desc(Command& command) {
-  bpo::options_description desc(command.desc());
-
-  auto easy_init = desc.add_options();
-  command.add_options(easy_init);
-
-  return desc;
-}
-
-std::string get_option_identifier(const bpo::option_description& option) {
-  std::string id = option.format_name();
-  auto arg = option.format_parameter();
-  if (!arg.empty()) {
-    id.push_back(' ');
-    id.append(arg);
-  }
-  return id;
-}
-void print_command_help(Command& command) {
-  std::cout << "General usage of \"netspeak4 " << command.name() << " ...\"\n"
-            << "\n";
-
-  // print description
-  print_text(std::cout, command.desc());
-
-  // print options
-  auto option_desc = get_option_desc(command);
-  size_t max_name_len = 0;
-  for (const auto& option_ptr : option_desc.options()) {
-    if (option_ptr) {
-      auto name = get_option_identifier(*option_ptr);
-      max_name_len = std::max(max_name_len, name.size());
-    }
-  }
-  for (const auto& option_ptr : option_desc.options()) {
-    if (option_ptr) {
-      std::cout << "\n";
-      auto name = get_option_identifier(*option_ptr);
-      auto desc = option_ptr->description();
-      auto padding = max_name_len - name.size();
-      std::cout << "  " << name << std::string(padding, ' ') << "  ";
-      print_text(std::cout, desc, 2 + max_name_len + 2);
-    }
+  for (auto& command : commands) {
+    std::cout << "\n";
+    std::cout << FG_BRIGHT_BLACK << std::string(40, '-') << RESET << "\n";
+    std::cout << FG_GREEN << "netspeak4 " << command->name() << " ..." << RESET
+              << "\n"
+              << "\n";
+    print_command_help(*command);
   }
 }
 
