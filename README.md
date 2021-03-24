@@ -9,6 +9,14 @@ It contains methods to create indexes and make queries on Netspeak indexes. The 
 
 ## Getting started
 
+### Docker
+
+If you just want to run Netspeak without having to setup anything, then our Docker image will help you.
+
+```bash
+docker run webis/netspeak:4.1.1 netspeak4 --help
+```
+
 ### Installing dependencies
 
 Before you can compile and run anything, you have to install the dependencies. To do this, simply run:
