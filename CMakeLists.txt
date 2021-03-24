@@ -39,6 +39,7 @@ set(NETSPEAK_SOURCES
 "src/cli/RegexCommand"
 "src/cli/ServeCommand"
 "src/cli/ShellCommand"
+"src/cli/StressCommand"
 "src/cli/util"
 
 "src/netspeak/Configuration"
