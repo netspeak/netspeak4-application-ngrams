@@ -201,7 +201,9 @@ void Netspeak::search(const service::SearchRequest& request,
     auto response_result = response.mutable_result();
     // add unknown words
     for (const auto& unknown : phrase_result->unknown_words()) {
-      response_result->add_unknown_words(unknown);
+      if (!phrase_corpus_.contains(unknown)) {
+        response_result->add_unknown_words(unknown);
+      }
     }
     // add phrases
     for (const auto& phrase : phrase_result->phrases()) {
@@ -478,8 +480,9 @@ std::shared_ptr<const RawPhraseResult> Netspeak::process_non_wildcard_query_(
     // reported
     // TODO: Use the phrase corpus for that
     for (const auto& unit : query.units()) {
-      if (!phrase_dictionary_->Get(*unit.text(), freq_id_pair)) {
-        result->unknown_words().push_back(*unit.text());
+      const auto& text = *unit.text();
+      if (!phrase_corpus_.contains(text)) {
+        result->unknown_words().push_back(text);
       }
     }
   }

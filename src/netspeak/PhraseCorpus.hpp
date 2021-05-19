@@ -55,6 +55,9 @@ public:
    */
   size_t count_vocabulary() const;
 
+  bool contains(const std::string& word) const;
+  bool contains(const WordId& id) const;
+
   std::vector<Phrase> read_phrases(
       const std::vector<Phrase::Id>& phrase_ids) const;
 
@@ -68,8 +71,17 @@ private:
 
   /**
    * @brief This maps the id of a word to its string value.
+   *
+   * The string values in this map are simply references to the string values in
+   * `sorted_words`. This means that this map will consume exactly _8 *
+   * NumberOfWords_ many bytes.
    */
-  util::IdMap<const std::string> id_to_word_map;
+  util::IdMap<const std::string&> id_to_word_map;
+
+  /**
+   * @brief A sorted list of words mapped to their ids.
+   */
+  std::vector<std::pair<std::string, WordId>> sorted_words;
 
   /**
    * @brief A map from the length of a phrase to the file descriptor of the

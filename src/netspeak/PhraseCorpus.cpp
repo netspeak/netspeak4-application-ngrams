@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#include <algorithm>
 #include <string>
 #include <utility>
 
@@ -64,11 +65,28 @@ Phrase::Count::Local PhraseCorpus::count_phrases(
 }
 
 size_t PhraseCorpus::count_vocabulary() const {
-  return id_to_word_map.size();
+  return sorted_words.size();
 }
 
 bool PhraseCorpus::is_open() const {
-  return !id_to_word_map.empty();
+  return !sorted_words.empty();
+}
+
+bool PhraseCorpus::contains(const std::string& word) const {
+  // see the following for the implementation:
+  // https://en.cppreference.com/w/cpp/algorithm/binary_search#Possible_implementation
+
+  const auto first = sorted_words.begin();
+  const auto last = sorted_words.end();
+
+  auto it = std::lower_bound(first, last, word,
+                             [](const std::pair<std::string, WordId>& a,
+                                const std::string& b) { return a.first < b; });
+
+  return !(it == last) && !(word < it->first);
+}
+bool PhraseCorpus::contains(const WordId& id) const {
+  return id_to_word_map.get(id) != boost::none;
 }
 
 void PhraseCorpus::open(const bfs::path& phrase_dir) {
@@ -161,9 +179,19 @@ void PhraseCorpus::init_vocabulary_(const bfs::path& vocab_file) {
   std::string word;
   WordId word_id;
   while (ifs >> word >> word_id) {
-    id_to_word_map.set(word_id, word);
+    sorted_words.emplace_back(word, word_id);
   }
 
+  std::sort(sorted_words.begin(), sorted_words.end(),
+            [](const std::pair<std::string, WordId>& a,
+               const std::pair<std::string, WordId>& b) {
+              return a.first < b.first;
+            });
+  sorted_words.shrink_to_fit();
+
+  for (const auto& it : sorted_words) {
+    id_to_word_map.set(it.second, it.first);
+  }
   id_to_word_map.shrink_to_fit();
 }
 
