@@ -64,11 +64,11 @@ Phrase::Count::Local PhraseCorpus::count_phrases(
 }
 
 size_t PhraseCorpus::count_vocabulary() const {
-  return word_map.size();
+  return id_to_word_map.size();
 }
 
 bool PhraseCorpus::is_open() const {
-  return !word_map.empty();
+  return !id_to_word_map.empty();
 }
 
 void PhraseCorpus::open(const bfs::path& phrase_dir) {
@@ -148,7 +148,7 @@ Phrase PhraseCorpus::decode_(const char* buffer, Phrase::Id id) const {
   WordId word_id;
   while (buffer != end) {
     buffer = value_traits<WordId>::copy_from(word_id, buffer);
-    phrase.words().push_back(word_map.at(word_id));
+    phrase.words().push_back(*id_to_word_map.get(word_id));
   }
 
   return phrase;
@@ -161,7 +161,7 @@ void PhraseCorpus::init_vocabulary_(const bfs::path& vocab_file) {
   std::string word;
   WordId word_id;
   while (ifs >> word >> word_id) {
-    word_map[word_id] = word;
+    id_to_word_map.set(word_id, word);
   }
 }
 

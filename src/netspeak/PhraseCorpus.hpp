@@ -11,6 +11,7 @@
 #include "netspeak/model/Phrase.hpp"
 #include "netspeak/model/typedefs.hpp"
 #include "netspeak/util/FileDescriptor.hpp"
+#include "netspeak/util/IdMap.hpp"
 
 namespace netspeak {
 
@@ -68,7 +69,7 @@ private:
   /**
    * @brief This maps the id of a word to its string value.
    */
-  std::unordered_map<WordId, std::string> word_map;
+  util::IdMap<const std::string> id_to_word_map;
 
   /**
    * @brief A map from the length of a phrase to the file descriptor of the
