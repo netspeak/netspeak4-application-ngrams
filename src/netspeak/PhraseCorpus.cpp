@@ -65,28 +65,20 @@ Phrase::Count::Local PhraseCorpus::count_phrases(
 }
 
 size_t PhraseCorpus::count_vocabulary() const {
-  return sorted_words.size();
+  return id_map->size();
 }
 
 bool PhraseCorpus::is_open() const {
-  return !sorted_words.empty();
+  return !id_map->empty();
 }
 
 bool PhraseCorpus::contains(const std::string& word) const {
-  // see the following for the implementation:
-  // https://en.cppreference.com/w/cpp/algorithm/binary_search#Possible_implementation
-
-  const auto first = sorted_words.begin();
-  const auto last = sorted_words.end();
-
-  auto it = std::lower_bound(first, last, word,
-                             [](const std::pair<std::string, WordId>& a,
-                                const std::string& b) { return a.first < b; });
-
-  return !(it == last) && !(word < it->first);
+  auto it = id_map->find_for_word(word);
+  return it != id_map->end();
 }
 bool PhraseCorpus::contains(const WordId& id) const {
-  return id_to_word_map.get(id) != boost::none;
+  auto it = id_map->find_for_id(id);
+  return it != id_map->end();
 }
 
 void PhraseCorpus::open(const bfs::path& phrase_dir) {
@@ -166,7 +158,8 @@ Phrase PhraseCorpus::decode_(const char* buffer, Phrase::Id id) const {
   WordId word_id;
   while (buffer != end) {
     buffer = value_traits<WordId>::copy_from(word_id, buffer);
-    phrase.words().push_back(*id_to_word_map.get(word_id));
+    std::string word(id_map->get_c_str(*(id_map->find_for_id(word_id))));
+    phrase.words().push_back(std::move(word));
   }
 
   return phrase;
@@ -178,21 +171,12 @@ void PhraseCorpus::init_vocabulary_(const bfs::path& vocab_file) {
 
   std::string word;
   WordId word_id;
+  util::StringIdMap<WordId>::Builder builder;
   while (ifs >> word >> word_id) {
-    sorted_words.emplace_back(word, word_id);
+    builder.append(word, word_id);
   }
 
-  std::sort(sorted_words.begin(), sorted_words.end(),
-            [](const std::pair<std::string, WordId>& a,
-               const std::pair<std::string, WordId>& b) {
-              return a.first < b.first;
-            });
-  sorted_words.shrink_to_fit();
-
-  for (const auto& it : sorted_words) {
-    id_to_word_map.set(it.second, it.first);
-  }
-  id_to_word_map.shrink_to_fit();
+  id_map.emplace(std::move(builder));
 }
 
 boost::optional<Phrase::Id::Length> parse_phrase_filename(

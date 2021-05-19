@@ -6,12 +6,13 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/optional.hpp>
 
 #include "netspeak/invertedindex/ByteBuffer.hpp"
 #include "netspeak/model/Phrase.hpp"
 #include "netspeak/model/typedefs.hpp"
 #include "netspeak/util/FileDescriptor.hpp"
-#include "netspeak/util/IdMap.hpp"
+#include "netspeak/util/StringIdMap.hpp"
 
 namespace netspeak {
 
@@ -70,18 +71,9 @@ private:
 
 
   /**
-   * @brief This maps the id of a word to its string value.
-   *
-   * The string values in this map are simply references to the string values in
-   * `sorted_words`. This means that this map will consume exactly _8 *
-   * NumberOfWords_ many bytes.
+   * @brief This maps the id of a word to its string value and vise versa.
    */
-  util::IdMap<const std::string&> id_to_word_map;
-
-  /**
-   * @brief A sorted list of words mapped to their ids.
-   */
-  std::vector<std::pair<std::string, WordId>> sorted_words;
+  boost::optional<util::StringIdMap<WordId>> id_map;
 
   /**
    * @brief A map from the length of a phrase to the file descriptor of the

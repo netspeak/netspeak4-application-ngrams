@@ -44,6 +44,9 @@ public:
   void push_back(const Word& word) {
     data_.push_back(word);
   }
+  void push_back(Word&& word) {
+    data_.push_back(std::move(word));
+  }
 
   bool is_subsequence_of(const Words& words) const;
   bool is_subsequence_of(const std::vector<Word>& words) const;
