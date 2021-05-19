@@ -6,6 +6,7 @@
 
 #include "netspeak/model/Phrase.hpp"
 #include "netspeak/model/Words.hpp"
+#include "netspeak/util/string.hpp"
 
 namespace netspeak {
 
@@ -77,6 +78,7 @@ public:
     std::string line, word;
     std::string::size_type tabpos;
     while (std::getline(is, line)) {
+      util::check_valid_utf8(line);
       tabpos = line.find('\t');
       if (tabpos != std::string::npos) {
         std::istringstream iss(line.substr(0, tabpos));

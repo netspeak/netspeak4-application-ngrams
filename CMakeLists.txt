@@ -129,6 +129,7 @@ set(NETSPEAK_SOURCES
 "src/netspeak/util/Mut"
 "src/netspeak/util/PropertiesFormat"
 "src/netspeak/util/service"
+"src/netspeak/util/string"
 "src/netspeak/util/systemio"
 "src/netspeak/util/traceable_error"
 "src/netspeak/util/Vec"
