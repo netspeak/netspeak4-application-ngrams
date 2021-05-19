@@ -163,6 +163,8 @@ void PhraseCorpus::init_vocabulary_(const bfs::path& vocab_file) {
   while (ifs >> word >> word_id) {
     id_to_word_map.set(word_id, word);
   }
+
+  id_to_word_map.shrink_to_fit();
 }
 
 boost::optional<Phrase::Id::Length> parse_phrase_filename(

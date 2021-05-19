@@ -59,6 +59,21 @@ public:
   bool empty() const {
     return size_ == 0;
   }
+
+  size_t gaps() const {
+    return data_.size() - size_;
+  }
+  size_t capacity() const {
+    return data_.capacity();
+  }
+
+  void shrink_to_fit() {
+    while (!data_.empty() && data_.back() == boost::none) {
+      data_.pop_back();
+    }
+
+    data_.shrink_to_fit();
+  }
 };
 
 
