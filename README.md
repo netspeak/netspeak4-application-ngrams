@@ -267,6 +267,42 @@ All paths (if not absolute) are relative to the directory the configuration file
   All keys that are not present in the current configuration file will be retrieved from this one instead. This can be used to implement inheritance.
 
 
+## gRPC-web proxy
+
+A gRPC-web proxy is necessary to use Netspeak in browsers. This is how you use the proxy.
+
+### Linux
+
+You need to have Docker installed.
+
+Serve the index(es):
+
+```cmd
+docker run -p 9000:9000 -v /path/to/index:/index:ro webis/netspeak:4.1.1 netspeak4 serve -c /index/index.properties -p 9000
+```
+
+Run the proxy:
+
+```cmd
+docker run --network="host" webis/grpcwebproxy:0.14.0 grpcwebproxy --allow_all_origins --backend_addr=localhost:9000 --backend_tls=false --run_tls_server=false
+```
+
+### Windows
+
+To run the gRPC-web proxy on Windows, you need to have WSL2 and Docker Desktop (with WSL2 backend) installed.
+
+Serve the index(es):
+
+```cmd
+docker run -p 9000:9000 -v C:\path\to\index:/index:ro webis/netspeak:4.1.1 netspeak4 serve -c /index/index.properties -p 9000
+```
+
+Run the proxy:
+
+```cmd
+docker run -p 8080:8080 webis/grpcwebproxy:0.14.0 grpcwebproxy --allow_all_origins --backend_addr=host.docker.internal:9000 --backend_tls=false --run_tls_server=false
+```
+
 ---
 
 ## Contributors
