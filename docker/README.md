@@ -9,7 +9,7 @@ The Dockerfile will build Netspeak from a specific commit in the [GitHub reposit
 The docker image is publicly available for everyone!
 
 ```bash
-docker run webis/netspeak:4.1.1 netspeak4 --help
+docker run webis/netspeak:4.1.2 netspeak4 --help
 ```
 
 ## Publishing

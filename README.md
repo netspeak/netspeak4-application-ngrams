@@ -14,7 +14,7 @@ It contains methods to create indexes and make queries on Netspeak indexes. The 
 If you just want to run Netspeak without having to setup anything, then our Docker image will help you.
 
 ```bash
-docker run webis/netspeak:4.1.1 netspeak4 --help
+docker run webis/netspeak:4.1.2 netspeak4 --help
 ```
 
 ### Installing dependencies
@@ -278,7 +278,7 @@ You need to have Docker installed.
 Serve the index(es):
 
 ```cmd
-docker run -p 9000:9000 -v /path/to/index:/index:ro webis/netspeak:4.1.1 netspeak4 serve -c /index/index.properties -p 9000
+docker run -p 9000:9000 -v /path/to/index:/index:ro webis/netspeak:4.1.2 netspeak4 serve -c /index/index.properties -p 9000
 ```
 
 Run the proxy:
@@ -294,7 +294,7 @@ To run the gRPC-web proxy on Windows, you need to have WSL2 and Docker Desktop (
 Serve the index(es):
 
 ```cmd
-docker run -p 9000:9000 -v C:\path\to\index:/index:ro webis/netspeak:4.1.1 netspeak4 serve -c /index/index.properties -p 9000
+docker run -p 9000:9000 -v C:\path\to\index:/index:ro webis/netspeak:4.1.2 netspeak4 serve -c /index/index.properties -p 9000
 ```
 
 Run the proxy:

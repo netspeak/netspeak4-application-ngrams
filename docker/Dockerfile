@@ -12,7 +12,7 @@ RUN apt-get install git -y
 # Checkout a specific commit instead of a specific branch.
 # This makes builds deterministic.
 RUN git clone https://github.com/netspeak/netspeak4-application-cpp.git . \
-	&& git checkout 3fdb096ac96771df19e74007771ee10a44a1b21b
+	&& git checkout 49c440e794e05239f55216a84b835acb0a93b479
 
 RUN bash ./build/install-dependencies.sh ci
 RUN bash ./build/cmake.sh
