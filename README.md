@@ -269,7 +269,7 @@ All paths (if not absolute) are relative to the directory the configuration file
 
 ## gRPC-web proxy
 
-A gRPC-web proxy is necessary to use Netspeak in browsers. This is how you use the proxy.
+A [gRPC-web proxy](https://github.com/netspeak/grpcwebproxy) is necessary to use Netspeak in browsers. This is how you use the proxy.
 
 ### Linux
 
