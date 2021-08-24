@@ -41,6 +41,8 @@ RequestLogger::RequestLogger(std::unique_ptr<NetspeakService::Service> service,
     bfs::create_directories(log_dir);
   }
 
+  util::log("Creating log files in", log_dir);
+
   const auto prefix = (log_dir / get_log_file_prefix()).string();
 
   f_search_req_.lock().value().open(prefix + "_search_req.jsonl");
