@@ -1,5 +1,7 @@
 #include "netspeak/QueryNormalizer.hpp"
 
+#include <unicode/unistr.h>
+
 #include <algorithm>
 #include <functional>
 #include <limits>
@@ -26,12 +28,13 @@ using namespace model;
 class QuerySimplifier {
 public:
   QueryNormalizer::Options options;
-  std::shared_ptr<const Dictionaries::Map> dictionary;
-  bool allow_regex;
+  std::shared_ptr<const Dictionaries::Map> dictionary = nullptr;
+  bool allow_regex = false;
+  bool lower_case = false;
 
   QuerySimplifier() = delete;
   explicit QuerySimplifier(const QueryNormalizer::Options& options)
-      : options(options), allow_regex(false) {}
+      : options(options) {}
 
   typedef std::shared_ptr<const Query::Unit> UnitPtr;
   typedef std::shared_ptr<const Query> QueryPtr;
@@ -66,6 +69,18 @@ private:
   }
 
 private:
+  std::string get_text(const UnitPtr& unit) const {
+    const std::string& text = unit->text();
+    if (!lower_case) {
+      return text;
+    }
+
+    icu::UnicodeString u_str(text.c_str(), "UTF-8");
+    std::string lower;
+    u_str.toLower().toUTF8String(lower);
+    return lower;
+  }
+
   SimpleQuery::Unit plus_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
@@ -80,7 +95,7 @@ private:
     const auto source = to_source(query, unit);
 
     if (allow_regex) {
-      return SimpleQuery::Unit::new_regex(unit->text(), source);
+      return SimpleQuery::Unit::new_regex(get_text(unit), source);
     } else {
       // regexes are not allowed -> replace them with the empty alternation
       return SimpleQuery::Unit::new_alternation(source);
@@ -90,7 +105,7 @@ private:
   SimpleQuery::Unit dict_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
-    const std::string& text = unit->text();
+    const std::string& text = get_text(unit);
     auto text_unit = SimpleQuery::Unit::new_word(text, source);
 
     if (!dictionary) {
@@ -280,7 +295,7 @@ private:
 
     switch (unit->tag()) {
       case Query::Unit::Tag::WORD:
-        return SimpleQuery::Unit::new_word(unit->text(), source);
+        return SimpleQuery::Unit::new_word(get_text(unit), source);
 
       case Query::Unit::Tag::QMARK:
         return SimpleQuery::Unit::new_qmark(source);
@@ -1185,6 +1200,7 @@ void QueryNormalizer::normalize(std::shared_ptr<const Query> query,
   QuerySimplifier simplifier(options);
   simplifier.dictionary = dictionary_;
   simplifier.allow_regex = allow_regex;
+  simplifier.lower_case = lower_case;
   SimpleQuery simple = simplifier.to_simple(query);
 
   // optimize the simple form
@@ -1200,6 +1216,8 @@ void QueryNormalizer::normalize(std::shared_ptr<const Query> query,
 }
 
 QueryNormalizer::QueryNormalizer(InitConfig config)
-    : regex_index_(config.regex_index), dictionary_(config.dictionary) {}
+    : regex_index_(config.regex_index),
+      dictionary_(config.dictionary),
+      lower_case(config.lower_case) {}
 
 } // namespace netspeak

@@ -31,6 +31,8 @@ PREFIX::CORPUS_LANGUAGE("corpus.language");
 
 PREFIX::CACHE_CAPACITY("cache.capacity");
 
+PREFIX::QUERY_LOWER_CASE("query.lower-case");
+
 PREFIX::SEARCH_REGEX_MAX_MATCHES("search.regex.max-matches");
 PREFIX::SEARCH_REGEX_MAX_TIME("search.regex.max-time");
 
@@ -146,7 +148,7 @@ std::string Configuration::get(const std::string& key,
   }
 }
 
-bfs::path relative_to(std::string path, const bfs::path& to) {
+bfs::path relative_to(const std::string& path, const bfs::path& to) {
   if (to.empty()) {
     return bfs::weakly_canonical(path);
   } else {
@@ -158,16 +160,37 @@ bfs::path Configuration::get_required_path(const std::string& key) const {
 }
 boost::optional<bfs::path> Configuration::get_optional_path(
     const std::string& key) const {
-  auto value = get_optional(key);
-  if (value) {
-    return relative_to(*value, base_dir_);
-  } else {
-    return boost::none;
-  }
+  return get_optional(key).map(
+      [&](const std::string& value) { return relative_to(value, base_dir_); });
 }
 bfs::path Configuration::get_path(const std::string& key,
                                   const std::string& defaultValue) const {
   return relative_to(get(key, defaultValue), base_dir_);
+}
+
+bool parse_bool(const std::string& key, const std::string& value) {
+  if (value == "false") {
+    return false;
+  }
+  if (value == "true") {
+    return true;
+  }
+
+  std::stringstream out;
+  out << "Invalid boolean value for '" << key
+      << "'. Expected 'true' or 'false' but found '" << value << "'.";
+  throw util::tracable_runtime_error(out.str());
+}
+bool Configuration::get_required_bool(const std::string& key) const {
+  return parse_bool(key, get_required(key));
+}
+boost::optional<bool> Configuration::get_optional_bool(
+    const std::string& key) const {
+  return get_optional(key).map(
+      [&](const std::string& value) { return parse_bool(key, value); });
+}
+bool Configuration::get_bool(const std::string& key, bool defaultValue) const {
+  return get_optional_bool(key).value_or(std::move(defaultValue));
 }
 
 

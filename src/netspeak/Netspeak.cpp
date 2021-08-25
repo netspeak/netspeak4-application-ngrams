@@ -37,6 +37,9 @@ void Netspeak::initialize(const Configuration& config) {
       config.get_required_path(Configuration::PATH_TO_PHRASE_DICTIONARY);
   const auto cache_cap =
       config.get(Configuration::CACHE_CAPACITY, DEFAULT_CACHE_CAPCITY);
+  const auto lower_case =
+      config.get_bool(Configuration::QUERY_LOWER_CASE, false);
+
   result_cache_.reserve(std::stoul(cache_cap));
 
   auto dir = bfs::path(pd_dir);
@@ -82,6 +85,7 @@ void Netspeak::initialize(const Configuration& config) {
   query_normalizer_ = QueryNormalizer({
       .regex_index = regex_index_,
       .dictionary = hash_dictionary_,
+      .lower_case = lower_case,
   });
 
   query_processor_.initialize(config);

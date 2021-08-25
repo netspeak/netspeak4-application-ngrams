@@ -41,6 +41,10 @@ public:
   boost::filesystem::path get_path(const std::string& key,
                                    const std::string& defaultValue) const;
 
+  bool get_required_bool(const std::string& key) const;
+  boost::optional<bool> get_optional_bool(const std::string& key) const;
+  bool get_bool(const std::string& key, bool defaultValue) const;
+
   std::unordered_set<std::string> keys() const;
 
   util::Config full_config() const;
@@ -62,6 +66,8 @@ public:
   static const std::string CORPUS_LANGUAGE;
 
   static const std::string CACHE_CAPACITY;
+
+  static const std::string QUERY_LOWER_CASE;
 
   static const std::string SEARCH_REGEX_MAX_MATCHES;
   static const std::string SEARCH_REGEX_MAX_TIME;

@@ -258,6 +258,14 @@ The following keys are paths to locate the index.
 
 All paths (if not absolute) are relative to the directory the configuration file lives in.
 
+### Casing
+
+- `query.lower-case = bool` _(optional)_
+
+  Whether all queries will be lower-cased. This option is useful if the index only contains lower-case phrases.
+
+  The default is `false`.
+
 ### Other
 
 - `extends = path` _(optional)_

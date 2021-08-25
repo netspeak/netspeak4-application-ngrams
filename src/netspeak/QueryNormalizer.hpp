@@ -25,11 +25,13 @@ class QueryNormalizer {
 private:
   std::shared_ptr<regex::RegexIndex> regex_index_;
   std::shared_ptr<Dictionaries::Map> dictionary_;
+  bool lower_case;
 
 public:
   struct InitConfig {
-    std::shared_ptr<regex::RegexIndex> regex_index;
-    std::shared_ptr<Dictionaries::Map> dictionary;
+    std::shared_ptr<regex::RegexIndex> regex_index = nullptr;
+    std::shared_ptr<Dictionaries::Map> dictionary = nullptr;
+    bool lower_case = false;
   };
 
   QueryNormalizer() {}

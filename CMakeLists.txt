@@ -158,6 +158,10 @@ pthread
 # cmph (C Minimal Perfect Hashing)
 -l:libcmph.a
 
+# ICU
+-l:libicuuc.a
+-l:libicudata.a
+
 # boost
 -l:libboost_date_time.a
 -l:libboost_filesystem.a

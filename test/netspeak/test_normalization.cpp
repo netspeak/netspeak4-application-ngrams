@@ -507,5 +507,21 @@ BOOST_AUTO_TEST_CASE(test_normalize_split) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_lower_case) {
+  {
+    const auto query = "FOO | Ähnlich";
+    std::vector<std::string> expected{
+      "foo",
+      "ähnlich",
+    };
+    const QueryNormalizer::InitConfig init = {
+      .regex_index = DEFAULT_INIT.regex_index,
+      .dictionary = DEFAULT_INIT.dictionary,
+      .lower_case = true,
+    };
+    NORMALIZE_QUERY(query, expected, init, DEFAULT_OPTIONS);
+  }
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
