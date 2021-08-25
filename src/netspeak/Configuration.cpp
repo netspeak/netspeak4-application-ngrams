@@ -160,8 +160,11 @@ bfs::path Configuration::get_required_path(const std::string& key) const {
 }
 boost::optional<bfs::path> Configuration::get_optional_path(
     const std::string& key) const {
-  return get_optional(key).map(
-      [&](const std::string& value) { return relative_to(value, base_dir_); });
+  const auto optional = get_optional(key);
+  if (!optional) {
+    return boost::none;
+  }
+  return relative_to(*optional, base_dir_);
 }
 bfs::path Configuration::get_path(const std::string& key,
                                   const std::string& defaultValue) const {
@@ -186,8 +189,11 @@ bool Configuration::get_required_bool(const std::string& key) const {
 }
 boost::optional<bool> Configuration::get_optional_bool(
     const std::string& key) const {
-  return get_optional(key).map(
-      [&](const std::string& value) { return parse_bool(key, value); });
+  const auto optional = get_optional(key);
+  if (!optional) {
+    return boost::none;
+  }
+  return parse_bool(key, *optional);
 }
 bool Configuration::get_bool(const std::string& key, bool defaultValue) const {
   return get_optional_bool(key).value_or(std::move(defaultValue));
