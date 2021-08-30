@@ -96,18 +96,18 @@ public:
 
     // Seek to table entry on disk and read it.
     if (!ReadEntry(offset, entry, IsThreadSafeSwitch())) {
-      DEBUG_LOG2("Key", key);
-      DEBUG_LOG2("File offset", offset);
+      DEBUG_LOG("Key", key);
+      DEBUG_LOG("File offset", offset);
       util::throw_runtime_error("EntryTraits::read_from failed");
     }
     // Compute checksum and reject value on mismatch.
     const Checksum checksum(util::hash<Checksum>(key));
     if (entry.e1() != checksum) {
       // This is no error, unknown keys normally cause a hash collision.
-      DEBUG_LOG2("Key", key);
-      DEBUG_LOG2("File offset", offset);
-      DEBUG_LOG2("Actual checksum", checksum);
-      DEBUG_LOG2("Expected checksum", entry.e1());
+      DEBUG_LOG("Key", key);
+      DEBUG_LOG("File offset", offset);
+      DEBUG_LOG("Actual checksum", checksum);
+      DEBUG_LOG("Expected checksum", entry.e1());
       return false;
     }
     value = entry.e2();

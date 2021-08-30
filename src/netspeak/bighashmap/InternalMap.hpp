@@ -76,10 +76,10 @@ public:
     const Checksum checksum = util::hash<Checksum>(key);
     if (entry.e1() != checksum) {
       // This is no error, unknown keys normally cause a hash collision.
-      DEBUG_LOG2("Key", key);
-      DEBUG_LOG2("Memory offset", offset);
-      DEBUG_LOG2("Actual checksum", checksum);
-      DEBUG_LOG2("Expected checksum", entry.e1());
+      DEBUG_LOG("Key", key);
+      DEBUG_LOG("Memory offset", offset);
+      DEBUG_LOG("Actual checksum", checksum);
+      DEBUG_LOG("Expected checksum", entry.e1());
       return false;
     }
     value = entry.e2();
