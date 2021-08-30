@@ -16,10 +16,14 @@ using namespace model;
 const std::string DEFAULT_REGEX_MAX_MATCHES = "100";
 const std::string DEFAULT_REGEX_MAX_TIME = "20" /* ms */;
 const std::string DEFAULT_CACHE_CAPCITY = "1000000";
+const std::string DEFAULT_MAX_NORM_QUERIES = "1000";
 
 Netspeak::search_config Netspeak::get_search_config(
     const Configuration& config) const {
   Netspeak::search_config sc = {
+    .max_norm_queries = boost::lexical_cast<size_t>(config.get(
+        Configuration::SEARCH_MAX_NORM_QUERIES, DEFAULT_MAX_NORM_QUERIES)),
+
     // regex
     .regex_max_matches = boost::lexical_cast<size_t>(config.get(
         Configuration::SEARCH_REGEX_MAX_MATCHES, DEFAULT_REGEX_MAX_MATCHES)),
@@ -283,8 +287,7 @@ std::pair<QueryNormalizer::Options, SearchOptions> Netspeak::to_options(
   };
 
   QueryNormalizer::Options n_options = {
-    // TODO: Replace this with configurable values
-    .max_norm_queries = 10000,
+    .max_norm_queries = search_config_.max_norm_queries,
 
     .min_length = min_len,
     .max_length = max_len,

@@ -69,6 +69,8 @@ public:
 
   static const std::string QUERY_LOWER_CASE;
 
+  static const std::string SEARCH_MAX_NORM_QUERIES;
+
   static const std::string SEARCH_REGEX_MAX_MATCHES;
   static const std::string SEARCH_REGEX_MAX_TIME;
 

@@ -74,6 +74,7 @@ private:
       const SearchOptions& options, std::shared_ptr<Query> query);
 
   struct search_config {
+    size_t max_norm_queries;
     size_t regex_max_matches;
     std::chrono::nanoseconds regex_max_time;
   };

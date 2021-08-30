@@ -33,6 +33,8 @@ PREFIX::CACHE_CAPACITY("cache.capacity");
 
 PREFIX::QUERY_LOWER_CASE("query.lower-case");
 
+PREFIX::SEARCH_MAX_NORM_QUERIES("search.max-norm-queries");
+
 PREFIX::SEARCH_REGEX_MAX_MATCHES("search.regex.max-matches");
 PREFIX::SEARCH_REGEX_MAX_TIME("search.regex.max-time");
 
