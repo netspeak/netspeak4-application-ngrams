@@ -217,6 +217,16 @@ The following keys are parameters used to fine-tune performance.
 
   The default cache capacity of the current implementation is 1 million. At this capacity, an empty cache will use about 100MB and a full cache will use about 3GB of memory (depends on the cached queries). Other implementation may use different defaults.
 
+- `search.max-norm-queries = uint32` _(optional)_
+
+  The maximum number of norm queries the queries normalizer is allowed to create.
+
+  Norm queries are the fundamental query units of Netspeak. Each norm queries (if not cached) requires at least one random IO access. The maximum should be chosen with regards to hardware the index is stored on. A maximum of <=1000 for HDDs and ~10k for SDDs is recommended.
+
+  Choosing a large maximum can cause queries containing regexes and synonyms to become very slow (seconds per query; uncached).
+
+  The default is implementation defined. The current implementation has a default of 1000.
+
 - `search.regex.max-matches = uint32` _(optional)_
 
   The maximum number of regex matches. The current implementation replaces regex queries with a set of matching words (e.g. `route?` may be replaced with `[ router routed ]`). This parameter sets the maximum amount of words each regex query can be replaced with.
