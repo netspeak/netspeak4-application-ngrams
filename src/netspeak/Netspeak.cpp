@@ -1,5 +1,7 @@
 #include "netspeak/Netspeak.hpp"
 
+#include <future>
+
 #include "boost/lexical_cast.hpp"
 
 #include "netspeak/error.hpp"
@@ -39,47 +41,63 @@ void Netspeak::initialize(const Configuration& config) {
       config.get(Configuration::CACHE_CAPACITY, DEFAULT_CACHE_CAPCITY);
   const auto lower_case =
       config.get_bool(Configuration::QUERY_LOWER_CASE, false);
+  const auto hash_dir_dir =
+      config.get_optional_path(Configuration::PATH_TO_HASH_DICTIONARY);
+  const auto regex_dir =
+      config.get_optional_path(Configuration::PATH_TO_REGEX_VOCABULARY);
 
   result_cache_.reserve(std::stoul(cache_cap));
 
-  auto dir = bfs::path(pd_dir);
-  util::log("Open phrase dictionary in", dir);
-  phrase_dictionary_.reset(
-      PhraseDictionary::Open(dir, util::memory_type::min_required));
+  {
+    auto pd_result = std::async([&]() {
+      util::log("Open phrase dictionary in", pd_dir);
+      phrase_dictionary_.reset(
+          PhraseDictionary::Open(pd_dir, util::memory_type::min_required));
+    });
 
-  dir = bfs::path(pc_dir) / "bin";
-  util::log("Open phrase corpus in", dir);
-  phrase_corpus_.open(dir);
+    auto pc_result = std::async([&]() {
+      const auto pc_bin_dir = bfs::path(pc_dir) / "bin";
+      util::log("Open phrase corpus in", pc_bin_dir);
+      phrase_corpus_.open(pc_bin_dir);
+    });
 
-  // The hash dictionary is optional.
-  hash_dictionary_ = std::make_shared<Dictionaries::Map>();
-  auto sdd = config.get_optional_path(Configuration::PATH_TO_HASH_DICTIONARY);
-  if (sdd && bfs::exists(*sdd)) {
-    const bfs::directory_iterator end;
-    for (bfs::directory_iterator it(*sdd); it != end; ++it) {
-      util::log("Open hash dictionary in", *it);
-      const auto dict = Dictionaries::read_from_file(*it);
-      for (const auto& pair : dict) {
-        hash_dictionary_->insert(pair);
+    // The hash dictionary is optional.
+    auto hd_result = std::async([&]() {
+      hash_dictionary_ = std::make_shared<Dictionaries::Map>();
+      if (hash_dir_dir && bfs::exists(*hash_dir_dir)) {
+        const bfs::directory_iterator end;
+        for (bfs::directory_iterator it(*hash_dir_dir); it != end; ++it) {
+          util::log("Open hash dictionary in", *it);
+          const auto dict = Dictionaries::read_from_file(*it);
+          for (const auto& pair : dict) {
+            hash_dictionary_->insert(pair);
+          }
+        }
       }
-    }
-  }
+    });
 
-  // The regex vocabulary is optional.
-  sdd = config.get_optional_path(Configuration::PATH_TO_REGEX_VOCABULARY);
-  if (sdd && bfs::exists(*sdd)) {
-    const bfs::directory_iterator end;
-    for (bfs::directory_iterator it(*sdd); it != end; ++it) {
-      util::log("Open regex vocabulary in", *it);
-      bfs::ifstream ifs(*it);
-      util::check(ifs.is_open(), error_message::cannot_open, *it);
-      std::string regexwords((std::istreambuf_iterator<char>(ifs)),
-                             (std::istreambuf_iterator<char>()));
-      ifs.close();
-      regex_index_ =
-          std::make_shared<regex::DefaultRegexIndex>(std::move(regexwords));
-      break;
-    }
+    // The regex vocabulary is optional.
+    auto re_result = std::async([&]() {
+      if (regex_dir && bfs::exists(*regex_dir)) {
+        const bfs::directory_iterator end;
+        for (bfs::directory_iterator it(*regex_dir); it != end; ++it) {
+          util::log("Open regex vocabulary in", *it);
+          bfs::ifstream ifs(*it);
+          util::check(ifs.is_open(), error_message::cannot_open, *it);
+          std::string regexwords((std::istreambuf_iterator<char>(ifs)),
+                                 (std::istreambuf_iterator<char>()));
+          ifs.close();
+          regex_index_ =
+              std::make_shared<regex::DefaultRegexIndex>(std::move(regexwords));
+          break;
+        }
+      }
+    });
+
+    pd_result.get();
+    pc_result.get();
+    hd_result.get();
+    re_result.get();
   }
 
   query_normalizer_ = QueryNormalizer({

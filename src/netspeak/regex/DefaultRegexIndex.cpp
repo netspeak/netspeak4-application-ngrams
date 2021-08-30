@@ -3,6 +3,7 @@
 #include <chrono>
 #include <codecvt>
 #include <functional>
+#include <future>
 #include <locale>
 #include <string>
 #include <unordered_set>
@@ -331,8 +332,12 @@ void DefaultRegexIndex::initialize_word_hash_table() {
 DefaultRegexIndex::DefaultRegexIndex(std::string vocabulary)
     : vocabulary_(std::move(vocabulary)) {
   initialize_words();
-  initialize_all_chars();
-  initialize_word_hash_table();
+
+  // these two operations are independent and can be done in parallel
+  auto f1 = std::async([&]() { initialize_all_chars(); });
+  auto f2 = std::async([&]() { initialize_word_hash_table(); });
+  f1.get();
+  f2.get();
 }
 
 
