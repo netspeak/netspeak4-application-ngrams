@@ -2,7 +2,6 @@
 
 #include <aio.h>
 #include <fcntl.h>
-#include <sys/stat.h>
 
 #include <algorithm>
 #include <string>
@@ -56,9 +55,7 @@ Phrase::Count::Local PhraseCorpus::count_phrases(
   const auto it_fd = fd_map.find(phrase_len);
 
   if (it_fd != fd_map.end()) {
-    struct stat stats;
-    ::fstat(it_fd->second, &stats);
-    return stats.st_size / entry_size(phrase_len);
+    return it_fd->second.stat().st_size / entry_size(phrase_len);
   }
 
   return 0;
@@ -204,10 +201,8 @@ void PhraseCorpus::open_phrase_files_(const bfs::path& phrase_dir) {
     const auto phrase_len = parse_phrase_filename(filename);
 
     if (phrase_len) {
-      util::FileDescriptor fd(::open(path.string().c_str(), O_RDONLY));
-      util::check(fd != -1, error_message::cannot_open, path);
-
-      fd_map.insert(std::make_pair(*phrase_len, fd));
+      fd_map.insert(std::make_pair(
+          *phrase_len, util::FileDescriptor::open(path.string(), O_RDONLY)));
       max = std::max(max, *phrase_len);
     }
   }

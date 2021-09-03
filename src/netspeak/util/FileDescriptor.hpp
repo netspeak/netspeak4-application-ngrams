@@ -1,6 +1,8 @@
 #ifndef NETSPEAK_UTIL_FILE_DESCRIPTOR_HPP
 #define NETSPEAK_UTIL_FILE_DESCRIPTOR_HPP
 
+#include <sys/stat.h>
+
 #include <memory>
 
 
@@ -24,6 +26,10 @@ private:
 public:
   FileDescriptor() = delete;
   FileDescriptor(int fd);
+
+  static FileDescriptor open(const std::string& path, int __oflag);
+
+  struct stat stat() const;
 
   operator int() const;
 };
