@@ -57,6 +57,7 @@ if ! [ -x "$(command -v grpc_cpp_plugin)" ]; then
     ensure_git
     git clone --recurse-submodules -b v1.28.1 https://github.com/grpc/grpc
     cd grpc
+    make plugins -j 12
 
     mkdir -p cmake/build
     pushd cmake/build

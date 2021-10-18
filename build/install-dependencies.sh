@@ -61,4 +61,12 @@ if [[ "$1" != "ci" ]]; then
 
     fi
 
+    # Copy the python plugin that was build during bash ./env/install-grpc.sh
+    if [ ! -f ./protoc-gen-grpc-python ]; then
+
+        cp ../env/grpc/bins/opt/grpc_python_plugin ./protoc-gen-grpc-python
+        chmod a+rwx ./protoc-gen-grpc-python
+
+    fi
+
 fi

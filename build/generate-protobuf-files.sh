@@ -20,6 +20,8 @@ mkdir -p ./generated-js
 rm -rf ./generated-js/*
 mkdir -p ./generated-java
 rm -rf ./generated-java/*
+mkdir -p ./generated-python
+rm -rf ./generated-python/*
 
 export PATH="$PATH:../build/dependencies"
 
@@ -34,3 +36,7 @@ protoc ./NetspeakService.proto \
 protoc ./NetspeakService.proto \
     --java_out=./generated-java \
     --grpc-java_out=./generated-java
+
+protoc ./NetspeakService.proto \
+    --python_out=./generated-python \
+    --grpc-python_out=./generated-python
