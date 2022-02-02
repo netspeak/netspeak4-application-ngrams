@@ -1,6 +1,7 @@
 #include <memory>
 #include <vector>
 
+#include "netspeak/QueryNormalizer.hpp"
 #include "netspeak/model/NormQuery.hpp"
 
 namespace py {
@@ -10,9 +11,9 @@ using QueryUnitKind = netspeak::model::Query::Unit::Tag;
 
 class NormQueryUnit {
 private:
-  NormQueryUnitKind kind;
-  std::string text;
-  QueryUnitKind source_kind;
+  NormQueryUnitKind kind_;
+  std::string text_;
+  QueryUnitKind source_kind_;
 
 public:
   NormQueryUnit() = delete;
@@ -26,7 +27,7 @@ public:
 
 class NormQuery {
 private:
-  std::vector<NormQueryUnit> units;
+  std::vector<NormQueryUnit> units_;
 
 public:
   std::vector<NormQueryUnit>& get_units();
@@ -34,40 +35,15 @@ public:
 
 class QueryParserOptions {
 private:
-  /**
-   * @brief The maximum number of norm queries allowed to be returned.
-   */
-  uint32_t max_norm_queries;
+  uint32_t max_norm_queries_ = 1000;
 
-  /**
-   * @brief Same as \c max_length but as a minimum.
-   */
-  uint32_t min_length;
-  /**
-   * @brief The maximum length norm queries are allowed to have.
-   *
-   * This means that only phrases up to this length can be matched by the norm
-   * queries.
-   */
-  uint32_t max_length;
+  uint32_t min_length_ = 1;
+  uint32_t max_length_ = 5;
 
-  /**
-   * @brief The maximum number of words each regex can be replaced with.
-   *
-   * A regex will (usually) be replaced with an alternation of words that
-   * match that regex. This value determines with how many words each regex
-   * will be replaced with at most.
-   */
-  uint32_t max_regex_matches;
-  /**
-   * @brief The maximum amount of time spend on each regex to find matching
-   * words for that regex.
-   */
-  uint64_t max_regex_time_ns;
+  uint32_t max_regex_matches_ = 100;
+  uint32_t max_regex_time_ms_ = 20;
 
 public:
-  QueryParserOptions();
-
   uint32_t get_max_norm_queries() const;
   void set_max_norm_queries(uint32_t);
   uint32_t get_min_length() const;
@@ -76,20 +52,21 @@ public:
   void set_max_length(uint32_t);
   uint32_t get_max_regex_matches() const;
   void set_max_regex_matches(uint32_t);
-  uint64_t get_max_regex_time_ns() const;
-  void set_max_regex_time_ns(uint64_t);
+  uint32_t get_max_regex_time_ms() const;
+  void set_max_regex_time_ms(uint32_t);
 };
 
 
 class QueryParser {
 private:
-  /* TODO: data */
+  netspeak::QueryNormalizer normalizer;
+
 public:
   QueryParser(const std::string& vocab, const std::string& dictionary_csv,
               bool lower_case);
 
   std::vector<NormQuery> parse(const std::string& query,
-                               QueryParserOptions options) const;
+                               QueryParserOptions options);
 };
 
 } // namespace py
