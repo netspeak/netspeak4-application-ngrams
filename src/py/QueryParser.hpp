@@ -24,6 +24,14 @@ public:
   QueryUnitKind get_source_kind() const;
 };
 
+class NormQuery {
+private:
+  std::vector<NormQueryUnit> units;
+
+public:
+  std::vector<NormQueryUnit>& get_units();
+};
+
 class QueryParserOptions {
 private:
   /**
@@ -80,8 +88,8 @@ public:
   QueryParser(const std::string& vocab, const std::string& dictionary_csv,
               bool lower_case);
 
-  std::vector<std::vector<NormQueryUnit>> parse(
-      const std::string& query, QueryParserOptions options) const;
+  std::vector<NormQuery> parse(const std::string& query,
+                               QueryParserOptions options) const;
 };
 
 } // namespace py
