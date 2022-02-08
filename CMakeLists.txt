@@ -237,4 +237,4 @@ add_executable(netspeak4-test test/netspeak/runner.cpp)
 target_sources(netspeak4-test PRIVATE "${NETSPEAK_TEST_SOURCES}")
 target_link_libraries(netspeak4-test "${NETSPEAK_TEST_LINK_LIBS}")
 
-pybind11_add_module(netspeak4-py src/PythonBindings.cpp "${NETSPEAK_SOURCES}")
+pybind11_add_module(netspeak4py src/PythonBindings.cpp "${NETSPEAK_SOURCES}")

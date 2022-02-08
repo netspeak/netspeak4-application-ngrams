@@ -7,7 +7,7 @@
 using namespace py;
 
 
-PYBIND11_MODULE(example, m) {
+PYBIND11_MODULE(netspeak4py, m) {
   m.doc() = "Netspeak4 Python bindings"; // optional module docstring
 
   pybind11::class_<NormQueryUnit> normQueryUnit(m, "NormQueryUnit");
