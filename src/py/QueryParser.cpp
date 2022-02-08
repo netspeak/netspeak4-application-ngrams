@@ -30,38 +30,6 @@ std::vector<NormQueryUnit>& NormQuery::get_units() {
 }
 
 
-uint32_t QueryParserOptions::get_max_norm_queries() const {
-  return max_norm_queries_;
-}
-void QueryParserOptions::set_max_norm_queries(uint32_t value) {
-  max_norm_queries_ = value;
-}
-uint32_t QueryParserOptions::get_min_length() const {
-  return min_length_;
-}
-void QueryParserOptions::set_min_length(uint32_t value) {
-  min_length_ = value;
-}
-uint32_t QueryParserOptions::get_max_length() const {
-  return max_length_;
-}
-void QueryParserOptions::set_max_length(uint32_t value) {
-  max_length_ = value;
-}
-uint32_t QueryParserOptions::get_max_regex_matches() const {
-  return max_regex_matches_;
-}
-void QueryParserOptions::set_max_regex_matches(uint32_t value) {
-  max_regex_matches_ = value;
-}
-uint32_t QueryParserOptions::get_max_regex_time_ms() const {
-  return max_regex_time_ms_;
-}
-void QueryParserOptions::set_max_regex_time_ms(uint32_t value) {
-  max_regex_time_ms_ = value;
-}
-
-
 netspeak::QueryNormalizer::InitConfig get_init_config(
     const std::string& vocab, const std::string& dictionary_csv,
     bool lower_case) {
@@ -104,12 +72,12 @@ std::vector<NormQuery> QueryParser::parse(const std::string& query,
   std::vector<netspeak::model::NormQuery> norm_queries;
   normalizer.normalize(parsed_query,
                        {
-                           .max_norm_queries = options.get_max_norm_queries(),
-                           .min_length = options.get_min_length(),
-                           .max_length = options.get_max_length(),
-                           .max_regex_matches = options.get_max_regex_matches(),
+                           .max_norm_queries = options.max_norm_queries,
+                           .min_length = options.min_length,
+                           .max_length = options.max_length,
+                           .max_regex_matches = options.max_regex_matches,
                            .max_regex_time = std::chrono::milliseconds(
-                               options.get_max_regex_time_ms()),
+                               options.max_regex_time_ms),
                        },
                        norm_queries);
 

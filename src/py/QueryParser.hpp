@@ -34,26 +34,14 @@ public:
 };
 
 class QueryParserOptions {
-private:
-  uint32_t max_norm_queries_ = 1000;
-
-  uint32_t min_length_ = 1;
-  uint32_t max_length_ = 5;
-
-  uint32_t max_regex_matches_ = 100;
-  uint32_t max_regex_time_ms_ = 20;
-
 public:
-  uint32_t get_max_norm_queries() const;
-  void set_max_norm_queries(uint32_t);
-  uint32_t get_min_length() const;
-  void set_min_length(uint32_t);
-  uint32_t get_max_length() const;
-  void set_max_length(uint32_t);
-  uint32_t get_max_regex_matches() const;
-  void set_max_regex_matches(uint32_t);
-  uint32_t get_max_regex_time_ms() const;
-  void set_max_regex_time_ms(uint32_t);
+  uint32_t max_norm_queries = 1000;
+
+  uint32_t min_length = 1;
+  uint32_t max_length = 5;
+
+  uint32_t max_regex_matches = 100;
+  uint32_t max_regex_time_ms = 20;
 };
 
 
