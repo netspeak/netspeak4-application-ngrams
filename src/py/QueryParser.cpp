@@ -10,17 +10,17 @@
 
 namespace py {
 
-NormQueryUnit::NormQueryUnit(NormQueryUnitKind kind, std::string text,
+NormQueryUnit::NormQueryUnit(NormQueryUnit::Kind kind, std::string text,
                              QueryUnitKind source_kind)
     : kind_(kind), text_(text), source_kind_(source_kind) {}
 
-NormQueryUnitKind NormQueryUnit::get_kind() const {
+NormQueryUnit::Kind NormQueryUnit::get_kind() const {
   return kind_;
 }
 const std::string& NormQueryUnit::get_text() const {
   return text_;
 }
-QueryUnitKind NormQueryUnit::get_source_kind() const {
+NormQueryUnit::QueryUnitKind NormQueryUnit::get_source_kind() const {
   return source_kind_;
 }
 
@@ -90,9 +90,9 @@ QueryParser::QueryParser(const std::string& vocab,
 NormQuery convert_norm_query(netspeak::model::NormQuery input) {
   NormQuery result;
   for (const auto& unit : input.units()) {
-    NormQueryUnitKind kind = unit.tag();
+    NormQueryUnit::Kind kind = unit.tag();
     std::string text = *unit.text();
-    QueryUnitKind source_kind = unit.source().unit->tag();
+    NormQueryUnit::QueryUnitKind source_kind = unit.source().unit->tag();
 
     result.get_units().push_back(NormQueryUnit(kind, text, source_kind));
   }

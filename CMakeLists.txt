@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(netspeak4)
 
+add_subdirectory(build/dependencies/pybind11-2.9.0)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -17,6 +19,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
 include_directories(
     "src"
+    "build/dependencies/pybind11-2.9.0/include"
     "/usr/include/antlr4-runtime"
 )
 
@@ -233,3 +236,5 @@ target_link_libraries(netspeak4 "${NETSPEAK_LINK_LIBS}")
 add_executable(netspeak4-test test/netspeak/runner.cpp)
 target_sources(netspeak4-test PRIVATE "${NETSPEAK_TEST_SOURCES}")
 target_link_libraries(netspeak4-test "${NETSPEAK_TEST_LINK_LIBS}")
+
+pybind11_add_module(netspeak4-py src/PythonBindings.cpp "${NETSPEAK_SOURCES}")

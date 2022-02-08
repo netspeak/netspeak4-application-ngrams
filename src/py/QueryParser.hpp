@@ -6,21 +6,21 @@
 
 namespace py {
 
-using NormQueryUnitKind = netspeak::model::NormQuery::Unit::Tag;
-using QueryUnitKind = netspeak::model::Query::Unit::Tag;
-
 class NormQueryUnit {
+public:
+  typedef netspeak::model::NormQuery::Unit::Tag Kind;
+  typedef netspeak::model::Query::Unit::Tag QueryUnitKind;
+
 private:
-  NormQueryUnitKind kind_;
+  Kind kind_;
   std::string text_;
   QueryUnitKind source_kind_;
 
 public:
   NormQueryUnit() = delete;
-  NormQueryUnit(NormQueryUnitKind kind, std::string text,
-                QueryUnitKind source_kind);
+  NormQueryUnit(Kind kind, std::string text, QueryUnitKind source_kind);
 
-  NormQueryUnitKind get_kind() const;
+  Kind get_kind() const;
   const std::string& get_text() const;
   QueryUnitKind get_source_kind() const;
 };
