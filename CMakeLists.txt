@@ -248,7 +248,6 @@ boost_system
 boost_regex
 
 # antlr4
-# -l:libantlr4-runtime.a
 antlr4-runtime
 )
 
