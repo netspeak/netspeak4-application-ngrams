@@ -244,6 +244,7 @@ z
 rt
 
 # boost
+boost_system
 boost_regex
 
 # antlr4
