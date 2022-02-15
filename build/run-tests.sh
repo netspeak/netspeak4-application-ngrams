@@ -29,7 +29,7 @@ fi
 
 
 echo "Running test..."
-# ./build/debug/netspeak4-test --build_info=yes --detect_memory_leak=1 --log_level=test_suite
+./build/debug/netspeak4-test --build_info=yes --detect_memory_leak=1 --log_level=test_suite
 
 echo "Running python tests..."
 PYTHONPATH="$(realpath ./build/debug):$PYTHONPATH" python3 ./test/py/test.py
