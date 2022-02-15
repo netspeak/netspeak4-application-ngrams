@@ -243,18 +243,8 @@ dl
 z
 rt
 
-# ICU
-# -l:libicuuc.a
-# -l:libicudata.a
-
 # boost
-# -l:libboost_filesystem.a
-boost_filesystem
-# -l:libboost_regex.a
 boost_regex
-# -l:libboost_stacktrace_basic.a
-# -l:libboost_stacktrace_backtrace.a
-# -l:libboost_stacktrace_addr2line.a
 
 # antlr4
 # -l:libantlr4-runtime.a
