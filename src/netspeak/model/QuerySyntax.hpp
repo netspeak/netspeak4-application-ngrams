@@ -4,8 +4,6 @@
 #include <ostream>
 #include <string>
 
-#include "netspeak/value/pair.hpp"
-
 namespace netspeak {
 namespace model {
 
