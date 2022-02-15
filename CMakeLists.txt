@@ -16,6 +16,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include_directories(
     "src"
@@ -237,4 +238,58 @@ add_executable(netspeak4-test test/netspeak/runner.cpp)
 target_sources(netspeak4-test PRIVATE "${NETSPEAK_TEST_SOURCES}")
 target_link_libraries(netspeak4-test "${NETSPEAK_TEST_LINK_LIBS}")
 
-pybind11_add_module(netspeak4py src/PythonBindings.cpp "${NETSPEAK_SOURCES}")
+set(NETSPEAK_PY_LINK_LIBS
+dl
+z
+rt
+
+# ICU
+# -l:libicuuc.a
+# -l:libicudata.a
+
+# boost
+# -l:libboost_filesystem.a
+boost_filesystem
+# -l:libboost_regex.a
+boost_regex
+# -l:libboost_stacktrace_basic.a
+# -l:libboost_stacktrace_backtrace.a
+# -l:libboost_stacktrace_addr2line.a
+
+# antlr4
+# -l:libantlr4-runtime.a
+antlr4-runtime
+)
+
+set(NETSPEAK_PY_SOURCES
+"src/py/QueryParser"
+
+"src/antlr4/parse"
+"src/antlr4/QueryErrorHandler"
+
+"src/antlr4/generated/QueryBaseListener"
+"src/antlr4/generated/QueryBaseVisitor"
+"src/antlr4/generated/QueryLexer"
+"src/antlr4/generated/QueryListener"
+"src/antlr4/generated/QueryParser"
+"src/antlr4/generated/QueryVisitor"
+
+"src/netspeak/Dictionaries"
+"src/netspeak/error"
+"src/netspeak/QueryNormalizer"
+
+"src/netspeak/model/LengthRange"
+"src/netspeak/model/NormQuery"
+"src/netspeak/model/SimpleQuery"
+"src/netspeak/model/Query"
+"src/netspeak/model/QuerySyntax"
+
+"src/netspeak/regex/DefaultRegexIndex"
+"src/netspeak/regex/parsers"
+"src/netspeak/regex/RegexIndex"
+"src/netspeak/regex/RegexQuery"
+)
+
+pybind11_add_module(netspeak4py src/PythonBindings.cpp "${NETSPEAK_PY_SOURCES}")
+set_property(TARGET netspeak4py PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(netspeak4py PRIVATE pybind11::module "${NETSPEAK_PY_LINK_LIBS}")
