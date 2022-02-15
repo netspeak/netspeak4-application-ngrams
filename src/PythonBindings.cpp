@@ -17,8 +17,8 @@ PYBIND11_MODULE(netspeak4py, m) {
            "Create a new norm query unit", pybind11::arg("kind"),
            pybind11::arg("text"), pybind11::arg("sourceKind"))
       .def("getKind", &NormQueryUnit::get_kind)
-      .def("getText", &NormQueryUnit::get_kind)
-      .def("getSourceKind", &NormQueryUnit::get_kind);
+      .def("getText", &NormQueryUnit::get_text)
+      .def("getSourceKind", &NormQueryUnit::get_source_kind);
 
   pybind11::enum_<NormQueryUnit::Kind>(normQueryUnit, "Kind")
       .value("NormWord", NormQueryUnit::Kind::WORD)
