@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include <memory>
 
@@ -18,7 +19,17 @@ PYBIND11_MODULE(netspeak4py, m) {
            pybind11::arg("text"), pybind11::arg("sourceKind"))
       .def("getKind", &NormQueryUnit::get_kind)
       .def("getText", &NormQueryUnit::get_text)
-      .def("getSourceKind", &NormQueryUnit::get_source_kind);
+      .def("getSourceKind", &NormQueryUnit::get_source_kind)
+      .def("__repr__", [](const NormQueryUnit& u) {
+        const auto kind = u.get_kind();
+        const std::string& kind_str = kind == NormQueryUnit::Kind::WORD ? "NormWord"
+                               : kind == NormQueryUnit::Kind::QMARK
+                                   ? "NormQMark"
+                                   : "Invalid";
+
+        return "<netspeak4py.NormQueryUnit " + kind_str + " \"" +
+               (u.get_text()) + "\">";
+      });
 
   pybind11::enum_<NormQueryUnit::Kind>(normQueryUnit, "Kind")
       .value("NormWord", NormQueryUnit::Kind::WORD)
@@ -39,7 +50,25 @@ PYBIND11_MODULE(netspeak4py, m) {
       .export_values();
 
   pybind11::class_<NormQuery> normQuery(m, "NormQuery");
-  normQuery.def(pybind11::init<>()).def("getUnits", &NormQuery::get_units);
+  normQuery.def(pybind11::init<>())
+      .def("getUnits", &NormQuery::get_units)
+      .def("__repr__", [](NormQuery& q) {
+        std::string s = "<netspeak4py.NormQuery \"";
+        auto first = true;
+        for (const auto& u : q.get_units()) {
+          if (first) {
+            first = false;
+          } else {
+            s.push_back(' ');
+          }
+
+          s.append(u.get_text());
+        }
+
+        s.append("\">");
+        return s;
+      });
+  ;
 
   pybind11::class_<QueryParserOptions> queryParserOptions(m,
                                                           "QueryParserOptions");
