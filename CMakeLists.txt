@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.14)
 project(netspeak4)
 
+add_subdirectory(build/dependencies/pybind11-2.9.0)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -14,9 +16,11 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include_directories(
     "src"
+    "build/dependencies/pybind11-2.9.0/include"
     "/usr/include/antlr4-runtime"
 )
 
@@ -233,3 +237,49 @@ target_link_libraries(netspeak4 "${NETSPEAK_LINK_LIBS}")
 add_executable(netspeak4-test test/netspeak/runner.cpp)
 target_sources(netspeak4-test PRIVATE "${NETSPEAK_TEST_SOURCES}")
 target_link_libraries(netspeak4-test "${NETSPEAK_TEST_LINK_LIBS}")
+
+set(NETSPEAK_PY_LINK_LIBS
+dl
+z
+rt
+
+# boost
+boost_system
+boost_regex
+
+# antlr4
+antlr4-runtime
+)
+
+set(NETSPEAK_PY_SOURCES
+"src/py/QueryParser"
+
+"src/antlr4/parse"
+"src/antlr4/QueryErrorHandler"
+
+"src/antlr4/generated/QueryBaseListener"
+"src/antlr4/generated/QueryBaseVisitor"
+"src/antlr4/generated/QueryLexer"
+"src/antlr4/generated/QueryListener"
+"src/antlr4/generated/QueryParser"
+"src/antlr4/generated/QueryVisitor"
+
+"src/netspeak/Dictionaries"
+"src/netspeak/error"
+"src/netspeak/QueryNormalizer"
+
+"src/netspeak/model/LengthRange"
+"src/netspeak/model/NormQuery"
+"src/netspeak/model/SimpleQuery"
+"src/netspeak/model/Query"
+"src/netspeak/model/QuerySyntax"
+
+"src/netspeak/regex/DefaultRegexIndex"
+"src/netspeak/regex/parsers"
+"src/netspeak/regex/RegexIndex"
+"src/netspeak/regex/RegexQuery"
+)
+
+pybind11_add_module(netspeak4py src/PythonBindings.cpp "${NETSPEAK_PY_SOURCES}")
+set_property(TARGET netspeak4py PROPERTY POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(netspeak4py PRIVATE pybind11::module "${NETSPEAK_PY_LINK_LIBS}")
