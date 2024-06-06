@@ -1,0 +1,44 @@
+FROM debian:trixie as build
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Tools and Libraries
+#  For shorter build time (but larger binary), we could install protobuf-compiler-grpc libgrpc++-dev here.
+#  If we leave these out, we only need to install pkg-config and the CMake setup automatically compiles
+#  and links grpc++ into the final binary.
+RUN apt-get update && apt-get -y install git g++-13 cmake lcov \
+    protobuf-compiler \
+    pkg-config \
+    libboost-all-dev \
+    default-jre
+
+# Dependencies
+RUN apt-get update && apt-get -y install libcmph-dev libicu-dev
+
+# Copy Repo
+RUN mkdir /netspeak
+WORKDIR /netspeak
+COPY CMakeLists.txt ./CMakeLists.txt
+COPY bindings ./bindings
+COPY conf ./conf
+COPY include ./include
+COPY src ./src
+COPY tests ./tests
+
+# Configure and Build
+RUN cmake -S ./ -B ./build/ -DCMAKE_BUILD_TYPE=MinSizeRel -D CMAKE_C_COMPILER=gcc-13 -D CMAKE_CXX_COMPILER=g++-13 -D NETSPEAK_BUILD_DOCS=NO -D NETSPEAK_BUILD_TESTS=NO && \
+    cmake --build ./build/ --config MinSizeRel --target netspeakcli -j 16 && \
+    cmake --build ./build/ --config MinSizeRel --target tests -j 16
+
+# Test the build
+RUN cd build/ && ctest -j6 -C MinSizeRel -T test --output-on-failure
+
+
+FROM debian:trixie-slim
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update && apt-get -y install libicu72 libcmph0
+COPY --from=build /netspeak/build/src/netspeakcli /usr/local/bin/netspeak4
+
+CMD netspeak4 --help

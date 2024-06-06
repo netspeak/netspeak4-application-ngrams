@@ -6,11 +6,11 @@
 #include <grpcpp/server_builder.h>
 #include <grpcpp/server_context.h>
 
+#include <filesystem>
+#include <optional>
 #include <string>
 
 #include "boost/algorithm/string.hpp"
-#include "boost/filesystem.hpp"
-#include "boost/optional.hpp"
 
 #include "cli/logging.hpp"
 #include "cli/util.hpp"
@@ -26,7 +26,6 @@
 namespace cli {
 
 namespace bpo = boost::program_options;
-namespace bfs = boost::filesystem;
 using namespace netspeak;
 
 #define CONFIG_KEY "config"
@@ -37,10 +36,8 @@ std::string ServeCommand::desc() {
   return "Create a new gRPC server for a Netspeak index.";
 };
 
-void ServeCommand::add_options(
-    boost::program_options::options_description_easy_init& easy_init) {
-  easy_init(CONFIG_KEY ",c",
-            bpo::value<std::vector<std::string>>()->required()->multitoken(),
+void ServeCommand::add_options(boost::program_options::options_description_easy_init& easy_init) {
+  easy_init(CONFIG_KEY ",c", bpo::value<std::vector<std::string>>()->required()->multitoken(),
             "The configuration file(s) of the index(es).\n"
             "\n"
             "It's possible to give multiple config files like this:\n"
@@ -50,28 +47,25 @@ void ServeCommand::add_options(
             "    netspeak4 serve -c /*.properties\n"
             "\n"
             "Note that all indexes have to have unique coprus keys.");
-  easy_init(PORT_KEY ",p", bpo::value<uint16_t>()->required(),
-            "The port on which the server will listen.");
-  easy_init(
-      OVERRIDE_KEY ",r", bpo::value<std::vector<std::string>>()->multitoken(),
-      "A key-value pair that will override a properties in the given "
-      "configuration file(s). You can specify any number of overrides\n"
-      "\n"
-      "All overrides have to be in the form:\n"
-      "    --override \"key:value\"\n"
-      "or:\n"
-      "    --override \"key=value\"\n"
-      "\n"
-      "All overrides together will be treated similar to a configuration file. "
-      "Every given configuration file (via `-c`) will be replaced with a new "
-      "virtual file that contains all overrides and extends the given file.\n"
-      "\n"
-      "The only key that cannot be overriden is `extends`.");
+  easy_init(PORT_KEY ",p", bpo::value<uint16_t>()->required(), "The port on which the server will listen.");
+  easy_init(OVERRIDE_KEY ",r", bpo::value<std::vector<std::string>>()->multitoken(),
+            "A key-value pair that will override a properties in the given "
+            "configuration file(s). You can specify any number of overrides\n"
+            "\n"
+            "All overrides have to be in the form:\n"
+            "    --override \"key:value\"\n"
+            "or:\n"
+            "    --override \"key=value\"\n"
+            "\n"
+            "All overrides together will be treated similar to a configuration file. "
+            "Every given configuration file (via `-c`) will be replaced with a new "
+            "virtual file that contains all overrides and extends the given file.\n"
+            "\n"
+            "The only key that cannot be overriden is `extends`.");
   add_logging_options(easy_init);
 }
 
-boost::optional<Configuration> parse_overrides(
-    const std::vector<std::string>& overrides) {
+std::optional<Configuration> parse_overrides(const std::vector<std::string>& overrides) {
   util::Config config;
 
   for (auto& line : overrides) {
@@ -100,13 +94,12 @@ boost::optional<Configuration> parse_overrides(
   }
 
   if (config.empty()) {
-    return boost::none;
+    return std::nullopt;
   } else {
     return Configuration(config);
   }
 }
-Configuration load_config(const std::string& config_file,
-                          const boost::optional<Configuration>& override) {
+Configuration load_config(const std::string& config_file, const std::optional<Configuration>& override) {
   std::cout << "Loading config " << config_file << std::endl;
   Configuration config(config_file);
   if (override) {
@@ -134,14 +127,11 @@ service::UniqueMap::entry load_map_entry(const Configuration& config) {
   };
 }
 
-std::unique_ptr<service::NetspeakService::Service> build_service(
-    boost::program_options::variables_map& variables) {
+std::unique_ptr<service::NetspeakService::Service> build_service(boost::program_options::variables_map& variables) {
   const auto& patterns = variables[CONFIG_KEY].as<std::vector<std::string>>();
-  const auto overrides =
-      variables.count(OVERRIDE_KEY) == 0
-          ? boost::none
-          : parse_overrides(
-                variables[OVERRIDE_KEY].as<std::vector<std::string>>());
+  const auto overrides = variables.count(OVERRIDE_KEY) == 0
+                             ? std::nullopt
+                             : parse_overrides(variables[OVERRIDE_KEY].as<std::vector<std::string>>());
 
   auto entries = std::make_unique<std::vector<service::UniqueMap::entry>>();
   for (const auto& pattern : patterns) {
@@ -161,8 +151,7 @@ int ServeCommand::run(boost::program_options::variables_map variables) {
   service = add_logging(variables, std::move(service));
 
   grpc::ServerBuilder builder;
-  builder.AddListeningPort("[::]:" + std::to_string(port),
-                           grpc::InsecureServerCredentials());
+  builder.AddListeningPort("[::]:" + std::to_string(port), grpc::InsecureServerCredentials());
   builder.RegisterService(&*service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on port " << port << std::endl;

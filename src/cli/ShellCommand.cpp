@@ -5,24 +5,20 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+#include <netspeak/NetspeakService.grpc.pb.h>
 
 #include <chrono>
+#include <cli/util.hpp>
 #include <cstdio>
+#include <filesystem>
 #include <iomanip>
-
-#include "boost/filesystem.hpp"
-
-#include "cli/util.hpp"
-
-#include "netspeak/Configuration.hpp"
-#include "netspeak/Netspeak.hpp"
-#include "netspeak/service/NetspeakService.grpc.pb.h"
-#include "netspeak/util/service.hpp"
+#include <netspeak/Configuration.hpp>
+#include <netspeak/Netspeak.hpp>
+#include <netspeak/util/service.hpp>
 
 namespace cli {
 
 namespace bpo = boost::program_options;
-namespace bfs = boost::filesystem;
 using namespace netspeak;
 
 std::string ShellCommand::desc() {
@@ -50,24 +46,18 @@ std::string ShellCommand::desc() {
          "    netspeak4 shell --source localhost:1234 --corpus web-en\n";
 };
 
-void ShellCommand::add_options(
-    boost::program_options::options_description_easy_init& easy_init) {
-  easy_init("in,i", bpo::value<std::string>(),
-            "Directory containing a Netspeak index.");
-  easy_init(
-      "config,c", bpo::value<std::string>(),
-      "A .properties file describing the configuration of a Netspeak index.");
-  easy_init("source,s", bpo::value<std::string>(),
-            "The address of a Netspeak gRPC server.");
+void ShellCommand::add_options(boost::program_options::options_description_easy_init& easy_init) {
+  easy_init("in,i", bpo::value<std::string>(), "Directory containing a Netspeak index.");
+  easy_init("config,c", bpo::value<std::string>(),
+            "A .properties file describing the configuration of a Netspeak index.");
+  easy_init("source,s", bpo::value<std::string>(), "The address of a Netspeak gRPC server.");
   easy_init("corpus", bpo::value<std::string>(),
             "The corpus key used for all requests to a Netspeak server.\n"
             "\n"
             "This can only be used in combination with the `--source` option.");
 }
 
-typedef std::function<void(const service::SearchRequest&,
-                           service::SearchResponse&)>
-    Searcher;
+typedef std::function<void(const service::SearchRequest&, service::SearchResponse&)> Searcher;
 
 void RunShell(Searcher& searcher) {
   std::cout << "Enter a query (type 'q' to exit).\n";
@@ -106,15 +96,10 @@ void RunShell(Searcher& searcher) {
 
       // print some meta data about the response
       std::cout << FG_BRIGHT_BLACK;
-      std::cout << result.phrases().size()
-                << " phrase(s) (limit=" << max_phrases_request << ") took "
-                << std::chrono::duration_cast<std::chrono::milliseconds>(
-                       duration)
-                       .count()
-                << "ms";
+      std::cout << result.phrases().size() << " phrase(s) (limit=" << max_phrases_request << ") took "
+                << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << "ms";
       if (!result.unknown_words().empty()) {
-        std::cout << " (" << result.unknown_words().size()
-                  << " unknown word(s):";
+        std::cout << " (" << result.unknown_words().size() << " unknown word(s):";
         for (const auto& unknown_word : result.unknown_words()) {
           std::cout << " \"" << unknown_word << "\"";
         }
@@ -134,8 +119,7 @@ void RunShell(Searcher& searcher) {
         }
         phrase_counter++;
 
-        std::cout << std::right << std::setw(4) << i++ << ": " << std::left
-                  << std::setw(12) << phrase.frequency();
+        std::cout << std::right << std::setw(4) << i++ << ": " << std::left << std::setw(12) << phrase.frequency();
         for (const auto& word : phrase.words()) {
           std::cout << " ";
 
@@ -167,16 +151,14 @@ void RunShell(Searcher& searcher) {
       }
 
       if ((int)phrase_counter != result.phrases().size()) {
-        std::cout << "and " << (result.phrases().size() - phrase_counter)
-                  << " more phrase(s)\n";
+        std::cout << "and " << (result.phrases().size() - phrase_counter) << " more phrase(s)\n";
       }
     } else {
       const auto& error = response.error();
 
       // print error
-      std::cout << "Error: "
-                << service::SearchResponse::Error::Kind_Name(error.kind())
-                << ": " << error.message() << std::endl;
+      std::cout << "Error: " << service::SearchResponse::Error::Kind_Name(error.kind()) << ": " << error.message()
+                << std::endl;
     }
     std::cout.flush();
   }
@@ -194,15 +176,13 @@ void RunNetspeakShell(const Configuration& config) {
     return;
   }
 
-  Searcher searcher = [&](const service::SearchRequest& request,
-                          service::SearchResponse& response) {
+  Searcher searcher = [&](const service::SearchRequest& request, service::SearchResponse& response) {
     netspeak.search(request, response);
   };
   RunShell(searcher);
 }
 
-void handle_corpus_key(std::string& corpus_key,
-                       netspeak::service::NetspeakService::Stub& stub) {
+void handle_corpus_key(std::string& corpus_key, netspeak::service::NetspeakService::Stub& stub) {
   service::CorporaResponse corporaRes = getCorpora(stub);
   const auto& corpora = corporaRes.corpora();
   if (corpus_key.empty()) {
@@ -212,8 +192,7 @@ void handle_corpus_key(std::string& corpus_key,
       throw std::logic_error("The server doesn't support any corpora.");
     } else if (corpora.size() == 1) {
       const auto& corpus = *corpora.begin();
-      std::cout << "The corpus " << corpus
-                << " has been selected because it's the only corpus.\n";
+      std::cout << "The corpus " << corpus << " has been selected because it's the only corpus.\n";
       corpus_key = corpus.key();
     } else {
       std::cout << "The server supports multiple corpora. Please choose one by "
@@ -236,9 +215,7 @@ void handle_corpus_key(std::string& corpus_key,
     // verify key
 
     if (std::find_if(corpora.begin(), corpora.end(),
-                     [&](const service::Corpus& corpus) {
-                       return corpus.key() == corpus_key;
-                     }) == corpora.end()) {
+                     [&](const service::Corpus& corpus) { return corpus.key() == corpus_key; }) == corpora.end()) {
       std::stringstream what;
       what << "Cannot find the given corpus key \"" << corpus_key
            << "\" in the list of corpora support by the server.\n"
@@ -251,14 +228,12 @@ void handle_corpus_key(std::string& corpus_key,
   }
 }
 void RunLocalServerShell(const std::string& address, std::string corpus_key) {
-  auto channel =
-      grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
+  auto channel = grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
   auto stub = service::NetspeakService::NewStub(channel);
 
   handle_corpus_key(corpus_key, *stub);
 
-  Searcher searcher = [&](const service::SearchRequest& request,
-                          service::SearchResponse& response) {
+  Searcher searcher = [&](const service::SearchRequest& request, service::SearchResponse& response) {
     service::SearchRequest req(request);
     req.set_corpus(corpus_key);
 

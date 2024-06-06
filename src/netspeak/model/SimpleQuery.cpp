@@ -1,15 +1,12 @@
-#include "netspeak/model/SimpleQuery.hpp"
-
 #include <algorithm>
 #include <cassert>
+#include <netspeak/error.hpp>
+#include <netspeak/model/SimpleQuery.hpp>
+#include <netspeak/util/Vec.hpp>
 #include <ostream>
 
-#include "netspeak/error.hpp"
-#include "netspeak/util/Vec.hpp"
 
-
-namespace netspeak {
-namespace model {
+namespace netspeak::model {
 
 typedef SimpleQuery::Unit Unit;
 
@@ -283,6 +280,4 @@ std::ostream& operator<<(std::ostream& out, const SimpleQuery& query) {
   return out << "SimpleQuery( " << query.root() << " )";
 }
 
-
-} // namespace model
-} // namespace netspeak
+} // namespace netspeak::model

@@ -1,6 +1,6 @@
 # Test files should not have their line endings modified by git
-/test/data/**/* binary
+/tests/data/**/* binary
 
-/test/data/**/*.txt text eol=lf
-/test/data/**/*.csv text eol=lf
-/test/data/**/*.md text eol=lf
+/tests/data/**/*.txt text eol=lf
+/tests/data/**/*.csv text eol=lf
+/tests/data/**/*.md text eol=lf

@@ -1,12 +1,11 @@
-#include "netspeak/util/PropertiesFormat.hpp"
+#include <inttypes.h>
 
 #include <istream>
+#include <netspeak/util/PropertiesFormat.hpp>
 #include <ostream>
 
 
-namespace netspeak {
-namespace util {
-namespace __properties_format_impl {
+namespace netspeak::util::__properties_format_impl {
 
 inline bool is_space(int c) {
   return c == ' ' || c == '\t';
@@ -74,8 +73,7 @@ void consume_delimiter(std::istream& in) {
 
   int c = in.get();
   if (c == EOF) {
-    throw format_properties_error("Unexpected EOF after key at " +
-                                  std::to_string(in.tellg()));
+    throw format_properties_error("Unexpected EOF after key at " + std::to_string(in.tellg()));
   }
   if (is_delimiter(c)) {
     // just consume the following spaces
@@ -90,16 +88,14 @@ void consume_delimiter(std::istream& in) {
       consume_spaces(in);
     }
   } else {
-    throw format_properties_error("Unexpected character after key at " +
-                                  std::to_string(in.tellg()));
+    throw format_properties_error("Unexpected character after key at " + std::to_string(in.tellg()));
   }
 }
 
 void read_escaped(std::istream& in, std::string& consumer) {
   int c = in.get();
   if (c == EOF) {
-    throw format_properties_error("Unexpected EOF during escape at " +
-                                  std::to_string(in.tellg()));
+    throw format_properties_error("Unexpected EOF during escape at " + std::to_string(in.tellg()));
   } else if (c == 'u') {
     // unicode escpae
     uint16_t escaped = 0;
@@ -107,9 +103,7 @@ void read_escaped(std::istream& in, std::string& consumer) {
       c = in.get();
       uint16_t digit;
       if (c == EOF) {
-        throw format_properties_error(
-            "Unexpected EOF during Unicode escape at " +
-            std::to_string(in.tellg()));
+        throw format_properties_error("Unexpected EOF during Unicode escape at " + std::to_string(in.tellg()));
       } else if (c >= '0' && c <= '9') {
         digit = c - '0';
       } else if (c >= 'A' && c <= 'F') {
@@ -117,16 +111,12 @@ void read_escaped(std::istream& in, std::string& consumer) {
       } else if (c >= 'a' && c <= 'f') {
         digit = 10 + c - 'a';
       } else {
-        throw format_properties_error(
-            "Unexpected character during Unicode escape at " +
-            std::to_string(in.tellg()));
+        throw format_properties_error("Unexpected character during Unicode escape at " + std::to_string(in.tellg()));
       }
       escaped = (escaped << 4) | digit;
     }
     if (escaped >= 128) {
-      throw format_properties_error(
-          "Right now, only ASCII characters can be escape at " +
-          std::to_string(in.tellg()));
+      throw format_properties_error("Right now, only ASCII characters can be escape at " + std::to_string(in.tellg()));
     }
     consumer.push_back((char)escaped);
   } else if (c == '\n') {
@@ -156,14 +146,12 @@ std::string read_key(std::istream& in) {
   while (true) {
     c = in.peek();
     if (c == EOF) {
-      throw format_properties_error("Unexpected EOF after key at " +
-                                    std::to_string(in.tellg()));
+      throw format_properties_error("Unexpected EOF after key at " + std::to_string(in.tellg()));
     } else if (c == '\\') {
       in.get();
       read_escaped(in, key);
     } else if (is_line_break(c)) {
-      throw format_properties_error("Unexpected line break after key at " +
-                                    std::to_string(in.tellg()));
+      throw format_properties_error("Unexpected line break after key at " + std::to_string(in.tellg()));
     } else if (is_delimiter(c) || is_space(c)) {
       // reached end of key
       break;
@@ -206,8 +194,7 @@ void write_hex_digit(std::ostream& out, char c) {
 }
 void write_unicode_char(std::ostream& out, char c) {
   if (c < 0) {
-    throw tracable_logic_error(
-        "Right now, only ASCII characters can be escape.");
+    throw tracable_logic_error("Right now, only ASCII characters can be escape.");
   }
   out << '\\' << 'u' << '0' << '0';
   write_hex_digit(out, c >> 4);
@@ -265,6 +252,4 @@ void write_value(std::ostream& out, const std::string& value) {
   }
 }
 
-} // namespace __properties_format_impl
-} // namespace util
-} // namespace netspeak
+} // namespace netspeak::util::__properties_format_impl

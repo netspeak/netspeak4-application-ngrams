@@ -1,8 +1,7 @@
-#include "netspeak/model/Words.hpp"
+#include <netspeak/model/Words.hpp>
 
 
-namespace netspeak {
-namespace model {
+namespace netspeak::model {
 
 
 bool Words::is_subsequence_of(const Words& words) const {
@@ -41,5 +40,4 @@ std::ostream& operator<<(std::ostream& out, const Words& words) {
   return out;
 }
 
-} // namespace model
-} // namespace netspeak
+} // namespace netspeak::model

@@ -1,14 +1,12 @@
-#include "netspeak/util/FileDescriptor.hpp"
-
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "netspeak/error.hpp"
-#include "netspeak/util/check.hpp"
+#include <netspeak/error.hpp>
+#include <netspeak/util/FileDescriptor.hpp>
+#include <netspeak/util/check.hpp>
 
 
-namespace netspeak {
-namespace util {
+namespace netspeak::util {
 
 FileDescriptor::_fd::_fd(int fd) : fd(fd) {}
 FileDescriptor::_fd::~_fd() {
@@ -41,5 +39,4 @@ struct stat FileDescriptor::stat() const {
 }
 
 
-} // namespace util
-} // namespace netspeak
+} // namespace netspeak::util

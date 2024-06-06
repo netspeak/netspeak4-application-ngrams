@@ -1,13 +1,10 @@
-#include "netspeak/model/Query.hpp"
-
 #include <cassert>
+#include <netspeak/error.hpp>
+#include <netspeak/model/Query.hpp>
 #include <ostream>
 
-#include "netspeak/error.hpp"
 
-
-namespace netspeak {
-namespace model {
+namespace netspeak::model {
 
 typedef Query::Unit Unit;
 
@@ -163,5 +160,4 @@ std::ostream& operator<<(std::ostream& out, const Query& query) {
 }
 
 
-} // namespace model
-} // namespace netspeak
+} // namespace netspeak::model

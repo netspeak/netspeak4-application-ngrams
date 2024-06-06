@@ -1,12 +1,11 @@
-#include "netspeak/regex/RegexQuery.hpp"
-
 #include <algorithm>
 #include <codecvt>
+#include <limits>
 #include <locale>
+#include <netspeak/regex/RegexQuery.hpp>
 #include <ostream>
 
-namespace netspeak {
-namespace regex {
+namespace netspeak::regex {
 
 /*
  * The implementation will do the following optimizations:
@@ -33,11 +32,11 @@ RegexQuery RegexQuery::create_reject_all() {
 
 uint32_t RegexQuery::combinations_upper_bound() const {
   uint64_t count = 1;
-  for (const auto& unit : m_units) {
+  for (const auto& unit : units) {
     switch (unit.type) {
       case RegexUnit::Type::QMARK:
       case RegexUnit::Type::STAR:
-        return UINT32_MAX;
+        return std::numeric_limits<uint32_t>::max();
 
       case RegexUnit::Type::OPTIONAL_WORD:
         count *= 2;
@@ -53,14 +52,14 @@ uint32_t RegexQuery::combinations_upper_bound() const {
 
     if (count == 0)
       return 0;
-    if (count >= UINT32_MAX)
-      return UINT32_MAX;
+    if (count >= std::numeric_limits<uint32_t>::max())
+      return std::numeric_limits<uint32_t>::max();
   }
   return count;
 }
 
-const size_t MIN_UTF8_BYTES_PER_CHAR = 1;
-const size_t MAX_UTF8_BYTES_PER_CHAR = 4;
+constexpr size_t MIN_UTF8_BYTES_PER_CHAR = 1;
+constexpr size_t MAX_UTF8_BYTES_PER_CHAR = 4;
 // More information
 // https://en.wikipedia.org/wiki/UTF-8#Description
 size_t number_of_utf8_bytes(char32_t c) {
@@ -75,7 +74,7 @@ size_t number_of_utf8_bytes(char32_t c) {
 
 size_t RegexQuery::min_utf8_input_length() const {
   size_t min = 0;
-  for (const auto& unit : m_units) {
+  for (const auto& unit : units) {
     switch (unit.type) {
       case RegexUnit::Type::WORD:
         for (const auto c : unit.value) {
@@ -89,9 +88,9 @@ size_t RegexQuery::min_utf8_input_length() const {
 
       case RegexUnit::Type::CHAR_SET: {
         if (unit.value.empty()) {
-          return SIZE_MAX;
+          return std::numeric_limits<size_t>::max();
         }
-        size_t char_set_min = SIZE_MAX;
+        size_t char_set_min = std::numeric_limits<size_t>::max();
         for (const auto c : unit.value) {
           const auto c_min = number_of_utf8_bytes(c);
           if (c_min < char_set_min) {
@@ -114,7 +113,7 @@ size_t RegexQuery::min_utf8_input_length() const {
 }
 size_t RegexQuery::max_utf8_input_length() const {
   size_t max = 0;
-  for (const auto& unit : m_units) {
+  for (const auto& unit : units) {
     switch (unit.type) {
       case RegexUnit::Type::WORD:
       case RegexUnit::Type::OPTIONAL_WORD:
@@ -145,7 +144,7 @@ size_t RegexQuery::max_utf8_input_length() const {
       }
 
       case RegexUnit::Type::STAR:
-        return SIZE_MAX;
+        return std::numeric_limits<size_t>::max();
     }
   }
   return max;
@@ -247,8 +246,7 @@ void RegexQueryBuilder::add(RegexUnit unit) {
 
   if (unit.value.empty()) {
     // there's no point in concatenating the empty string
-    if (unit.type == RegexUnit::Type::WORD ||
-        unit.type == RegexUnit::Type::OPTIONAL_WORD) {
+    if (unit.type == RegexUnit::Type::WORD || unit.type == RegexUnit::Type::OPTIONAL_WORD) {
       return; // rule 1, 5
     }
 
@@ -296,8 +294,7 @@ void RegexQueryBuilder::add(RegexUnit unit) {
       if (prev.type == RegexUnit::Type::STAR) {
         return; // rule 2
       }
-      if (prev.type == RegexUnit::Type::OPTIONAL_WORD ||
-          prev.type == RegexUnit::Type::QMARK) {
+      if (prev.type == RegexUnit::Type::OPTIONAL_WORD || prev.type == RegexUnit::Type::QMARK) {
         // rule 6, 3
         remove_trailing_optional_words(units);
         units.push_back(unit);
@@ -359,5 +356,4 @@ std::ostream& operator<<(std::ostream& outputStream, const RegexQuery& query) {
 }
 
 
-} // namespace regex
-} // namespace netspeak
+} // namespace netspeak::regex

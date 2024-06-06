@@ -1,9 +1,7 @@
-#include "netspeak/util/string.hpp"
-
 #include <netspeak/util/check.hpp>
+#include <netspeak/util/string.hpp>
 
-namespace netspeak {
-namespace util {
+namespace netspeak::util {
 
 bool is_valid_utf8(const std::string& str) {
   // http://www.zedwood.com/article/cpp-is-valid-utf8-string-function
@@ -17,8 +15,7 @@ bool is_valid_utf8(const std::string& str) {
       n = 0; // 0bbbbbbb
     else if ((c & 0xE0) == 0xC0)
       n = 1; // 110bbbbb
-    else if (c == 0xed && i < (ix - 1) &&
-             ((unsigned char)str[i + 1] & 0xa0) == 0xa0)
+    else if (c == 0xed && i < (ix - 1) && ((unsigned char)str[i + 1] & 0xa0) == 0xa0)
       return false; // U+d800 to U+dfff
     else if ((c & 0xF0) == 0xE0)
       n = 2; // 1110bbbb
@@ -44,5 +41,4 @@ void check_valid_utf8(const std::string& str) {
   check(is_valid_utf8(str), "Expected the string \"" + str + "\" to be valid UTF-8.");
 }
 
-} // namespace util
-} // namespace netspeak
+} // namespace netspeak::util

@@ -1,16 +1,15 @@
-#include "netspeak/Netspeak.hpp"
-
+#include <fstream>
 #include <future>
+#include <netspeak/Netspeak.hpp>
+#include <netspeak/error.hpp>
+#include <netspeak/util/Vec.hpp>
 
-#include "boost/lexical_cast.hpp"
-
-#include "netspeak/error.hpp"
-#include "netspeak/util/Vec.hpp"
+#include <boost/lexical_cast.hpp>
 
 
 namespace netspeak {
 
-namespace bfs = boost::filesystem;
+namespace fs = std::filesystem;
 using namespace model;
 
 const std::string DEFAULT_REGEX_MAX_MATCHES = "100";
@@ -18,18 +17,16 @@ const std::string DEFAULT_REGEX_MAX_TIME = "20" /* ms */;
 const std::string DEFAULT_CACHE_CAPCITY = "1000000";
 const std::string DEFAULT_MAX_NORM_QUERIES = "1000";
 
-Netspeak::search_config Netspeak::get_search_config(
-    const Configuration& config) const {
+Netspeak::search_config Netspeak::get_search_config(const Configuration& config) const {
   Netspeak::search_config sc = {
-    .max_norm_queries = boost::lexical_cast<size_t>(config.get(
-        Configuration::SEARCH_MAX_NORM_QUERIES, DEFAULT_MAX_NORM_QUERIES)),
+    .max_norm_queries =
+        boost::lexical_cast<size_t>(config.get(Configuration::SEARCH_MAX_NORM_QUERIES, DEFAULT_MAX_NORM_QUERIES)),
 
     // regex
-    .regex_max_matches = boost::lexical_cast<size_t>(config.get(
-        Configuration::SEARCH_REGEX_MAX_MATCHES, DEFAULT_REGEX_MAX_MATCHES)),
-    .regex_max_time =
-        std::chrono::milliseconds(boost::lexical_cast<size_t>(config.get(
-            Configuration::SEARCH_REGEX_MAX_TIME, DEFAULT_REGEX_MAX_TIME))),
+    .regex_max_matches =
+        boost::lexical_cast<size_t>(config.get(Configuration::SEARCH_REGEX_MAX_MATCHES, DEFAULT_REGEX_MAX_MATCHES)),
+    .regex_max_time = std::chrono::milliseconds(
+        boost::lexical_cast<size_t>(config.get(Configuration::SEARCH_REGEX_MAX_TIME, DEFAULT_REGEX_MAX_TIME))),
   };
   return sc;
 }
@@ -37,30 +34,23 @@ Netspeak::search_config Netspeak::get_search_config(
 void Netspeak::initialize(const Configuration& config) {
   search_config_ = get_search_config(config);
 
-  const auto pc_dir =
-      config.get_required_path(Configuration::PATH_TO_PHRASE_CORPUS);
-  const auto pd_dir =
-      config.get_required_path(Configuration::PATH_TO_PHRASE_DICTIONARY);
-  const auto cache_cap =
-      config.get(Configuration::CACHE_CAPACITY, DEFAULT_CACHE_CAPCITY);
-  const auto lower_case =
-      config.get_bool(Configuration::QUERY_LOWER_CASE, false);
-  const auto hash_dir_dir =
-      config.get_optional_path(Configuration::PATH_TO_HASH_DICTIONARY);
-  const auto regex_dir =
-      config.get_optional_path(Configuration::PATH_TO_REGEX_VOCABULARY);
+  const auto pc_dir = config.get_required_path(Configuration::PATH_TO_PHRASE_CORPUS);
+  const auto pd_dir = config.get_required_path(Configuration::PATH_TO_PHRASE_DICTIONARY);
+  const auto cache_cap = config.get(Configuration::CACHE_CAPACITY, DEFAULT_CACHE_CAPCITY);
+  const auto lower_case = config.get_bool(Configuration::QUERY_LOWER_CASE, false);
+  const auto hash_dir_dir = config.get_optional_path(Configuration::PATH_TO_HASH_DICTIONARY);
+  const auto regex_dir = config.get_optional_path(Configuration::PATH_TO_REGEX_VOCABULARY);
 
   result_cache_.reserve(std::stoul(cache_cap));
 
   {
     auto pd_result = std::async([&]() {
       util::log("Open phrase dictionary in", pd_dir);
-      phrase_dictionary_.reset(
-          PhraseDictionary::Open(pd_dir, util::memory_type::min_required));
+      phrase_dictionary_.reset(PhraseDictionary::Open(pd_dir, util::memory_type::min_required));
     });
 
     auto pc_result = std::async([&]() {
-      const auto pc_bin_dir = bfs::path(pc_dir) / "bin";
+      const auto pc_bin_dir = fs::path(pc_dir) / "bin";
       util::log("Open phrase corpus in", pc_bin_dir);
       phrase_corpus_.open(pc_bin_dir);
     });
@@ -68,9 +58,9 @@ void Netspeak::initialize(const Configuration& config) {
     // The hash dictionary is optional.
     auto hd_result = std::async([&]() {
       hash_dictionary_ = std::make_shared<Dictionaries::Map>();
-      if (hash_dir_dir && bfs::exists(*hash_dir_dir)) {
-        const bfs::directory_iterator end;
-        for (bfs::directory_iterator it(*hash_dir_dir); it != end; ++it) {
+      if (hash_dir_dir && fs::exists(*hash_dir_dir)) {
+        const fs::directory_iterator end;
+        for (fs::directory_iterator it(*hash_dir_dir); it != end; ++it) {
           util::log("Open hash dictionary in", *it);
           const auto dict = Dictionaries::read_from_file(*it);
           for (const auto& pair : dict) {
@@ -82,17 +72,15 @@ void Netspeak::initialize(const Configuration& config) {
 
     // The regex vocabulary is optional.
     auto re_result = std::async([&]() {
-      if (regex_dir && bfs::exists(*regex_dir)) {
-        const bfs::directory_iterator end;
-        for (bfs::directory_iterator it(*regex_dir); it != end; ++it) {
+      if (regex_dir && fs::exists(*regex_dir)) {
+        const fs::directory_iterator end;
+        for (fs::directory_iterator it(*regex_dir); it != end; ++it) {
           util::log("Open regex vocabulary in", *it);
-          bfs::ifstream ifs(*it);
+          std::ifstream ifs(it->path());
           util::check(ifs.is_open(), error_message::cannot_open, *it);
-          std::string regexwords((std::istreambuf_iterator<char>(ifs)),
-                                 (std::istreambuf_iterator<char>()));
+          std::string regexwords((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
           ifs.close();
-          regex_index_ =
-              std::make_shared<regex::DefaultRegexIndex>(std::move(regexwords));
+          regex_index_ = std::make_shared<regex::DefaultRegexIndex>(std::move(regexwords));
           break;
         }
       }
@@ -121,46 +109,33 @@ Properties Netspeak::properties() const {
   // cache properties
   properties[Properties::cache_policy] = "least frequently used";
   properties[Properties::cache_size] = std::to_string(result_cache_.size());
-  properties[Properties::cache_capacity] =
-      std::to_string(result_cache_.capacity());
-  properties[Properties::cache_access_count] =
-      std::to_string(result_cache_.access_count());
-  properties[Properties::cache_hit_rate] =
-      std::to_string(result_cache_.hit_rate());
+  properties[Properties::cache_capacity] = std::to_string(result_cache_.capacity());
+  properties[Properties::cache_access_count] = std::to_string(result_cache_.access_count());
+  properties[Properties::cache_hit_rate] = std::to_string(result_cache_.hit_rate());
   std::ostringstream oss;
   result_cache_.list(oss, 100);
   properties[Properties::cache_top_100] = oss.str();
 
   // phrase corpus properties
-  properties[Properties::phrase_corpus_1gram_count] =
-      std::to_string(phrase_corpus_.count_phrases(1));
-  properties[Properties::phrase_corpus_2gram_count] =
-      std::to_string(phrase_corpus_.count_phrases(2));
-  properties[Properties::phrase_corpus_3gram_count] =
-      std::to_string(phrase_corpus_.count_phrases(3));
-  properties[Properties::phrase_corpus_4gram_count] =
-      std::to_string(phrase_corpus_.count_phrases(4));
-  properties[Properties::phrase_corpus_5gram_count] =
-      std::to_string(phrase_corpus_.count_phrases(5));
+  properties[Properties::phrase_corpus_1gram_count] = std::to_string(phrase_corpus_.count_phrases(1));
+  properties[Properties::phrase_corpus_2gram_count] = std::to_string(phrase_corpus_.count_phrases(2));
+  properties[Properties::phrase_corpus_3gram_count] = std::to_string(phrase_corpus_.count_phrases(3));
+  properties[Properties::phrase_corpus_4gram_count] = std::to_string(phrase_corpus_.count_phrases(4));
+  properties[Properties::phrase_corpus_5gram_count] = std::to_string(phrase_corpus_.count_phrases(5));
 
   // phrase dictionary properties
-  properties[Properties::phrase_dictionary_size] =
-      std::to_string(phrase_dictionary_->size());
-  properties[Properties::phrase_dictionary_value_type] =
-      value::value_traits<PhraseDictionary::Value>::type_name();
+  properties[Properties::phrase_dictionary_size] = std::to_string(phrase_dictionary_->size());
+  properties[Properties::phrase_dictionary_value_type] = value::value_traits<PhraseDictionary::Value>::type_name();
 
   // hash dictionary properties
-  properties[Properties::hash_dictionary_size] =
-      std::to_string(hash_dictionary_->size());
-  properties[Properties::hash_dictionary_value_type] =
-      value::value_traits<Dictionaries::Map::mapped_type>::type_name();
+  properties[Properties::hash_dictionary_size] = std::to_string(hash_dictionary_->size());
+  properties[Properties::hash_dictionary_value_type] = value::value_traits<Dictionaries::Map::mapped_type>::type_name();
 
   // regex vocabulary properties
   // BEWARE: The index is optional!
   auto vocal_size = regex_index_ ? regex_index_->vocabulary().size() : 0;
   properties[Properties::regex_vocabulary_size] = std::to_string(vocal_size);
-  properties[Properties::regex_vocabulary_value_type] =
-      std::string(typeid(regex::DefaultRegexIndex).name());
+  properties[Properties::regex_vocabulary_value_type] = std::string(typeid(regex::DefaultRegexIndex).name());
   return properties;
 }
 
@@ -193,8 +168,7 @@ service::Phrase::Word::Tag to_tag(const NormQuery::Unit& unit) {
 /**
  * @brief Converts the given search result item into a (service) phrase.
  */
-void set_response_phrase(service::Phrase& resp_phrase,
-                         const SearchResult::Item& item) {
+void set_response_phrase(service::Phrase& resp_phrase, const SearchResult::Item& item) {
   resp_phrase.set_id(item.phrase.id());
   resp_phrase.set_frequency(item.phrase.freq());
 
@@ -207,8 +181,7 @@ void set_response_phrase(service::Phrase& resp_phrase,
   }
 }
 
-void Netspeak::search(const service::SearchRequest& request,
-                      service::SearchResponse& response) throw() {
+void Netspeak::search(const service::SearchRequest& request, service::SearchResponse& response) throw() {
   try {
     // parse the query
     const auto query = antlr4::parse_query(request.query());
@@ -256,8 +229,7 @@ void Netspeak::search(const service::SearchRequest& request,
 }
 
 
-std::pair<QueryNormalizer::Options, SearchOptions> Netspeak::to_options(
-    const service::SearchRequest& request) {
+std::pair<QueryNormalizer::Options, SearchOptions> Netspeak::to_options(const service::SearchRequest& request) {
   const auto& constraints = request.phrase_constraints();
 
   // The default min length is 1 because our indexes don't contain the empty
@@ -306,8 +278,7 @@ struct ref_ {
   RawRefResult::Ref::Frequency freq;
 
   ref_() = delete;
-  ref_(std::shared_ptr<const NormQuery> query, Phrase::Id id,
-       RawRefResult::Ref::Frequency freq)
+  ref_(std::shared_ptr<const NormQuery> query, Phrase::Id id, RawRefResult::Ref::Frequency freq)
       : query(query), id(id), freq(freq) {}
 
   inline bool operator==(const ref_& rhs) const {
@@ -326,8 +297,7 @@ struct ref_ {
   }
 };
 
-std::unique_ptr<std::set<ref_>> merge_phrase_refs(
-    const std::vector<RawResult::RefItem>& raw_references) {
+std::unique_ptr<std::set<ref_>> merge_phrase_refs(const std::vector<RawResult::RefItem>& raw_references) {
   auto set = std::make_unique<std::set<ref_>>();
 
   for (const auto& ref_item : raw_references) {
@@ -340,8 +310,7 @@ std::unique_ptr<std::set<ref_>> merge_phrase_refs(
 
   return set;
 }
-std::unique_ptr<SearchResult> Netspeak::merge_raw_result_(
-    const SearchOptions& options, const RawResult& raw_result) {
+std::unique_ptr<SearchResult> Netspeak::merge_raw_result_(const SearchOptions& options, const RawResult& raw_result) {
   auto search_result = std::make_unique<SearchResult>();
   util::vec_append(search_result->unknown_words(), raw_result.unknown_words());
 
@@ -368,8 +337,7 @@ std::unique_ptr<SearchResult> Netspeak::merge_raw_result_(
   std::set<SearchResult::Item> final_phrases;
   // phrases from references
   for (size_t i = 0; i != top_k_refs.size(); i++) {
-    final_phrases.insert(
-        SearchResult::Item(top_k_refs[i].query, ref_phrases[i]));
+    final_phrases.insert(SearchResult::Item(top_k_refs[i].query, ref_phrases[i]));
   }
   // phrases from the raw result set
   for (const auto& phrase_item : raw_result.phrases()) {
@@ -381,8 +349,7 @@ std::unique_ptr<SearchResult> Netspeak::merge_raw_result_(
 
   // Copy the final top k phrases into the search result.
   top_k = std::min(final_phrases.size(), max_phrase_count);
-  std::copy_n(final_phrases.begin(), top_k,
-              std::back_inserter(search_result->phrases()));
+  std::copy_n(final_phrases.begin(), top_k, std::back_inserter(search_result->phrases()));
 
   return search_result;
 }
@@ -416,17 +383,14 @@ std::string norm_query_to_key(const NormQuery& query) {
   return out;
 }
 
-bool is_prunable_from(const SearchOptions& superset,
-                      const SearchOptions& options) {
+bool is_prunable_from(const SearchOptions& superset, const SearchOptions& options) {
   return superset.max_phrase_frequency == options.max_phrase_frequency &&
          superset.max_phrase_count >= options.max_phrase_count &&
          superset.phrase_length_min <= options.phrase_length_min &&
-         superset.phrase_length_max >= options.phrase_length_max &&
-         superset.pruning_low >= options.pruning_low &&
+         superset.phrase_length_max >= options.phrase_length_max && superset.pruning_low >= options.pruning_low &&
          superset.pruning_high >= options.pruning_high;
 }
-std::shared_ptr<const RawRefResult> prune(const RawRefResult& result,
-                                          const SearchOptions& options) {
+std::shared_ptr<const RawRefResult> prune(const RawRefResult& result, const SearchOptions& options) {
   auto pruned = std::make_shared<RawRefResult>();
 
   // Copy refs
@@ -447,16 +411,15 @@ std::shared_ptr<const RawRefResult> prune(const RawRefResult& result,
   return pruned;
 }
 
-std::shared_ptr<const RawRefResult> Netspeak::process_wildcard_query_(
-    const SearchOptions& options, const NormQuery& query) {
+std::shared_ptr<const RawRefResult> Netspeak::process_wildcard_query_(const SearchOptions& options,
+                                                                      const NormQuery& query) {
   const auto query_key = norm_query_to_key(query);
   const auto cached_result = result_cache_.find(query_key);
 
   if (cached_result && cached_result->options == options) {
     // exact cache hit
     return cached_result->result;
-  } else if (cached_result &&
-             is_prunable_from(cached_result->options, options)) {
+  } else if (cached_result && is_prunable_from(cached_result->options, options)) {
     // TODO: This very loose compatibility check may result in pathetically
     // small result sets.
     return prune(*cached_result->result, options);
@@ -482,13 +445,12 @@ std::shared_ptr<const RawRefResult> Netspeak::process_wildcard_query_(
   }
 }
 
-std::shared_ptr<const RawPhraseResult> Netspeak::process_non_wildcard_query_(
-    const SearchOptions& options, const NormQuery& query) {
+std::shared_ptr<const RawPhraseResult> Netspeak::process_non_wildcard_query_(const SearchOptions& options,
+                                                                             const NormQuery& query) {
   auto result = std::make_shared<RawPhraseResult>();
 
   PhraseDictionary::Value freq_id_pair;
-  if (options.max_phrase_count > 0 &&
-      phrase_dictionary_->Get(norm_query_to_key(query), freq_id_pair)) {
+  if (options.max_phrase_count > 0 && phrase_dictionary_->Get(norm_query_to_key(query), freq_id_pair)) {
     // found the phrase
     uint64_t freq = freq_id_pair.e1();
     if (freq <= options.max_phrase_frequency) {
@@ -514,9 +476,8 @@ std::shared_ptr<const RawPhraseResult> Netspeak::process_non_wildcard_query_(
   return result;
 }
 
-std::unique_ptr<RawResult> Netspeak::search_raw_(
-    const QueryNormalizer::Options& normalizer_options,
-    const SearchOptions& options, std::shared_ptr<Query> query) {
+std::unique_ptr<RawResult> Netspeak::search_raw_(const QueryNormalizer::Options& normalizer_options,
+                                                 const SearchOptions& options, std::shared_ptr<Query> query) {
   // create norm queries
   std::vector<NormQuery> normQueries;
   query_normalizer_.normalize(query, normalizer_options, normQueries);

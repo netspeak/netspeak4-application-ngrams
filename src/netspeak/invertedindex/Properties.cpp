@@ -1,9 +1,7 @@
-#include "netspeak/invertedindex/Properties.hpp"
+#include <netspeak/invertedindex/Properties.hpp>
+#include <netspeak/util/systemio.hpp>
 
-#include "netspeak/util/systemio.hpp"
-
-namespace netspeak {
-namespace invertedindex {
+namespace netspeak::invertedindex {
 
 Properties::Properties()
     : value_sorting(value_sorting_type::disabled),
@@ -28,21 +26,18 @@ const std::string Properties::default_filename() {
 }
 
 void Properties::print(std::ostream& os) const {
-  os << "{\n  value_type : " << value_type
-     << ",\n  value_sorting : " << util::to_string(value_sorting)
-     << ",\n  version_number : " << version_number
-     << ",\n  total_size : " << total_size
-     << ",\n  value_count : " << value_count << ",\n  key_count : " << key_count
-     << "\n}";
+  os << "{\n  value_type : " << value_type << ",\n  value_sorting : " << util::to_string(value_sorting)
+     << ",\n  version_number : " << version_number << ",\n  total_size : " << total_size
+     << ",\n  value_count : " << value_count << ",\n  key_count : " << key_count << "\n}";
 }
 
-void Properties::read(const boost::filesystem::path& path) {
+void Properties::read(const std::filesystem::path& path) {
   FILE* rfs(util::fopen(path, "rb"));
   util::fread(this, sizeof(Properties), 1, rfs);
   util::fclose(rfs);
 }
 
-void Properties::write(const boost::filesystem::path& path) {
+void Properties::write(const std::filesystem::path& path) {
   FILE* wfs(util::fopen(path, "wb"));
   util::fwrite(this, sizeof(Properties), 1, wfs);
   util::fclose(wfs);
@@ -64,5 +59,4 @@ std::ostream& operator<<(std::ostream& os, const Properties& properties) {
   return os;
 }
 
-} // namespace invertedindex
-} // namespace netspeak
+} // namespace netspeak::invertedindex

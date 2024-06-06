@@ -1,13 +1,10 @@
-#include "netspeak/service/UniqueMap.hpp"
+#include <netspeak/error.hpp>
+#include <netspeak/service/UniqueMap.hpp>
 
-#include "netspeak/error.hpp"
 
+namespace netspeak::service {
 
-namespace netspeak {
-namespace service {
-
-UniqueMap::UniqueMap(std::unique_ptr<std::vector<entry>> entries_ptr)
-    : instances_(), corpora_() {
+UniqueMap::UniqueMap(std::unique_ptr<std::vector<entry>> entries_ptr) : instances_(), corpora_() {
   if (!entries_ptr) {
     throw std::logic_error("The pointer of UniqueMap entries is null.");
   }
@@ -26,9 +23,7 @@ UniqueMap::UniqueMap(std::unique_ptr<std::vector<entry>> entries_ptr)
   }
 }
 
-grpc::Status UniqueMap::Search_(grpc::ServerContext*,
-                                const SearchRequest* request,
-                                SearchResponse* response) const {
+grpc::Status UniqueMap::Search_(grpc::ServerContext*, const SearchRequest* request, SearchResponse* response) const {
   auto it = instances_.find(request->corpus());
   // check the corpus
   if (it == instances_.end()) {
@@ -45,8 +40,7 @@ grpc::Status UniqueMap::Search_(grpc::ServerContext*,
   return grpc::Status::OK;
 }
 
-grpc::Status UniqueMap::GetCorpora_(grpc::ServerContext*, const CorporaRequest*,
-                                    CorporaResponse* response) const {
+grpc::Status UniqueMap::GetCorpora_(grpc::ServerContext*, const CorporaRequest*, CorporaResponse* response) const {
   // just add a copy of all corpora
   for (const auto& corpus : corpora_) {
     response->add_corpora()->CopyFrom(corpus);
@@ -55,5 +49,4 @@ grpc::Status UniqueMap::GetCorpora_(grpc::ServerContext*, const CorporaRequest*,
 }
 
 
-} // namespace service
-} // namespace netspeak
+} // namespace netspeak::service

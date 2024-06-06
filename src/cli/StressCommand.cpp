@@ -8,6 +8,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -15,8 +16,6 @@
 #include <random>
 #include <string>
 #include <thread>
-
-#include "boost/filesystem.hpp"
 
 #include "cli/util.hpp"
 
@@ -27,7 +26,6 @@
 namespace cli {
 
 namespace bpo = boost::program_options;
-namespace bfs = boost::filesystem;
 using namespace netspeak;
 
 #define SOURCE_KEY "source"
@@ -67,10 +65,8 @@ std::string StressCommand::desc() {
          "thousands of queries without permission is an illegal attack.";
 };
 
-void StressCommand::add_options(
-    boost::program_options::options_description_easy_init& easy_init) {
-  easy_init(SOURCE_KEY ",s", bpo::value<std::string>()->required(),
-            "The address of a Netspeak gRPC server.");
+void StressCommand::add_options(boost::program_options::options_description_easy_init& easy_init) {
+  easy_init(SOURCE_KEY ",s", bpo::value<std::string>()->required(), "The address of a Netspeak gRPC server.");
   easy_init(QUERIES_KEY ",q", bpo::value<std::string>()->required(),
             "A file with test queries.\n"
             "\n"
@@ -82,8 +78,7 @@ void StressCommand::add_options(
             "\n"
             "If this number isn't given, the stress test will never stop "
             "sending queries.");
-  easy_init(TRACKING_ID_KEY ",t", bpo::value<std::string>(),
-            "A tracking id sent along every request.");
+  easy_init(TRACKING_ID_KEY ",t", bpo::value<std::string>(), "A tracking id sent along every request.");
 }
 
 
@@ -94,8 +89,7 @@ private:
   const std::string tracking_id_;
 
   std::vector<std::string> get_corpus_keys() {
-    auto channel =
-        grpc::CreateChannel(address_, grpc::InsecureChannelCredentials());
+    auto channel = grpc::CreateChannel(address_, grpc::InsecureChannelCredentials());
     auto stub = service::NetspeakService::NewStub(channel);
 
     std::vector<std::string> keys;
@@ -107,11 +101,9 @@ private:
     return keys;
   }
 
-  static grpc::Status safe_search(
-      netspeak::service::NetspeakService::Stub& stub,
-      grpc::ClientContext* context,
-      const netspeak::service::SearchRequest& request,
-      netspeak::service::SearchResponse* response) {
+  static grpc::Status safe_search(netspeak::service::NetspeakService::Stub& stub, grpc::ClientContext* context,
+                                  const netspeak::service::SearchRequest& request,
+                                  netspeak::service::SearchResponse* response) {
     try {
       return stub.Search(context, request, response);
     } catch (...) {
@@ -149,12 +141,10 @@ private:
     sec max_;
     sec min_;
 
-    time_analysis(sec avg, sec std, sec max, sec min)
-        : avg_(avg), std_(std), max_(max), min_(min) {}
+    time_analysis(sec avg, sec std, sec max, sec min) : avg_(avg), std_(std), max_(max), min_(min) {}
   };
 
-  static time_analysis analyse(
-      const std::vector<std::chrono::nanoseconds>& durations) {
+  static time_analysis analyse(const std::vector<std::chrono::nanoseconds>& durations) {
     std::chrono::nanoseconds min(INT64_MAX);
     std::chrono::nanoseconds max(0);
     double avg = 0;
@@ -174,8 +164,7 @@ private:
     }
     var /= durations.size();
 
-    return time_analysis(time_analysis::sec(avg * 1e-9),
-                         time_analysis::sec(std::sqrt(var) * 1e-9),
+    return time_analysis(time_analysis::sec(avg * 1e-9), time_analysis::sec(std::sqrt(var) * 1e-9),
                          std::chrono::duration_cast<time_analysis::sec>(max),
                          std::chrono::duration_cast<time_analysis::sec>(min));
   }
@@ -186,15 +175,13 @@ private:
 
 
 public:
-  Tester(const std::vector<std::string>& queries, const std::string& address,
-         const std::string& tracking_id)
+  Tester(const std::vector<std::string>& queries, const std::string& address, const std::string& tracking_id)
       : queries_(queries), address_(address), tracking_id_(tracking_id) {}
 
   void start(const uint32_t concurrency, const uint64_t max_queries) {
     const auto corpus_keys = get_corpus_keys();
     if (corpus_keys.empty()) {
-      throw std::logic_error(
-          "The Netspeak server has to have at least one corpus.");
+      throw std::logic_error("The Netspeak server has to have at least one corpus.");
     }
 
     std::vector<std::unique_ptr<corpus_measurements>> measurements_list;
@@ -209,8 +196,7 @@ public:
       // worker threads
       threads.push_back(std::make_unique<std::thread>([&]() {
         // setup the stub
-        auto channel =
-            grpc::CreateChannel(address_, grpc::InsecureChannelCredentials());
+        auto channel = grpc::CreateChannel(address_, grpc::InsecureChannelCredentials());
         auto stub = service::NetspeakService::NewStub(channel);
 
         // setup random
@@ -262,19 +248,16 @@ public:
       // lock all measurements
       std::vector<std::unique_ptr<std::lock_guard<std::mutex>>> locks;
       for (auto& m : measurements_list) {
-        locks.push_back(
-            std::make_unique<std::lock_guard<std::mutex>>(m->mutex_));
+        locks.push_back(std::make_unique<std::lock_guard<std::mutex>>(m->mutex_));
       }
 
       auto seconds_since_start =
-          std::chrono::duration_cast<std::chrono::duration<double>>(
-              std::chrono::steady_clock::now() - display_start)
+          std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - display_start)
               .count();
       auto avg_req_per_s = curr_req_counter / seconds_since_start;
       auto curr_req_per_s = diff_req_counter;
 
-      std::cout << std::fixed << std::setprecision(2)
-                << "Average: " << avg_req_per_s << "req/s"
+      std::cout << std::fixed << std::setprecision(2) << "Average: " << avg_req_per_s << "req/s"
                 << "\tCurrent: " << curr_req_per_s << "req" << std::endl;
 
       size_t key_pad = 0;
@@ -292,19 +275,16 @@ public:
         auto grpc_err_percentage = m.grpc_error_counter_ / total_req * 100.;
         auto resp_err_percentage = m.resp_error_counter_ / total_req * 100.;
 
-        std::cout << "  " << key << std::string(key_pad - key.size(), ' ')
-                  << "  Succ: " << success_percentage << "%"
+        std::cout << "  " << key << std::string(key_pad - key.size(), ' ') << "  Succ: " << success_percentage << "%"
                   << "  Err: " << resp_err_percentage << "%"
                   << "  gRPC Err: " << grpc_err_percentage << "%" << std::endl;
 
         auto dur_analysis = analyse(m.durations_);
 
-        std::cout << "  " << std::string(key_pad, ' ')
-                  << "  avg: " << get_ms(dur_analysis.avg_) << "ms"
+        std::cout << "  " << std::string(key_pad, ' ') << "  avg: " << get_ms(dur_analysis.avg_) << "ms"
                   << "  std: " << get_ms(dur_analysis.std_) << "ms"
                   << "  min: " << get_ms(dur_analysis.min_) << "ms"
-                  << "  max: " << get_ms(dur_analysis.max_) << "ms"
-                  << std::endl;
+                  << "  max: " << get_ms(dur_analysis.max_) << "ms" << std::endl;
       }
     }
 
@@ -315,8 +295,7 @@ public:
   }
 };
 
-void read_all_lines(const std::string& file_path,
-                    std::vector<std::string>& lines) {
+void read_all_lines(const std::string& file_path, std::vector<std::string>& lines) {
   std::ifstream file(file_path);
   std::string str;
   while (std::getline(file, str)) {
@@ -333,12 +312,8 @@ int StressCommand::run(boost::program_options::variables_map variables) {
   read_all_lines(variables[QUERIES_KEY].as<std::string>(), queries);
   const auto concurrency = variables[CONCURRENCY_KEY].as<uint32_t>();
   const auto source = variables[SOURCE_KEY].as<std::string>();
-  const auto max = variables.count(MAX_QUERIES_KEY) == 0
-                       ? UINT64_MAX
-                       : variables[MAX_QUERIES_KEY].as<uint64_t>();
-  const auto tracking_id = variables.count(TRACKING_ID_KEY) == 0
-                               ? ""
-                               : variables[TRACKING_ID_KEY].as<std::string>();
+  const auto max = variables.count(MAX_QUERIES_KEY) == 0 ? UINT64_MAX : variables[MAX_QUERIES_KEY].as<uint64_t>();
+  const auto tracking_id = variables.count(TRACKING_ID_KEY) == 0 ? "" : variables[TRACKING_ID_KEY].as<std::string>();
 
   Tester tester(queries, source, tracking_id);
   tester.start(concurrency, max);

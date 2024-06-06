@@ -1,13 +1,10 @@
-#include "netspeak/model/RawRefResult.hpp"
-
 #include <algorithm>
 #include <memory>
+#include <netspeak/model/RawRefResult.hpp>
+#include <netspeak/util/Vec.hpp>
 
-#include "netspeak/util/Vec.hpp"
 
-
-namespace netspeak {
-namespace model {
+namespace netspeak::model {
 
 
 bool RawRefResult::disjoint_with(const RawRefResult& other) const {
@@ -33,13 +30,12 @@ bool RawRefResult::disjoint_with(const RawRefResult& other) const {
   }
 }
 
-std::shared_ptr<RawRefResult> RawRefResult::merge(
-    const RawRefResult& other) const {
+std::shared_ptr<RawRefResult> RawRefResult::merge(const RawRefResult& other) const {
   auto result = std::make_shared<RawRefResult>();
 
   // merge phrase refs
-  std::set_union(refs().begin(), refs().end(), other.refs().begin(),
-                 other.refs().end(), std::back_inserter(result->refs()));
+  std::set_union(refs().begin(), refs().end(), other.refs().begin(), other.refs().end(),
+                 std::back_inserter(result->refs()));
 
   // merge unknown words
   util::vec_append(result->unknown_words(), unknown_words());
@@ -51,5 +47,4 @@ std::shared_ptr<RawRefResult> RawRefResult::merge(
 }
 
 
-} // namespace model
-} // namespace netspeak
+} // namespace netspeak::model

@@ -1,49 +1,43 @@
-#include "netspeak/Configuration.hpp"
-
+#include <filesystem>
+#include <netspeak/Configuration.hpp>
+#include <netspeak/util/traceable_error.hpp>
 #include <string>
-
-#include "boost/filesystem.hpp"
-
-#include "netspeak/util/traceable_error.hpp"
 
 namespace netspeak {
 
-namespace bfs = boost::filesystem;
+namespace fs = std::filesystem;
 
 
 // CONSTANTS
 
+const std::string Configuration::PATH_TO_HOME("path.to.home");
+const std::string Configuration::PATH_TO_PHRASE_INDEX("path.to.phrase-index");
+const std::string Configuration::PATH_TO_PHRASE_CORPUS("path.to.phrase-corpus");
+const std::string Configuration::PATH_TO_PHRASE_DICTIONARY("path.to.phrase-dictionary");
+const std::string Configuration::PATH_TO_POSTLIST_INDEX("path.to.postlist-index");
+const std::string Configuration::PATH_TO_HASH_DICTIONARY("path.to.hash-dictionary");
+const std::string Configuration::PATH_TO_REGEX_VOCABULARY("path.to.regex-vocabulary");
+const std::string Configuration::EXTENDS("extends");
 
-#define PREFIX const std::string Configuration
+const std::string Configuration::CORPUS_KEY("corpus.key");
+const std::string Configuration::CORPUS_NAME("corpus.name");
+const std::string Configuration::CORPUS_LANGUAGE("corpus.language");
 
-PREFIX::PATH_TO_HOME("path.to.home");
-PREFIX::PATH_TO_PHRASE_INDEX("path.to.phrase-index");
-PREFIX::PATH_TO_PHRASE_CORPUS("path.to.phrase-corpus");
-PREFIX::PATH_TO_PHRASE_DICTIONARY("path.to.phrase-dictionary");
-PREFIX::PATH_TO_POSTLIST_INDEX("path.to.postlist-index");
-PREFIX::PATH_TO_HASH_DICTIONARY("path.to.hash-dictionary");
-PREFIX::PATH_TO_REGEX_VOCABULARY("path.to.regex-vocabulary");
-PREFIX::EXTENDS("extends");
+const std::string Configuration::CACHE_CAPACITY("cache.capacity");
 
-PREFIX::CORPUS_KEY("corpus.key");
-PREFIX::CORPUS_NAME("corpus.name");
-PREFIX::CORPUS_LANGUAGE("corpus.language");
+const std::string Configuration::QUERY_LOWER_CASE("query.lower-case");
 
-PREFIX::CACHE_CAPACITY("cache.capacity");
+const std::string Configuration::SEARCH_MAX_NORM_QUERIES("search.max-norm-queries");
 
-PREFIX::QUERY_LOWER_CASE("query.lower-case");
+const std::string Configuration::SEARCH_REGEX_MAX_MATCHES("search.regex.max-matches");
+const std::string Configuration::SEARCH_REGEX_MAX_TIME("search.regex.max-time");
 
-PREFIX::SEARCH_MAX_NORM_QUERIES("search.max-norm-queries");
-
-PREFIX::SEARCH_REGEX_MAX_MATCHES("search.regex.max-matches");
-PREFIX::SEARCH_REGEX_MAX_TIME("search.regex.max-time");
-
-PREFIX::DEFAULT_PHRASE_INDEX_DIR_NAME("phrase-index");
-PREFIX::DEFAULT_PHRASE_CORPUS_DIR_NAME("phrase-corpus");
-PREFIX::DEFAULT_PHRASE_DICTIONARY_DIR_NAME("phrase-dictionary");
-PREFIX::DEFAULT_POSTLIST_INDEX_DIR_NAME("postlist-index");
-PREFIX::DEFAULT_HASH_DICTIONARY_DIR_NAME("hash-dictionary");
-PREFIX::DEFAULT_REGEX_VOCABULARY_DIR_NAME("regex-vocabulary");
+const std::string Configuration::DEFAULT_PHRASE_INDEX_DIR_NAME("phrase-index");
+const std::string Configuration::DEFAULT_PHRASE_CORPUS_DIR_NAME("phrase-corpus");
+const std::string Configuration::DEFAULT_PHRASE_DICTIONARY_DIR_NAME("phrase-dictionary");
+const std::string Configuration::DEFAULT_POSTLIST_INDEX_DIR_NAME("postlist-index");
+const std::string Configuration::DEFAULT_HASH_DICTIONARY_DIR_NAME("hash-dictionary");
+const std::string Configuration::DEFAULT_REGEX_VOCABULARY_DIR_NAME("regex-vocabulary");
 
 
 const std::unordered_set<std::string> PATHS{
@@ -62,32 +56,29 @@ const std::unordered_set<std::string> PATHS{
 
 void Configuration::load_extends() {
   if (config_.contains(EXTENDS)) {
-    auto extends_path = bfs::path(config_.get(EXTENDS));
+    auto extends_path = fs::path(config_.get(EXTENDS));
     if (extends_path.empty()) {
       return;
     }
     if (!base_dir_.empty()) {
-      extends_path = bfs::absolute(extends_path, base_dir_);
+      extends_path = fs::absolute(base_dir_ / extends_path);
     }
     extends_ = std::make_unique<Configuration>(extends_path);
   }
 }
 void Configuration::desugar_home() {
   if (config_.contains(PATH_TO_HOME)) {
-    auto home_path = bfs::path(config_.get(PATH_TO_HOME));
+    auto home_path = fs::path(config_.get(PATH_TO_HOME));
     if (home_path.empty()) {
       return;
     }
     if (!base_dir_.empty()) {
-      home_path = bfs::absolute(home_path, base_dir_);
+      home_path = fs::absolute(base_dir_ / home_path);
     }
 
-    auto set_default = [&](const std::string& key,
-                           const std::string& default_value) {
+    auto set_default = [&](const std::string& key, const std::string& default_value) {
       if (!config_.contains(key)) {
-        config_[key] =
-            bfs::weakly_canonical(bfs::absolute(default_value, home_path))
-                .string();
+        config_[key] = fs::weakly_canonical(fs::absolute(home_path / default_value)).string();
       }
     };
 
@@ -100,19 +91,16 @@ void Configuration::desugar_home() {
   }
 }
 
-Configuration::Configuration(
-    std::initializer_list<util::Config::initializer_list_type> list)
+Configuration::Configuration(std::initializer_list<util::Config::initializer_list_type> list)
     : config_(list), extends_(), base_dir_() {
   load_extends();
   desugar_home();
 }
-Configuration::Configuration(bfs::path file_name)
-    : config_(file_name), extends_(), base_dir_(file_name.parent_path()) {
+Configuration::Configuration(fs::path file_name) : config_(file_name), extends_(), base_dir_(file_name.parent_path()) {
   load_extends();
   desugar_home();
 }
-Configuration::Configuration(const util::Config& config)
-    : config_(config), extends_(), base_dir_() {
+Configuration::Configuration(const util::Config& config) : config_(config), extends_(), base_dir_() {
   load_extends();
   desugar_home();
 }
@@ -126,22 +114,19 @@ std::string Configuration::get_required(const std::string& key) const {
   if (value) {
     return *value;
   } else {
-    throw util::tracable_runtime_error("The required key " + key +
-                                       " is missing.");
+    throw util::tracable_runtime_error("The required key " + key + " is missing.");
   }
 }
-boost::optional<std::string> Configuration::get_optional(
-    const std::string& key) const {
+std::optional<std::string> Configuration::get_optional(const std::string& key) const {
   if (config_.contains(key)) {
     return config_.get(key);
   } else if (extends_) {
     return extends_->get_optional(key);
   } else {
-    return boost::none;
+    return std::nullopt;
   }
 }
-std::string Configuration::get(const std::string& key,
-                               const std::string& defaultValue) const {
+std::string Configuration::get(const std::string& key, const std::string& defaultValue) const {
   auto value = get_optional(key);
   if (value) {
     return *value;
@@ -150,26 +135,24 @@ std::string Configuration::get(const std::string& key,
   }
 }
 
-bfs::path relative_to(const std::string& path, const bfs::path& to) {
+fs::path relative_to(const std::string& path, const fs::path& to) {
   if (to.empty()) {
-    return bfs::weakly_canonical(path);
+    return fs::weakly_canonical(path);
   } else {
-    return bfs::weakly_canonical(bfs::absolute(path, to));
+    return fs::weakly_canonical(fs::absolute(to / path));
   }
 }
-bfs::path Configuration::get_required_path(const std::string& key) const {
+fs::path Configuration::get_required_path(const std::string& key) const {
   return relative_to(get_required(key), base_dir_);
 }
-boost::optional<bfs::path> Configuration::get_optional_path(
-    const std::string& key) const {
+std::optional<fs::path> Configuration::get_optional_path(const std::string& key) const {
   const auto optional = get_optional(key);
   if (!optional) {
-    return boost::none;
+    return std::nullopt;
   }
   return relative_to(*optional, base_dir_);
 }
-bfs::path Configuration::get_path(const std::string& key,
-                                  const std::string& defaultValue) const {
+fs::path Configuration::get_path(const std::string& key, const std::string& defaultValue) const {
   return relative_to(get(key, defaultValue), base_dir_);
 }
 
@@ -182,18 +165,16 @@ bool parse_bool(const std::string& key, const std::string& value) {
   }
 
   std::stringstream out;
-  out << "Invalid boolean value for '" << key
-      << "'. Expected 'true' or 'false' but found '" << value << "'.";
+  out << "Invalid boolean value for '" << key << "'. Expected 'true' or 'false' but found '" << value << "'.";
   throw util::tracable_runtime_error(out.str());
 }
 bool Configuration::get_required_bool(const std::string& key) const {
   return parse_bool(key, get_required(key));
 }
-boost::optional<bool> Configuration::get_optional_bool(
-    const std::string& key) const {
+std::optional<bool> Configuration::get_optional_bool(const std::string& key) const {
   const auto optional = get_optional(key);
   if (!optional) {
-    return boost::none;
+    return std::nullopt;
   }
   return parse_bool(key, *optional);
 }

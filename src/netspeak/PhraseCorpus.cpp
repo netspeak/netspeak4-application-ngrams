@@ -1,26 +1,24 @@
-#include "netspeak/PhraseCorpus.hpp"
-
 #include <aio.h>
 #include <fcntl.h>
 
 #include <algorithm>
+#include <fstream>
+#include <netspeak/PhraseCorpus.hpp>
+#include <netspeak/error.hpp>
+#include <netspeak/invertedindex/ByteBuffer.hpp>
+#include <netspeak/util/check.hpp>
+#include <netspeak/value/value_traits.hpp>
+#include <optional>
 #include <string>
 #include <utility>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/optional.hpp>
-
-#include "netspeak/error.hpp"
-#include "netspeak/invertedindex/ByteBuffer.hpp"
-#include "netspeak/util/check.hpp"
-#include "netspeak/value/value_traits.hpp"
 
 
 namespace netspeak {
 
-namespace bfs = boost::filesystem;
+namespace fs = std::filesystem;
 using namespace model;
 
 const std::string PhraseCorpus::txt_dir("txt");
@@ -30,7 +28,7 @@ const std::string PhraseCorpus::phrase_file("phrases");
 
 PhraseCorpus::PhraseCorpus() : max_length_(0) {}
 
-PhraseCorpus::PhraseCorpus(const bfs::path& phrase_dir) {
+PhraseCorpus::PhraseCorpus(const fs::path& phrase_dir) {
   open(phrase_dir);
 }
 
@@ -50,8 +48,7 @@ size_t entry_size(Phrase::Id::Length length) {
   return sizeof(Phrase::Frequency) + sizeof(WordId) * (size_t)length;
 }
 
-Phrase::Count::Local PhraseCorpus::count_phrases(
-    Phrase::Id::Length phrase_len) const {
+Phrase::Count::Local PhraseCorpus::count_phrases(Phrase::Id::Length phrase_len) const {
   const auto it_fd = fd_map.find(phrase_len);
 
   if (it_fd != fd_map.end()) {
@@ -78,13 +75,12 @@ bool PhraseCorpus::contains(const WordId& id) const {
   return it != id_map->end();
 }
 
-void PhraseCorpus::open(const bfs::path& phrase_dir) {
+void PhraseCorpus::open(const fs::path& phrase_dir) {
   init_vocabulary_(phrase_dir / vocab_file);
   open_phrase_files_(phrase_dir);
 }
 
-std::vector<Phrase> PhraseCorpus::read_phrases(
-    const std::vector<Phrase::Id>& phrase_ids) const {
+std::vector<Phrase> PhraseCorpus::read_phrases(const std::vector<Phrase::Id>& phrase_ids) const {
   // The gist of this method is the following:
   // We use async IO to read all the raw phrases data in parallel into memory
   // and then we decode the raw data sequentially. This is a lot faster than
@@ -126,17 +122,14 @@ std::vector<Phrase> PhraseCorpus::read_phrases(
     buffer_pos += size;
   }
 
-  util::check(::lio_listio(LIO_WAIT, aio_read_ptrs.data(), count, NULL) != -1,
-              __func__, "lio_listio failed");
+  util::check(::lio_listio(LIO_WAIT, aio_read_ptrs.data(), count, nullptr) != -1, __func__, "lio_listio failed");
 
   std::vector<Phrase> phrases;
   phrases.reserve(count);
 
   for (size_t i = 0; i < count; ++i) {
     const auto aio_ptr = aio_read_ptrs[i];
-    util::check(
-        ::aio_return(aio_ptr) == static_cast<ssize_t>(aio_ptr->aio_nbytes),
-        __func__, "aio_read64 failed");
+    util::check(::aio_return(aio_ptr) == static_cast<ssize_t>(aio_ptr->aio_nbytes), __func__, "aio_read64 failed");
 
     phrases.push_back(decode_((const char*)aio_ptr->aio_buf, phrase_ids[i]));
   }
@@ -162,8 +155,8 @@ Phrase PhraseCorpus::decode_(const char* buffer, Phrase::Id id) const {
   return phrase;
 }
 
-void PhraseCorpus::init_vocabulary_(const bfs::path& vocab_file) {
-  bfs::ifstream ifs(vocab_file);
+void PhraseCorpus::init_vocabulary_(const fs::path& vocab_file) {
+  std::ifstream ifs(vocab_file);
   util::check(ifs.is_open(), error_message::cannot_open, vocab_file);
 
   std::string word;
@@ -176,8 +169,7 @@ void PhraseCorpus::init_vocabulary_(const bfs::path& vocab_file) {
   id_map.emplace(std::move(builder));
 }
 
-boost::optional<Phrase::Id::Length> parse_phrase_filename(
-    const std::string& name) {
+std::optional<Phrase::Id::Length> parse_phrase_filename(const std::string& name) {
   // we only want to open files of the form `phrases.{n}`
   if (boost::starts_with(name, PhraseCorpus::phrase_file)) {
     std::string::size_type dotpos = name.rfind('.');
@@ -188,21 +180,20 @@ boost::optional<Phrase::Id::Length> parse_phrase_filename(
   }
 
   // incorrect format
-  return boost::optional<Phrase::Id::Length>{};
+  return std::optional<Phrase::Id::Length>{};
 }
 
-void PhraseCorpus::open_phrase_files_(const bfs::path& phrase_dir) {
-  bfs::directory_iterator end;
+void PhraseCorpus::open_phrase_files_(const fs::path& phrase_dir) {
+  fs::directory_iterator end;
   Phrase::Id::Length max = 0;
 
-  for (bfs::directory_iterator it(phrase_dir); it != end; ++it) {
+  for (fs::directory_iterator it(phrase_dir); it != end; ++it) {
     const auto& path = it->path();
     const auto filename = path.filename().string();
     const auto phrase_len = parse_phrase_filename(filename);
 
     if (phrase_len) {
-      fd_map.insert(std::make_pair(
-          *phrase_len, util::FileDescriptor::open(path.string(), O_RDONLY)));
+      fd_map.insert(std::make_pair(*phrase_len, util::FileDescriptor::open(path.string(), O_RDONLY)));
       max = std::max(max, *phrase_len);
     }
   }

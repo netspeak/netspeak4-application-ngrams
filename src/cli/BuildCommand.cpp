@@ -1,13 +1,13 @@
 #include "cli/BuildCommand.hpp"
 
-#include "boost/filesystem.hpp"
+#include <filesystem>
 
 #include "netspeak/indexing.hpp"
 
 namespace cli {
 
 namespace bpo = boost::program_options;
-namespace bfs = boost::filesystem;
+namespace fs = std::filesystem;
 
 std::string BuildCommand::desc() {
   return "Builds a new Netspeak index from an n-gram collection.\n"
@@ -17,8 +17,7 @@ std::string BuildCommand::desc() {
          "`--merge-duplicates` option.";
 };
 
-void BuildCommand::add_options(
-    boost::program_options::options_description_easy_init& easy_init) {
+void BuildCommand::add_options(boost::program_options::options_description_easy_init& easy_init) {
   easy_init("in,i", bpo::value<std::string>()->required(), "Input directory");
   easy_init("out,o", bpo::value<std::string>()->required(),
             "The output directory (must be empty). If the directory doesn't "
@@ -53,16 +52,14 @@ int BuildCommand::run(boost::program_options::variables_map variables) {
   const std::string org_input_dir = variables["in"].as<std::string>();
   const std::string org_output_dir = variables["out"].as<std::string>();
 
-  bfs::path input_dir(org_input_dir);
-  bfs::path output_dir(org_output_dir);
+  fs::path input_dir(org_input_dir);
+  fs::path output_dir(org_output_dir);
 
   if (variables.count("merge-duplicates")) {
     // if keys have to be merged and no merge dir was given. Create 'tmp'
     // dir in dst_folder
-    bfs::path tmp_dir =
-        variables.count("merge-dir")
-            ? bfs::path(variables["merge-dir"].as<std::string>())
-            : output_dir / bfs::path("tmp");
+    fs::path tmp_dir = variables.count("merge-dir") ? fs::path(variables["merge-dir"].as<std::string>())
+                                                    : output_dir / fs::path("tmp");
 
     netspeak::MergeDuplicates(input_dir, tmp_dir);
     input_dir = tmp_dir;
@@ -72,9 +69,9 @@ int BuildCommand::run(boost::program_options::variables_map variables) {
   netspeak::BuildNetspeak(input_dir, output_dir);
   if (org_input_dir != input_dir.c_str()) {
     if (input_dir.parent_path() == org_input_dir) {
-      bfs::remove_all(input_dir);
+      fs::remove_all(input_dir);
     }
-    bfs::rename(output_dir, bfs::path(org_output_dir));
+    fs::rename(output_dir, fs::path(org_output_dir));
   }
 
   return EXIT_SUCCESS;

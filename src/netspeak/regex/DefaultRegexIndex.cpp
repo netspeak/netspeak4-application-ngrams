@@ -1,22 +1,19 @@
-#include "netspeak/regex/DefaultRegexIndex.hpp"
-
 #include <chrono>
 #include <codecvt>
 #include <functional>
 #include <future>
 #include <locale>
+#include <netspeak/regex/DefaultRegexIndex.hpp>
+#include <netspeak/regex/RegexIndex.hpp>
+#include <netspeak/regex/RegexQuery.hpp>
 #include <string>
 #include <unordered_set>
 #include <vector>
 
 #include <boost/regex.hpp>
 
-#include "netspeak/regex/RegexIndex.hpp"
-#include "netspeak/regex/RegexQuery.hpp"
 
-
-namespace netspeak {
-namespace regex {
+namespace netspeak::regex {
 
 /**
  * This will be a rough explanation of the implementation of the index below, a
@@ -134,8 +131,7 @@ uint32_t next_pow_of_2(uint32_t n) {
   return n;
 }
 
-uint32_t hash_word(const std::string& str, std::string::size_type offset,
-                   std::string::size_type length) {
+uint32_t hash_word(const std::string& str, std::string::size_type offset, std::string::size_type length) {
   uint32_t h = 0x12345678U;
 
   // the Java hashcode implementation
@@ -147,9 +143,7 @@ uint32_t hash_word(const std::string& str, std::string::size_type offset,
   return h;
 }
 
-bool contains_unknown_characters(
-    const std::u32string& str,
-    const std::unordered_set<char32_t>& known_chars) {
+bool contains_unknown_characters(const std::u32string& str, const std::unordered_set<char32_t>& known_chars) {
   for (auto it = str.begin(); it != str.end(); it++) {
     if (known_chars.find(*it) == known_chars.end()) {
       // character is not in the set of all characters
@@ -329,8 +323,7 @@ void DefaultRegexIndex::initialize_word_hash_table() {
   }
 }
 
-DefaultRegexIndex::DefaultRegexIndex(std::string vocabulary)
-    : vocabulary_(std::move(vocabulary)) {
+DefaultRegexIndex::DefaultRegexIndex(std::string vocabulary) : vocabulary_(std::move(vocabulary)) {
   initialize_words();
 
   // these two operations are independent and can be done in parallel
@@ -415,8 +408,7 @@ uint32_t DefaultRegexIndex::find_word(const std::string& word) const {
     const auto entry = words_[index];
 
     // compare words
-    if (entry.length == word.size() &&
-        vocabulary_.compare(entry.offset, entry.length, word) == 0) {
+    if (entry.length == word.size() && vocabulary_.compare(entry.offset, entry.length, word) == 0) {
       // found the given word in the vocabulary
       return index;
     }
@@ -438,8 +430,7 @@ public:
   utf8_finite_regex_unit(utf8_finite_regex_unit&&) = default;
 };
 
-std::vector<utf8_finite_regex_unit> finite_query_to_utf8(
-    const RegexQuery& query) {
+std::vector<utf8_finite_regex_unit> finite_query_to_utf8(const RegexQuery& query) {
   std::vector<utf8_finite_regex_unit> result;
 
   std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
@@ -472,10 +463,9 @@ std::vector<utf8_finite_regex_unit> finite_query_to_utf8(
   return result;
 }
 
-void match_query_hash_lookup_impl(
-    const std::vector<utf8_finite_regex_unit>& stack, size_t stack_index,
-    std::string& word, std::vector<uint32_t>& matches,
-    std::function<uint32_t(const std::string&)>& find_word) {
+void match_query_hash_lookup_impl(const std::vector<utf8_finite_regex_unit>& stack, size_t stack_index,
+                                  std::string& word, std::vector<uint32_t>& matches,
+                                  std::function<uint32_t(const std::string&)>& find_word) {
   if (stack_index >= stack.size()) {
     // we reached the end of the stack, so just check the word
     const uint32_t index = find_word(word);
@@ -490,20 +480,17 @@ void match_query_hash_lookup_impl(
       const auto len = word.size();
       word.append(alternative);
       // recursively call the function
-      match_query_hash_lookup_impl(stack, stack_index + 1, word, matches,
-                                   find_word);
+      match_query_hash_lookup_impl(stack, stack_index + 1, word, matches, find_word);
       word.erase(len); // remove all appended characters
     }
   }
 }
-void DefaultRegexIndex::match_query_hash_lookup(
-    const RegexQuery& query, std::vector<std::string>& matches,
-    uint32_t max_matches) const {
+void DefaultRegexIndex::match_query_hash_lookup(const RegexQuery& query, std::vector<std::string>& matches,
+                                                uint32_t max_matches) const {
   const auto stack = finite_query_to_utf8(query);
   std::string temp_word;
   std::vector<uint32_t> indexes;
-  std::function<uint32_t(const std::string&)> find_word_fn =
-      [&](const std::string& word) { return find_word(word); };
+  std::function<uint32_t(const std::string&)> find_word_fn = [&](const std::string& word) { return find_word(word); };
   match_query_hash_lookup_impl(stack, 0, temp_word, indexes, find_word_fn);
 
   // sort indexes
@@ -526,9 +513,8 @@ void DefaultRegexIndex::match_query_hash_lookup(
   }
 }
 
-void DefaultRegexIndex::match_query_regex(
-    const RegexQuery& query, std::vector<std::string>& matches,
-    uint32_t max_matches, std::chrono::nanoseconds timeout) const {
+void DefaultRegexIndex::match_query_regex(const RegexQuery& query, std::vector<std::string>& matches,
+                                          uint32_t max_matches, std::chrono::nanoseconds timeout) const {
   // build a regex and match it against all words.
   const boost::regex expression(create_regex_pattern(query));
   const uint16_t min_length = query.min_utf8_input_length();
@@ -563,9 +549,7 @@ void DefaultRegexIndex::match_query_regex(
 }
 
 
-void DefaultRegexIndex::match_query(const RegexQuery& query,
-                                    std::vector<std::string>& matches,
-                                    uint32_t max_matches,
+void DefaultRegexIndex::match_query(const RegexQuery& query, std::vector<std::string>& matches, uint32_t max_matches,
                                     std::chrono::nanoseconds timeout) const {
   // no matches are required
   if (max_matches == 0) {
@@ -602,5 +586,4 @@ void DefaultRegexIndex::match_query(const RegexQuery& query,
   match_query_regex(query, matches, max_matches, timeout);
 }
 
-} // namespace regex
-} // namespace netspeak
+} // namespace netspeak::regex

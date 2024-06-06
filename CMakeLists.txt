@@ -1,285 +1,119 @@
-cmake_minimum_required(VERSION 3.14)
-project(netspeak4)
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
-add_subdirectory(build/dependencies/pybind11-2.9.0)
+option(NETSPEAK_BUILD_TESTS "Build tests" ON)
+option(NETSPEAK_BUILD_DOCS "Build documentation" ON)
+option(NETSPEAK_BUILD_DEB "Build debian package" ON)
+option(NETSPEAK_ONLY_DOCS "Build only documentation -- this disables tests and others" OFF)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "-m64")
-set(CMAKE_EXE_LINKER_FLAGS "-m64")
+project(Netspeak VERSION 5.0.0 LANGUAGES C CXX)
 
-set(CMAKE_CXX_COMPILER             "/usr/bin/clang++")
-set(CMAKE_CXX_FLAGS                "-Wall")
-set(CMAKE_CXX_FLAGS_DEBUG          "-g")
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+##########################################################################################
+# Enable Optimization
+##########################################################################################
+if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+	include(CheckIPOSupported)
+	check_ipo_supported(RESULT supported OUTPUT error)
+	if( supported )
+		message(STATUS "IPO / LTO enabled")
+		# set_property(TARGET example PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+	else()
+		message(STATUS "IPO / LTO not supported: <${error}>")
+	endif()
+endif()
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+##########################################################################################
+# Source Code
+##########################################################################################
+if (NOT NETSPEAK_ONLY_DOCS)
+	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+	add_subdirectory(src)
+	add_subdirectory(bindings/python)
+endif()
 
-include_directories(
-    "src"
-    "build/dependencies/pybind11-2.9.0/include"
-    "/usr/include/antlr4-runtime"
-)
+##########################################################################################
+# Testing
+##########################################################################################
+# Testing only available if this is the main app
+# Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
+if(NOT NETSPEAK_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING) AND NETSPEAK_BUILD_TESTS)
+	enable_testing()
+	add_subdirectory(tests)
+endif()
 
-set(NETSPEAK_SOURCES
-"src/antlr4/parse"
-"src/antlr4/QueryErrorHandler"
+##########################################################################################
+# Documentation
+##########################################################################################
+# Documentation only available if this is the main app
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND NETSPEAK_BUILD_DOCS)
+	find_package(Doxygen REQUIRED)
 
-"src/antlr4/generated/QueryBaseListener"
-"src/antlr4/generated/QueryBaseVisitor"
-"src/antlr4/generated/QueryLexer"
-"src/antlr4/generated/QueryListener"
-"src/antlr4/generated/QueryParser"
-"src/antlr4/generated/QueryVisitor"
+	## Set Doxygen configuration options (THIS REPLACES THE DOXYFILE!)
+	set(DOXYGEN_PROJECT_BRIEF "One word leads to another.")
+	set(DOXYGEN_PROJECT_LOGO "netspeak_logo.svg")
+	set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/documentation)
+	set(DOXYGEN_STRIP_FROM_PATH "\"include\" \"src\"")
+	set(DOXYGEN_EXTRACT_PRIVATE "YES")
+	set(DOXYGEN_EXTRACT_ALL "YES")
+	set(DOXYGEN_EXTRACT_STATIC "YES")
+	set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+	set(DOXYGEN_SOURCE_BROWSER "YES")
+	set(DOXYGEN_INLINE_SOURCES "YES")
+	set(DOXYGEN_RECURSIVE "YES")
+	set(DOXYGEN_IMAGE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/docs/media)
+	set(DOXYGEN_HAVE_DOT "YES")  # Required for CALL_GRAPH
+	set(DOXYGEN_DOT_IMAGE_FORMAT "svg")
+	set(DOXYGEN_CALL_GRAPH "YES")
+	set(DOXYGEN_CALLER_GRAPH "YES")
+	set(DOXYGEN_MACRO_EXPANSION "YES")
+	set(DOXYGEN_UML_LOOK "YES")
+	# set(DOXYGEN_DIRECTORY_GRAPH "YES")
+	# set(DOXYGEN_DIR_GRAPH_MAX_DEPTH 5)
 
-"src/cli/BuildCommand"
-"src/cli/Command"
-"src/cli/Commands"
-"src/cli/logging"
-"src/cli/ProxyCommand"
-"src/cli/RegexCommand"
-"src/cli/ServeCommand"
-"src/cli/ShellCommand"
-"src/cli/StressCommand"
-"src/cli/util"
+	set(DOXYGEN_GENERATE_HTML "YES")
 
-"src/netspeak/Configuration"
-"src/netspeak/Dictionaries"
-"src/netspeak/error"
-"src/netspeak/indexing"
-"src/netspeak/Netspeak"
-"src/netspeak/PhraseCorpus"
-"src/netspeak/PhraseDictionary"
-"src/netspeak/PhraseFileParser"
-"src/netspeak/PhraseFileReader"
-"src/netspeak/Properties"
-"src/netspeak/QueryNormalizer"
-"src/netspeak/QueryProcessor"
-"src/netspeak/RetrievalStrategy"
-"src/netspeak/RetrievalStrategy3"
+    ## Install and configure the "Doxygen Awesome" theme
+	include(FetchContent)
+	FetchContent_Declare(doxawesome GIT_REPOSITORY https://github.com/jothepro/doxygen-awesome-css GIT_TAG v2.3.2)
+	FetchContent_MakeAvailable(doxawesome)
+	set(DOXYGEN_GENERATE_TREEVIEW "YES")
+	set(DOXYGEN_DISABLE_INDEX "NO")
+	set(DOXYGEN_FULL_SIDEBAR "NO")
+	set(DOXYGEN_HTML_EXTRA_STYLESHEET ${doxawesome_SOURCE_DIR}/doxygen-awesome.css ${doxawesome_SOURCE_DIR}/doxygen-awesome-sidebar-only.css ${doxawesome_SOURCE_DIR}/doxygen-awesome-sidebar-only-darkmode-toggle.css ${doxawesome_SOURCE_DIR}/doxygen-awesome-tabs.js ${doxawesome_SOURCE_DIR}/doxygen-custom/custom.css)
+	set(DOXYGEN_HTML_COLORSTYLE "LIGHT")
+	set(DOXYGEN_HTML_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/doxygen-header.html)
+	set(DOXYGEN_HTML_EXTRA_FILES ${doxawesome_SOURCE_DIR}/doxygen-awesome-darkmode-toggle.js ${doxawesome_SOURCE_DIR}/doxygen-awesome-fragment-copy-button.js ${doxawesome_SOURCE_DIR}/doxygen-awesome-interactive-toc.js ${doxawesome_SOURCE_DIR}/doxygen-awesome-paragraph-link.js)
 
-"src/netspeak/bighashmap/BigHashMap"
-"src/netspeak/bighashmap/Builder"
-"src/netspeak/bighashmap/CmphMap"
-"src/netspeak/bighashmap/ExternalMap"
-"src/netspeak/bighashmap/InternalMap"
+	## Build Documentation
+	doxygen_add_docs(
+		netspeak_docs
+		${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/docs
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	)
 
-"src/netspeak/invertedindex/ByteBuffer"
-"src/netspeak/invertedindex/Configuration"
-"src/netspeak/invertedindex/Indexer"
-"src/netspeak/invertedindex/IndexStrategy"
-"src/netspeak/invertedindex/InvertedFileReader"
-"src/netspeak/invertedindex/InvertedFileWriter"
-"src/netspeak/invertedindex/Iterator"
-"src/netspeak/invertedindex/ManagedIndexer"
-"src/netspeak/invertedindex/Postlist"
-"src/netspeak/invertedindex/PostlistBuilder"
-"src/netspeak/invertedindex/PostlistReader"
-"src/netspeak/invertedindex/PostlistSorter"
-"src/netspeak/invertedindex/Properties"
-"src/netspeak/invertedindex/RawIndexer"
-"src/netspeak/invertedindex/RawPostlist"
-"src/netspeak/invertedindex/RawSearcher"
-"src/netspeak/invertedindex/Record"
-"src/netspeak/invertedindex/RecordReader"
-"src/netspeak/invertedindex/Searcher"
-"src/netspeak/invertedindex/SortedInput"
-"src/netspeak/invertedindex/StorageReader"
-"src/netspeak/invertedindex/StorageWriter"
-"src/netspeak/invertedindex/UnsortedInput"
+	# Copy Files over that Doxygen has not found (hopefully Doxygen will do this automatically in the future)
+	add_custom_command(TARGET netspeak_docs POST_BUILD
+    	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/docs/media/netspeak-banner.svg ${DOXYGEN_OUTPUT_DIRECTORY}/html/docs/media/netspeak-banner.svg
+	)
+endif()
 
-"src/netspeak/model/LengthRange"
-"src/netspeak/model/NormQuery"
-"src/netspeak/model/Phrase"
-"src/netspeak/model/Query"
-"src/netspeak/model/QuerySyntax"
-"src/netspeak/model/RawPhraseResult"
-"src/netspeak/model/RawRefResult"
-"src/netspeak/model/RawResult"
-"src/netspeak/model/SearchOptions"
-"src/netspeak/model/SearchResult"
-"src/netspeak/model/SimpleQuery"
-"src/netspeak/model/typedefs"
-"src/netspeak/model/Words"
+##########################################################################################
+# Debian Package
+##########################################################################################
+# Debian Packaging only available if this is the main app
+if(NOT NETSPEAK_ONLY_DOCS AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) AND NETSPEAK_BUILD_DEB)
+	install(TARGETS netspeakcli RUNTIME DESTINATION bin)
 
-"src/netspeak/regex/DefaultRegexIndex"
-"src/netspeak/regex/parsers"
-"src/netspeak/regex/RegexIndex"
-"src/netspeak/regex/RegexQuery"
-
-"src/netspeak/service/LoadBalanceProxy"
-"src/netspeak/service/NetspeakService.grpc.pb"
-"src/netspeak/service/NetspeakService.pb"
-"src/netspeak/service/RequestLogger"
-"src/netspeak/service/tracking"
-"src/netspeak/service/UniqueMap"
-
-"src/netspeak/util/ChainCutter"
-"src/netspeak/util/check"
-"src/netspeak/util/checksum"
-"src/netspeak/util/Config"
-"src/netspeak/util/conversion"
-"src/netspeak/util/exception"
-"src/netspeak/util/FileDescriptor"
-"src/netspeak/util/glob"
-"src/netspeak/util/JsonWriter"
-"src/netspeak/util/LfuCache"
-"src/netspeak/util/logging"
-"src/netspeak/util/Math"
-"src/netspeak/util/memory"
-"src/netspeak/util/Mut"
-"src/netspeak/util/PropertiesFormat"
-"src/netspeak/util/service"
-"src/netspeak/util/string"
-"src/netspeak/util/systemio"
-"src/netspeak/util/traceable_error"
-"src/netspeak/util/Vec"
-
-"src/netspeak/value/big_string"
-"src/netspeak/value/big_string_traits"
-"src/netspeak/value/pair"
-"src/netspeak/value/pair_traits"
-"src/netspeak/value/quadruple"
-"src/netspeak/value/quadruple_traits"
-"src/netspeak/value/quintuple"
-"src/netspeak/value/quintuple_traits"
-"src/netspeak/value/sextuple"
-"src/netspeak/value/sextuple_traits"
-"src/netspeak/value/string_traits"
-"src/netspeak/value/triple"
-"src/netspeak/value/triple_traits"
-"src/netspeak/value/value_traits"
-)
-set(NETSPEAK_LINK_LIBS
-dl
-z
-rt
-pthread
-
-# cmph (C Minimal Perfect Hashing)
--l:libcmph.a
-
-# ICU
--l:libicuuc.a
--l:libicudata.a
-
-# boost
--l:libboost_date_time.a
--l:libboost_filesystem.a
--l:libboost_system.a
--l:libboost_program_options.a
--l:libboost_regex.a
--l:libboost_stacktrace_basic.a
--l:libboost_stacktrace_backtrace.a
--l:libboost_stacktrace_addr2line.a
-
-# antlr4
--l:libantlr4-runtime.a
-
-# protobuf
--l:libprotobuf.a
-
-# grpc
--l:libgrpc++.a
--l:libgrpc_unsecure.a
--l:libcares.a
--l:libgrpc.a
--l:libgpr.a
--l:libabsl_bad_optional_access.a
--l:libabsl_base.a
--l:libabsl_log_severity.a
--l:libabsl_spinlock_wait.a
--l:libabsl_str_format_internal.a
--l:libabsl_strings.a
--l:libabsl_raw_logging_internal.a
--l:libabsl_strings_internal.a
--l:libabsl_int128.a
--l:libabsl_throw_delegate.a
--l:libaddress_sorting.a
--l:libupb.a
-)
-
-set(NETSPEAK_TEST_SOURCES "${NETSPEAK_SOURCES}"
-"test/netspeak/ManagedDirectory"
-"test/netspeak/paths"
-"test/netspeak/test_ChainCutter"
-"test/netspeak/test_LfuCache"
-"test/netspeak/test_Netspeak"
-"test/netspeak/test_normalization"
-"test/netspeak/test_parse"
-"test/netspeak/test_phrase"
-"test/netspeak/test_PhraseCorpus"
-"test/netspeak/test_PropertiesFormat"
-"test/netspeak/test_QueryParser"
-"test/netspeak/test_regex"
-
-"test/netspeak/bighashmap/test_big_hash_map"
-"test/netspeak/bighashmap/test_value_traits"
-
-"test/netspeak/invertedindex/test_Indexer"
-"test/netspeak/invertedindex/test_InvertedFileReader"
-"test/netspeak/invertedindex/test_ManagedIndexer"
-"test/netspeak/invertedindex/test_Postlist"
-"test/netspeak/invertedindex/test_PostlistReader"
-"test/netspeak/invertedindex/test_PostlistSorter"
-"test/netspeak/invertedindex/test_Record"
-)
-set(NETSPEAK_TEST_LINK_LIBS "${NETSPEAK_LINK_LIBS}")
-
-
-add_executable(netspeak4 src/CommandLineTool.cpp)
-target_sources(netspeak4 PRIVATE "${NETSPEAK_SOURCES}")
-target_link_libraries(netspeak4 "${NETSPEAK_LINK_LIBS}")
-
-add_executable(netspeak4-test test/netspeak/runner.cpp)
-target_sources(netspeak4-test PRIVATE "${NETSPEAK_TEST_SOURCES}")
-target_link_libraries(netspeak4-test "${NETSPEAK_TEST_LINK_LIBS}")
-
-set(NETSPEAK_PY_LINK_LIBS
-dl
-z
-rt
-
-# boost
-boost_system
-boost_regex
-
-# antlr4
-antlr4-runtime
-)
-
-set(NETSPEAK_PY_SOURCES
-"src/py/QueryParser"
-
-"src/antlr4/parse"
-"src/antlr4/QueryErrorHandler"
-
-"src/antlr4/generated/QueryBaseListener"
-"src/antlr4/generated/QueryBaseVisitor"
-"src/antlr4/generated/QueryLexer"
-"src/antlr4/generated/QueryListener"
-"src/antlr4/generated/QueryParser"
-"src/antlr4/generated/QueryVisitor"
-
-"src/netspeak/Dictionaries"
-"src/netspeak/error"
-"src/netspeak/QueryNormalizer"
-
-"src/netspeak/model/LengthRange"
-"src/netspeak/model/NormQuery"
-"src/netspeak/model/SimpleQuery"
-"src/netspeak/model/Query"
-"src/netspeak/model/QuerySyntax"
-
-"src/netspeak/regex/DefaultRegexIndex"
-"src/netspeak/regex/parsers"
-"src/netspeak/regex/RegexIndex"
-"src/netspeak/regex/RegexQuery"
-)
-
-pybind11_add_module(netspeak4py src/PythonBindings.cpp "${NETSPEAK_PY_SOURCES}")
-set_property(TARGET netspeak4py PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_link_libraries(netspeak4py PRIVATE pybind11::module "${NETSPEAK_PY_LINK_LIBS}")
+	SET(CPACK_GENERATOR "DEB")
+	SET(CPACK_PACKAGE_NAME netspeakcli)
+	SET(CPACK_SET_DESTDIR TRUE)
+	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "info@netspeak.org")
+	SET(CPACK_PACKAGE_VERSION "5.0.0rc")
+	include(GNUInstallDirs)
+	SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Description") # TODO: description
+	SET(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+	SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libcmph0, libicu74, libgrpc++1.51t64")
+	SET(CPACK_PACKAGE_VENDOR "Webis Group")
+	include(CPack)
+endif()

@@ -1,10 +1,8 @@
-#include "netspeak/service/LoadBalanceProxy.hpp"
+#include <netspeak/error.hpp>
+#include <netspeak/service/LoadBalanceProxy.hpp>
+#include <netspeak/util/service.hpp>
 
-#include "netspeak/error.hpp"
-#include "netspeak/util/service.hpp"
-
-namespace netspeak {
-namespace service {
+namespace netspeak::service {
 
 bool LoadBalanceProxy::areCompatible(const Corpus& a, const Corpus& b) {
   if (a.key() != b.key()) {
@@ -17,17 +15,14 @@ bool LoadBalanceProxy::areCompatible(const Corpus& a, const Corpus& b) {
 void check_compatible(const Corpus& a, const Corpus& b) {
   if (!LoadBalanceProxy::areCompatible(a, b)) {
     std::stringstream what;
-    what << "The corpora " << a << " and " << b
-         << " have the same key but are incompatible.";
+    what << "The corpora " << a << " and " << b << " have the same key but are incompatible.";
     throw std::logic_error(what.str());
   }
 }
 
-void initialize_from_stubs(
-    const LoadBalanceProxy::StubVector& stubs,
-    std::unordered_map<std::string, std::vector<LoadBalanceProxy::StubPtr>>&
-        services,
-    std::vector<Corpus>& corpora) {
+void initialize_from_stubs(const LoadBalanceProxy::StubVector& stubs,
+                           std::unordered_map<std::string, std::vector<LoadBalanceProxy::StubPtr>>& services,
+                           std::vector<Corpus>& corpora) {
   std::unordered_map<std::string, Corpus> corpora_map;
 
   for (const auto& pair : stubs) {
@@ -55,8 +50,7 @@ void initialize_from_stubs(
   }
 }
 
-LoadBalanceProxy::LoadBalanceProxy(const StubVector& stubs)
-    : services_(), corpora_() {
+LoadBalanceProxy::LoadBalanceProxy(const StubVector& stubs) : services_(), corpora_() {
   initialize_from_stubs(stubs, services_, corpora_);
 }
 
@@ -78,8 +72,7 @@ uint64_t bit_mix(uint64_t x) {
   return x * UINT64_C(0x2545F4914F6CDD1D);
 }
 
-grpc::Status LoadBalanceProxy::Search_(grpc::ServerContext*,
-                                       const SearchRequest* request,
+grpc::Status LoadBalanceProxy::Search_(grpc::ServerContext*, const SearchRequest* request,
                                        SearchResponse* response) const {
   const auto& services_ref = services_;
 
@@ -112,8 +105,7 @@ grpc::Status LoadBalanceProxy::Search_(grpc::ServerContext*,
   }
 }
 
-grpc::Status LoadBalanceProxy::GetCorpora_(grpc::ServerContext*,
-                                           const CorporaRequest*,
+grpc::Status LoadBalanceProxy::GetCorpora_(grpc::ServerContext*, const CorporaRequest*,
                                            CorporaResponse* response) const {
   const auto& corpora_ref = corpora_; // copy the shared_ptr
 
@@ -125,5 +117,4 @@ grpc::Status LoadBalanceProxy::GetCorpora_(grpc::ServerContext*,
 }
 
 
-} // namespace service
-} // namespace netspeak
+} // namespace netspeak::service

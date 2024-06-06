@@ -1,8 +1,7 @@
-#include "netspeak/service/tracking.hpp"
+#include <netspeak/service/tracking.hpp>
 
 
-namespace netspeak {
-namespace service {
+namespace netspeak::service {
 
 bool is_valid_tracking_id(const std::string& id) {
   if (id.length() != 32) {
@@ -10,8 +9,7 @@ bool is_valid_tracking_id(const std::string& id) {
   }
 
   for (const auto c : id) {
-    if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
-          (c >= 'A' && c <= 'F'))) {
+    if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
       return false;
     }
   }
@@ -55,5 +53,4 @@ std::string get_tracking_id(const grpc::ServerContext& context) {
   return tracking_id;
 }
 
-} // namespace service
-} // namespace netspeak
+} // namespace netspeak::service

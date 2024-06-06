@@ -1,20 +1,18 @@
-#include "netspeak/QueryNormalizer.hpp"
-
 #include <unicode/unistr.h>
 
 #include <algorithm>
 #include <functional>
 #include <limits>
+#include <netspeak/QueryNormalizer.hpp>
+#include <netspeak/error.hpp>
+#include <netspeak/model/SimpleQuery.hpp>
+#include <netspeak/regex/parsers.hpp>
+#include <netspeak/util/ChainCutter.hpp>
+#include <netspeak/util/Math.hpp>
+#include <netspeak/util/Vec.hpp>
 #include <unordered_map>
 
-#include "boost/algorithm/string.hpp"
-
-#include "netspeak/error.hpp"
-#include "netspeak/model/SimpleQuery.hpp"
-#include "netspeak/regex/parsers.hpp"
-#include "netspeak/util/ChainCutter.hpp"
-#include "netspeak/util/Math.hpp"
-#include "netspeak/util/Vec.hpp"
+#include <boost/algorithm/string.hpp>
 
 
 namespace netspeak {
@@ -33,8 +31,7 @@ public:
   bool lower_case = false;
 
   QuerySimplifier() = delete;
-  explicit QuerySimplifier(const QueryNormalizer::Options& options)
-      : options(options) {}
+  explicit QuerySimplifier(const QueryNormalizer::Options& options) : options(options) {}
 
   typedef std::shared_ptr<const Query::Unit> UnitPtr;
   typedef std::shared_ptr<const Query> QueryPtr;
@@ -51,8 +48,7 @@ private:
       concat.add_child(std::move(unit));
     }
   }
-  static void add_to_alternation(SimpleQuery::Unit& alt,
-                                 SimpleQuery::Unit unit) {
+  static void add_to_alternation(SimpleQuery::Unit& alt, SimpleQuery::Unit unit) {
     // If an alt is added to an alt, then we can add all alternatives of the
     // child alt instead.
     if (unit.tag() == SimpleQuery::Unit::Tag::ALTERNATION) {
@@ -63,8 +59,7 @@ private:
       alt.add_child(std::move(unit));
     }
   }
-  static SimpleQuery::Unit::Source to_source(const QueryPtr& query,
-                                             const UnitPtr& unit) {
+  static SimpleQuery::Unit::Source to_source(const QueryPtr& query, const UnitPtr& unit) {
     return SimpleQuery::Unit::Source(query, unit);
   }
 
@@ -90,8 +85,7 @@ private:
     return plus;
   }
 
-  SimpleQuery::Unit regex_to_simple(const QueryPtr& query,
-                                    const UnitPtr& unit) {
+  SimpleQuery::Unit regex_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
     if (allow_regex) {
@@ -154,8 +148,7 @@ private:
     return alt;
   }
 
-  SimpleQuery::Unit option_to_simple(const QueryPtr& query,
-                                     const UnitPtr& unit) {
+  SimpleQuery::Unit option_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
     auto option = SimpleQuery::Unit::new_alternation(source);
@@ -172,8 +165,7 @@ private:
     return option;
   }
 
-  SimpleQuery::Unit order_to_simple(const QueryPtr& query,
-                                    const UnitPtr& unit) {
+  SimpleQuery::Unit order_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
     // Order sets easily blow up simple queries because an order set with n
@@ -222,8 +214,7 @@ private:
     }
 
     // check 2)
-    if (elements.size() >= 7 ||
-        util::factorial(elements.size()) > options.max_norm_queries) {
+    if (elements.size() >= 7 || util::factorial(elements.size()) > options.max_norm_queries) {
       // 7! will result in at least 7! (~5k) norm queries and at least 8! (~40k)
       // elements, so it's used as a hard limit. Our current indexes only
       // support up to 5-grams, so this shouldn't be an issue.
@@ -279,8 +270,7 @@ private:
     return alt;
   }
 
-  SimpleQuery::Unit concat_to_simple(const QueryPtr& query,
-                                     const UnitPtr& unit) {
+  SimpleQuery::Unit concat_to_simple(const QueryPtr& query, const UnitPtr& unit) {
     const auto source = to_source(query, unit);
 
     auto concat = SimpleQuery::Unit::new_concat(source);
@@ -346,12 +336,10 @@ public:
   }
 
   MinLengthMargin() = delete;
-  MinLengthMargin(uint32_t before, uint32_t after)
-      : before(before), after(after){};
+  MinLengthMargin(uint32_t before, uint32_t after) : before(before), after(after){};
 };
 
-MinLengthMargin operator+(const MinLengthMargin& lhs,
-                          const MinLengthMargin& rhs) {
+MinLengthMargin operator+(const MinLengthMargin& lhs, const MinLengthMargin& rhs) {
   return MinLengthMargin(lhs.before + rhs.before, lhs.after + rhs.after);
 }
 
@@ -379,15 +367,12 @@ private:
     }
   }
 
-  static bool contains_child(const SimpleQuery::Unit& unit,
-                             const SimpleQuery::Unit::Tag tag) {
-    return std::any_of(
-        unit.children().begin(), unit.children().end(),
-        [&tag](const SimpleQuery::Unit& u) { return u.tag() == tag; });
+  static bool contains_child(const SimpleQuery::Unit& unit, const SimpleQuery::Unit::Tag tag) {
+    return std::any_of(unit.children().begin(), unit.children().end(),
+                       [&tag](const SimpleQuery::Unit& u) { return u.tag() == tag; });
   }
 
-  static void inline_nested(SimpleQuery::Unit& unit,
-                            const SimpleQuery::Unit::Tag tag) {
+  static void inline_nested(SimpleQuery::Unit& unit, const SimpleQuery::Unit::Tag tag) {
     // check if there are nested units to inline
     if (contains_child(unit, tag)) {
       for (auto& child : unit.drain_children()) {
@@ -428,8 +413,7 @@ private:
     // A list of the indexes of all children to be removed
     std::vector<size_t> to_remove;
 
-    auto mark_for_removal = [&min_lengths, &to_remove, &concat](
-                                size_t star_index, bool forward) {
+    auto mark_for_removal = [&min_lengths, &to_remove, &concat](size_t star_index, bool forward) {
       size_t processed = 0;
       size_t index = star_index;
 
@@ -514,12 +498,9 @@ private:
 
     // check for the empty alternation
     // The empty alternation is the absorbing element of concatenation
-    const auto empty =
-        std::find_if(unit.children().begin(), unit.children().end(),
-                     [](const SimpleQuery::Unit& u) {
-                       return u.tag() == SimpleQuery::Unit::Tag::ALTERNATION &&
-                              u.children().empty();
-                     });
+    const auto empty = std::find_if(unit.children().begin(), unit.children().end(), [](const SimpleQuery::Unit& u) {
+      return u.tag() == SimpleQuery::Unit::Tag::ALTERNATION && u.children().empty();
+    });
     if (empty != unit.children().end()) {
       const auto empty_source = empty->source();
       unit = SimpleQuery::Unit::new_alternation(empty_source);
@@ -566,8 +547,7 @@ struct NormQueryCounter {
 public:
   QueryNormalizer::Options options;
 
-  explicit NormQueryCounter(const QueryNormalizer::Options& options)
-      : options(options) {}
+  explicit NormQueryCounter(const QueryNormalizer::Options& options) : options(options) {}
 
   /**
    * @brief Returns a function that, given the number of words each regex will
@@ -635,13 +615,11 @@ private:
         return sum;
       }
     }
-    static std::function<uint64_t(size_t)> safe_add(
-        uint64_t a, const std::function<uint64_t(size_t)>& b) {
+    static std::function<uint64_t(size_t)> safe_add(uint64_t a, const std::function<uint64_t(size_t)>& b) {
       return [=](size_t input) { return safe_add(a, b(input)); };
     }
-    static std::function<uint64_t(size_t)> safe_add(
-        const std::function<uint64_t(size_t)>& a,
-        const std::function<uint64_t(size_t)>& b) {
+    static std::function<uint64_t(size_t)> safe_add(const std::function<uint64_t(size_t)>& a,
+                                                    const std::function<uint64_t(size_t)>& b) {
       return [=](size_t input) { return safe_add(a(input), b(input)); };
     }
     static uint64_t safe_mult(uint64_t a, uint64_t b) {
@@ -653,13 +631,11 @@ private:
         return prod;
       }
     }
-    static std::function<uint64_t(size_t)> safe_mult(
-        uint64_t a, const std::function<uint64_t(size_t)>& b) {
+    static std::function<uint64_t(size_t)> safe_mult(uint64_t a, const std::function<uint64_t(size_t)>& b) {
       return [=](size_t input) { return safe_mult(a, b(input)); };
     }
-    static std::function<uint64_t(size_t)> safe_mult(
-        const std::function<uint64_t(size_t)>& a,
-        const std::function<uint64_t(size_t)>& b) {
+    static std::function<uint64_t(size_t)> safe_mult(const std::function<uint64_t(size_t)>& a,
+                                                     const std::function<uint64_t(size_t)>& b) {
       return [=](size_t input) { return safe_mult(a(input), b(input)); };
     }
 
@@ -699,8 +675,7 @@ private:
     }
   };
 
-  UnitResult estimate_impl(const SimpleQuery::Unit& unit,
-                           const MinLengthMargin margin) {
+  UnitResult estimate_impl(const SimpleQuery::Unit& unit, const MinLengthMargin margin) {
     switch (unit.tag()) {
       case SimpleQuery::Unit::Tag::WORD:
       case SimpleQuery::Unit::Tag::QMARK:
@@ -738,8 +713,7 @@ private:
           const auto& child = unit.children()[i];
           const uint32_t child_min = min_lengths[i];
           const uint32_t min_after = uint_min_length - min_before - child_min;
-          const auto c_num = estimate_impl(
-              child, margin + MinLengthMargin(min_before, min_after));
+          const auto c_num = estimate_impl(child, margin + MinLengthMargin(min_before, min_after));
           min_before += child_min;
 
           if (c_num.is_constant() && c_num.constant() == UINT64_MAX) {
@@ -759,10 +733,8 @@ private:
   }
 };
 
-const std::shared_ptr<const std::string> QMARK_STR =
-    std::make_shared<const std::string>("?");
-const std::shared_ptr<const std::string> STAR_STR =
-    std::make_shared<const std::string>("*");
+const std::shared_ptr<const std::string> QMARK_STR = std::make_shared<const std::string>("?");
+const std::shared_ptr<const std::string> STAR_STR = std::make_shared<const std::string>("*");
 /**
  * @brief A star queries is basically the same as a norm query but it can still
  * contain stars.
@@ -780,8 +752,7 @@ public:
     Source source;
 
     Unit() = delete;
-    Unit(Tag tag, const Text& text, const Source& source)
-        : tag(tag), text(text), source(source) {}
+    Unit(Tag tag, const Text& text, const Source& source) : tag(tag), text(text), source(source) {}
 
     static Unit new_word(const Text& text, const Source& source) {
       return Unit(Tag::WORD, text, source);
@@ -837,8 +808,7 @@ public:
   QueryNormalizer::Options options;
 
   StarQueryConverter() = delete;
-  explicit StarQueryConverter(const QueryNormalizer::Options& options)
-      : options(options) {}
+  explicit StarQueryConverter(const QueryNormalizer::Options& options) : options(options) {}
 
   std::vector<StarQuery> to_star_queries(const SimpleQuery& query) {
     std::vector<StarQuery> result;
@@ -850,8 +820,7 @@ private:
   void concat(std::vector<StarQuery>& queries, const SimpleQuery::Unit& unit) {
     switch (unit.tag()) {
       case SimpleQuery::Unit::Tag::WORD: {
-        const auto u = StarQuery::Unit::new_word(
-            std::make_shared<const std::string>(unit.text()), unit.source());
+        const auto u = StarQuery::Unit::new_word(std::make_shared<const std::string>(unit.text()), unit.source());
         for (auto& q : queries) {
           q.push_back(u);
         }
@@ -892,8 +861,7 @@ private:
           queries.reserve(copy.size() * alt.size());
           for (const auto& before : copy) {
             for (const auto& after : alt) {
-              if (before.min_length() + after.min_length() >
-                  options.max_length) {
+              if (before.min_length() + after.min_length() > options.max_length) {
                 // This is where a combinatory explosion takes place, so we try
                 // to optimize this case as much as possible by discarding star
                 // queries that are too long.
@@ -918,13 +886,11 @@ private:
         throw tracable_logic_error("Unknown Tag");
     }
   }
-  void alternation(std::vector<StarQuery>& queries,
-                   const SimpleQuery::Unit& unit) {
+  void alternation(std::vector<StarQuery>& queries, const SimpleQuery::Unit& unit) {
     switch (unit.tag()) {
       case SimpleQuery::Unit::Tag::WORD: {
         StarQuery q;
-        q.push_back(StarQuery::Unit::new_word(
-            std::make_shared<const std::string>(unit.text()), unit.source()));
+        q.push_back(StarQuery::Unit::new_word(std::make_shared<const std::string>(unit.text()), unit.source()));
         queries.push_back(std::move(q));
         break;
       }
@@ -973,8 +939,7 @@ public:
   QueryNormalizer::Options options;
 
   SimpleQueryNormalizer() = delete;
-  explicit SimpleQueryNormalizer(const QueryNormalizer::Options& options)
-      : options(options) {}
+  explicit SimpleQueryNormalizer(const QueryNormalizer::Options& options) : options(options) {}
 
   /**
    * @brief Converts the given simple query into norm queries and adds them to
@@ -988,8 +953,7 @@ public:
    * @param norm_queries
    * @param query
    */
-  void to_norm_queries(std::vector<NormQuery>& norm_queries,
-                       const SimpleQuery& query) {
+  void to_norm_queries(std::vector<NormQuery>& norm_queries, const SimpleQuery& query) {
     StarQueryConverter star_conv(options);
     std::vector<StarQuery> star_queries = star_conv.to_star_queries(query);
 
@@ -1013,8 +977,7 @@ public:
   }
 
 private:
-  void add_simple(std::vector<NormQuery>& norm_queries,
-                  const StarQuery& query) {
+  void add_simple(std::vector<NormQuery>& norm_queries, const StarQuery& query) {
     NormQuery nq;
     for (const auto& u : query.units()) {
       switch (u.tag) {
@@ -1030,14 +993,11 @@ private:
     }
     norm_queries.push_back(nq);
   }
-  void add_with_stars(std::vector<NormQuery>& norm_queries,
-                      const StarQuery& query) {
+  void add_with_stars(std::vector<NormQuery>& norm_queries, const StarQuery& query) {
     // the number of stars in the query
-    const size_t star_count =
-        std::count_if(query.units().begin(), query.units().end(),
-                      [](const StarQuery::Unit& u) {
-                        return u.tag == StarQuery::Unit::Tag::STAR;
-                      });
+    const size_t star_count = std::count_if(query.units().begin(), query.units().end(), [](const StarQuery::Unit& u) {
+      return u.tag == StarQuery::Unit::Tag::STAR;
+    });
     // the available space to expand stars.
     const size_t available = options.max_length - query.min_length();
 
@@ -1078,8 +1038,7 @@ private:
   }
 };
 
-void find_regexes(SimpleQuery::Unit& unit,
-                  std::vector<SimpleQuery::Unit*>& regexes) {
+void find_regexes(SimpleQuery::Unit& unit, std::vector<SimpleQuery::Unit*>& regexes) {
   switch (unit.tag()) {
     case SimpleQuery::Unit::Tag::REGEX:
       regexes.push_back(&unit);
@@ -1108,8 +1067,7 @@ std::vector<SimpleQuery::Unit*> find_regexes(SimpleQuery& query) {
  * @param max
  * @param comparer
  */
-size_t binary_search(size_t min, size_t max,
-                     const std::function<int(size_t)>& comparer) {
+size_t binary_search(size_t min, size_t max, const std::function<int(size_t)>& comparer) {
   while (min < max) {
     size_t m = min + ((max - min) >> 1) + 1;
     int cmp = comparer(m);
@@ -1124,9 +1082,8 @@ size_t binary_search(size_t min, size_t max,
   return min;
 }
 
-void normalize_regexes(
-    SimpleQuery& query, const QueryNormalizer::Options& options,
-    const std::shared_ptr<const regex::RegexIndex>& regex_index) {
+void normalize_regexes(SimpleQuery& query, const QueryNormalizer::Options& options,
+                       const std::shared_ptr<const regex::RegexIndex>& regex_index) {
   const auto regexes = find_regexes(query);
   if (!regexes.empty()) {
     // try to find out with how many words we can replace each regex and still
@@ -1163,10 +1120,8 @@ void normalize_regexes(
     } else {
       std::vector<std::string> matches;
       for (auto regex_unit : regexes) {
-        const auto regex_query =
-            regex::parse_netspeak_regex_query(regex_unit->text());
-        regex_index->match_query(regex_query, matches, best_max_matches,
-                                 options.max_regex_time);
+        const auto regex_query = regex::parse_netspeak_regex_query(regex_unit->text());
+        regex_index->match_query(regex_query, matches, best_max_matches, options.max_regex_time);
 
         const auto source = regex_unit->source();
         auto alt = SimpleQuery::Unit::new_alternation(source);
@@ -1181,20 +1136,18 @@ void normalize_regexes(
   }
 }
 
-void QueryNormalizer::normalize(std::shared_ptr<const Query> query,
-                                const Options& options,
+void QueryNormalizer::normalize(std::shared_ptr<const Query> query, const Options& options,
                                 std::vector<NormQuery>& norm_queries) {
   const auto query_length_range = query->length_range();
-  if (query_length_range.empty() ||
-      query_length_range.max < options.min_length ||
+  if (query_length_range.empty() || query_length_range.max < options.min_length ||
       query_length_range.min > options.max_length) {
     // In this case, we just cannot create any norm queries that fulfill the
     // normalization options.
     return;
   }
 
-  bool allow_regex = !!regex_index_ && options.max_regex_matches > 0 &&
-                     options.max_regex_time > std::chrono::nanoseconds(0);
+  bool allow_regex =
+      !!regex_index_ && options.max_regex_matches > 0 && options.max_regex_time > std::chrono::nanoseconds(0);
 
   // convert the given query into a simpler form
   QuerySimplifier simplifier(options);
@@ -1216,8 +1169,6 @@ void QueryNormalizer::normalize(std::shared_ptr<const Query> query,
 }
 
 QueryNormalizer::QueryNormalizer(InitConfig config)
-    : regex_index_(config.regex_index),
-      dictionary_(config.dictionary),
-      lower_case(config.lower_case) {}
+    : regex_index_(config.regex_index), dictionary_(config.dictionary), lower_case(config.lower_case) {}
 
 } // namespace netspeak

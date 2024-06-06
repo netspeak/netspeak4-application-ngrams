@@ -1,15 +1,16 @@
 BasedOnStyle: Google
 
 AccessModifierOffset: -2
+FixNamespaceComments: true
 SpacesBeforeTrailingComments: 1
 MaxEmptyLinesToKeep: 2
-AlwaysBreakTemplateDeclarations: false
 Cpp11BracedListStyle: false
+
+ColumnLimit: 120
 
 AllowShortIfStatementsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakTemplateDeclarations: Yes
-FixNamespaceComments: true
 
 IncludeBlocks: Regroup
 IncludeCategories:

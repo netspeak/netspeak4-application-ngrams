@@ -1,16 +1,12 @@
-#include "netspeak/util/Config.hpp"
-
 #include <fstream>
+#include <netspeak/util/Config.hpp>
+#include <netspeak/util/PropertiesFormat.hpp>
+#include <netspeak/util/traceable_error.hpp>
 
-#include "netspeak/util/PropertiesFormat.hpp"
-#include "netspeak/util/traceable_error.hpp"
-
-namespace netspeak {
-namespace util {
+namespace netspeak::util {
 
 
-Config::Config(boost::filesystem::path file_name)
-    : data_(), file_name_(file_name) {
+Config::Config(std::filesystem::path file_name) : data_(), file_name_(file_name) {
   std::ifstream ifs(file_name.string());
   if (!ifs.good()) {
     throw tracable_runtime_error("Could not open " + file_name.string());
@@ -19,8 +15,7 @@ Config::Config(boost::filesystem::path file_name)
 }
 
 
-const std::string& Config::get(const std::string& key,
-                               const std::string& default_value) const {
+const std::string& Config::get(const std::string& key, const std::string& default_value) const {
   if (contains(key)) {
     return data_.at(key);
   } else {
@@ -32,12 +27,9 @@ const std::string& Config::get(const std::string& key) const {
     return data_.at(key);
   } else {
     if (file_name_.empty()) {
-      throw tracable_runtime_error("Incomplete config. \"" + key +
-                                   "\" is missing.");
+      throw tracable_runtime_error("Incomplete config. \"" + key + "\" is missing.");
     } else {
-      throw tracable_runtime_error("Incomplete config. \"" + key +
-                                   "\" is missing in \"" + file_name_.string() +
-                                   "\".");
+      throw tracable_runtime_error("Incomplete config. \"" + key + "\" is missing in \"" + file_name_.string() + "\".");
     }
   }
 }
@@ -52,5 +44,4 @@ std::ostream& Config::operator<<(std::ostream& out) const {
   return out;
 }
 
-} // namespace util
-} // namespace netspeak
+} // namespace netspeak::util

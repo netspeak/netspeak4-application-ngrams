@@ -1,22 +1,18 @@
-#include "netspeak/util/service.hpp"
+#include <netspeak/util/service.hpp>
 
 namespace grpc {
 
 std::ostream& operator<<(std::ostream& out, const grpc::Status& status) {
-  return out << "Code " << status.error_code() << ": " << status.error_message()
-             << "\n"
+  return out << "Code " << status.error_code() << ": " << status.error_message() << "\n"
              << "Details: " << status.error_details();
 }
 
 } // namespace grpc
 
-namespace netspeak {
-namespace service {
+namespace netspeak::service {
 
 std::ostream& operator<<(std::ostream& out, const Corpus& corpus) {
-  return out << corpus.name() << " (key=\"" << corpus.key()
-             << "\" lang=" << corpus.language() << ")";
+  return out << corpus.name() << " (key=\"" << corpus.key() << "\" lang=" << corpus.language() << ")";
 }
 
-} // namespace service
-} // namespace netspeak
+} // namespace netspeak::service

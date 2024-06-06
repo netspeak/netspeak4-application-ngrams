@@ -9,14 +9,13 @@
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
 #include <grpcpp/server_context.h>
+#include <netspeak/NetspeakService.grpc.pb.h>
 
-#include "cli/logging.hpp"
-#include "cli/util.hpp"
-
-#include "netspeak/Netspeak.hpp"
-#include "netspeak/service/LoadBalanceProxy.hpp"
-#include "netspeak/service/NetspeakService.grpc.pb.h"
-#include "netspeak/util/service.hpp"
+#include <cli/logging.hpp>
+#include <cli/util.hpp>
+#include <netspeak/Netspeak.hpp>
+#include <netspeak/service/LoadBalanceProxy.hpp>
+#include <netspeak/util/service.hpp>
 
 namespace cli {
 
@@ -31,10 +30,8 @@ std::string ProxyCommand::desc() {
 };
 
 void ProxyCommand::add_options(bpo::options_description_easy_init& easy_init) {
-  easy_init(PORT_KEY ",p", bpo::value<uint16_t>()->required(),
-            "The port on which the server will listen.");
-  easy_init(SOURCE_KEY ",s",
-            bpo::value<std::vector<std::string>>()->required()->multitoken(),
+  easy_init(PORT_KEY ",p", bpo::value<uint16_t>()->required(), "The port on which the server will listen.");
+  easy_init(SOURCE_KEY ",s", bpo::value<std::vector<std::string>>()->required()->multitoken(),
             "The addresses of Netspeak gRPC servers.\n"
             "\n"
             "Example:\n"
@@ -47,16 +44,13 @@ void ProxyCommand::add_options(bpo::options_description_easy_init& easy_init) {
 
 typedef std::shared_ptr<service::NetspeakService::Stub> StubPtr;
 StubPtr newStub(const std::string& address) {
-  auto channel =
-      grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
+  auto channel = grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
   return service::NetspeakService::NewStub(channel);
 }
 
-std::vector<std::pair<service::Corpus, StubPtr>> scanSources(
-    const std::vector<std::string>& sources) {
+std::vector<std::pair<service::Corpus, StubPtr>> scanSources(const std::vector<std::string>& sources) {
   std::vector<std::pair<service::Corpus, StubPtr>> list;
-  std::unordered_map<std::string, std::pair<service::Corpus, std::string>>
-      corpora_map;
+  std::unordered_map<std::string, std::pair<service::Corpus, std::string>> corpora_map;
   for (const auto& address : sources) {
     std::cout << "New stub " << address << "\n";
     const auto stub = newStub(address);
@@ -69,16 +63,14 @@ std::vector<std::pair<service::Corpus, StubPtr>> scanSources(
       // check coprus
       const auto corpora_it = corpora_map.find(key);
       if (corpora_it == corpora_map.end()) {
-        corpora_map.emplace(
-            key, std::pair<service::Corpus, std::string>(corpus, address));
+        corpora_map.emplace(key, std::pair<service::Corpus, std::string>(corpus, address));
       } else {
         const auto& other_corpus = corpora_it->second.first;
         const auto& other_address = corpora_it->second.second;
         if (!service::LoadBalanceProxy::areCompatible(corpus, other_corpus)) {
           std::stringstream what;
-          what << "Corpus " << corpus << " from " << address << " and corpus "
-               << other_corpus << " from " << other_address
-               << " are not compatible.\n";
+          what << "Corpus " << corpus << " from " << address << " and corpus " << other_corpus << " from "
+               << other_address << " are not compatible.\n";
           throw std::logic_error(what.str());
         }
       }
@@ -106,8 +98,7 @@ int ProxyCommand::run(bpo::variables_map variables) {
   service = add_logging(variables, std::move(service));
 
   grpc::ServerBuilder builder;
-  builder.AddListeningPort("[::]:" + std::to_string(port),
-                           grpc::InsecureServerCredentials());
+  builder.AddListeningPort("[::]:" + std::to_string(port), grpc::InsecureServerCredentials());
   builder.RegisterService(&*service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on port " << port << "\n";

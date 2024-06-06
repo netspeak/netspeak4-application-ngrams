@@ -12,8 +12,7 @@ namespace cli {
 
 namespace bpo = boost::program_options;
 
-void print_line(std::ostream& out, std::string line,
-                bool skip_first_indentation, size_t indentation,
+void print_line(std::ostream& out, std::string line, bool skip_first_indentation, size_t indentation,
                 size_t max_width) {
   std::string ident(indentation, ' ');
   size_t available_space = max_width - indentation;
@@ -60,8 +59,7 @@ void print_line(std::ostream& out, std::string line,
     out << '\n';
   }
 }
-void print_text(std::ostream& out, const std::string& text,
-                size_t indentation = 0, size_t max_width = 100) {
+void print_text(std::ostream& out, const std::string& text, size_t indentation = 0, size_t max_width = 100) {
   std::stringstream str(text);
 
   std::string line;
@@ -109,8 +107,7 @@ std::string get_option_identifier(const bpo::option_description& option) {
 }
 void print_command_help(Command& command, bool with_name) {
   if (with_name) {
-    std::cout << FG_GREEN << "netspeak4 " << command.name() << " ..." << RESET
-              << "\n"
+    std::cout << FG_GREEN << "netspeak4 " << command.name() << " ..." << RESET << "\n"
               << "\n";
   }
 
@@ -152,8 +149,7 @@ void print_command_help(Command& command, bool with_name) {
  *
  * @param commands
  */
-void print_commands_help(const std::vector<std::unique_ptr<Command>>& commands,
-                         bool full) {
+void print_commands_help(const std::vector<std::unique_ptr<Command>>& commands, bool full) {
   size_t max_name_len = 0;
   for (const auto& command : commands) {
     max_name_len = std::max(max_name_len, command->name().size());
@@ -185,8 +181,7 @@ void print_commands_help(const std::vector<std::unique_ptr<Command>>& commands,
   }
 }
 
-void print_error(const std::vector<std::unique_ptr<Command>>& commands,
-                 const std::string& message) {
+void print_error(const std::vector<std::unique_ptr<Command>>& commands, const std::string& message) {
   std::cerr << "Error: " << message << "\n"
             << "\n";
   print_commands_help(commands, false);
@@ -204,8 +199,7 @@ int run_command(Command& command, const std::vector<std::string>& opts) {
     try {
       auto options_desc = get_option_desc(command);
 
-      auto parsed_options =
-          bpo::command_line_parser(opts).options(options_desc).run();
+      auto parsed_options = bpo::command_line_parser(opts).options(options_desc).run();
       bpo::store(parsed_options, variables);
 
       bpo::notify(variables);
@@ -233,17 +227,13 @@ int Commands::run(int argc, char* argv[]) {
     auto global_init = global.add_options();
     global_init("command", bpo::value<std::string>(), "command to execute");
     global_init("help,h", "Print this help message.");
-    global_init("subargs", bpo::value<std::vector<std::string>>(),
-                "Arguments for command");
+    global_init("subargs", bpo::value<std::vector<std::string>>(), "Arguments for command");
 
     bpo::positional_options_description pos_opt_desc;
     pos_opt_desc.add("command", 1).add("subargs", -1);
 
-    auto parsed_options = bpo::command_line_parser(argc, argv)
-                              .options(global)
-                              .positional(pos_opt_desc)
-                              .allow_unregistered()
-                              .run();
+    auto parsed_options =
+        bpo::command_line_parser(argc, argv).options(global).positional(pos_opt_desc).allow_unregistered().run();
 
     bpo::variables_map variables;
     bpo::store(parsed_options, variables);
@@ -268,8 +258,7 @@ int Commands::run(int argc, char* argv[]) {
         }
 
         // collect all arguments
-        std::vector<std::string> opts = bpo::collect_unrecognized(
-            parsed_options.options, bpo::include_positional);
+        std::vector<std::string> opts = bpo::collect_unrecognized(parsed_options.options, bpo::include_positional);
         if (!opts.empty()) {
           opts.erase(opts.begin());
         }

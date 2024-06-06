@@ -1,6 +1,6 @@
 #include "cli/util.hpp"
 
-#include <iomanip>
+#include <format>
 
 #include "netspeak/util/service.hpp"
 
@@ -8,28 +8,20 @@ namespace cli {
 
 using namespace netspeak;
 
-
-std::string localhost(uint16_t port) {
-  std::string local("localhost:");
-  local.append(std::to_string(port));
-  return local;
-}
-
-service::CorporaResponse getCorpora(service::NetspeakService::Stub& stub,
-                                    const std::string& stub_address) {
+service::CorporaResponse getCorpora(service::NetspeakService::Stub& stub, const std::string& stub_address) {
   service::CorporaRequest corporaReq;
   service::CorporaResponse corporaRes;
   grpc::ClientContext context;
   auto corpora_status = stub.GetCorpora(&context, corporaReq, &corporaRes);
 
   if (!corpora_status.ok()) {
-    std::stringstream what;
-    what << "Couldn't get corpora";
+    std::string what;
     if (!stub_address.empty()) {
-      what << " from " << stub_address;
+      what = std::format("Couldn't get corpora from {}\n", stub_address);
+    } else {
+      what = "Couldn't get corpora\n";
     }
-    what << "\n" << corpora_status;
-    throw std::logic_error(what.str());
+    throw std::logic_error(what);
   }
 
   return corporaRes;
